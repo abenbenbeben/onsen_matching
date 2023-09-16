@@ -14,7 +14,7 @@ const Component5 = ({
   viewWidth,
   viewHeight,
 }) => {
-  const view2Style = useMemo(() => {
+  const view13Style = useMemo(() => {
     return {
       ...getStyleValue("position", viewPosition),
       ...getStyleValue("top", viewTop),
@@ -25,7 +25,7 @@ const Component5 = ({
   }, [viewPosition, viewTop, viewLeft, viewWidth, viewHeight]);
 
   return (
-    <View style={[styles.view, view2Style]}>
+    <View style={[styles.view, view13Style]}>
       <Image
         style={[styles.child, styles.itemLayout]}
         contentFit="cover"

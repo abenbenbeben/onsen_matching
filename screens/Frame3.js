@@ -19,8 +19,6 @@ import Component5 from "../components/Component5";
 import Component4 from "../components/Component4";
 import Component3 from "../components/Component3";
 import FormContainer3 from "../components/FormContainer3";
-import DarkModeTrueTypeDefault from "../components/DarkModeTrueTypeDefault";
-import DarkModeFalse from "../components/DarkModeFalse";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
 
 const Frame3 = () => {
@@ -150,26 +148,6 @@ const Frame3 = () => {
       </View>
       <FormContainer3 />
       <StatusBar style={styles.textPosition} barStyle="default" />
-      <DarkModeTrueTypeDefault
-        darkModeTrueTypeDefaultPosition="absolute"
-        darkModeTrueTypeDefaultHeight={45}
-        darkModeTrueTypeDefaultTop={0}
-        darkModeTrueTypeDefaultRight="unset"
-        darkModeTrueTypeDefaultLeft={0}
-        darkModeTrueTypeDefaultElevation={4}
-        darkModeTrueTypeDefaultWidth={375}
-        notchIconMarginLeft={-81.5}
-        leftSideMarginLeft={-162.5}
-        rightSideIconMarginLeft={86.5}
-      />
-      <DarkModeFalse
-        darkModeFalsePosition="absolute"
-        darkModeFalseRight="unset"
-        darkModeFalseBottom={0}
-        darkModeFalseLeft={0}
-        darkModeFalseElevation={4}
-        darkModeFalseWidth={375}
-      />
     </View>
   );
 };

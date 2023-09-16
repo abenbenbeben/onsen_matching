@@ -2,8 +2,6 @@ import * as React from "react";
 import { StyleSheet, View, Text, Pressable, StatusBar } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import DarkModeTrueTypeDefault from "../components/DarkModeTrueTypeDefault";
-import DarkModeFalse from "../components/DarkModeFalse";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
 
 const Frame4 = () => {
@@ -24,24 +22,6 @@ const Frame4 = () => {
         <Text style={styles.text}>マッチング中</Text>
       </Pressable>
       <StatusBar barStyle="default" />
-      <DarkModeTrueTypeDefault
-        darkModeTrueTypeDefaultPosition="absolute"
-        darkModeTrueTypeDefaultHeight={45}
-        darkModeTrueTypeDefaultTop={0}
-        darkModeTrueTypeDefaultRight={0}
-        darkModeTrueTypeDefaultLeft={0}
-        darkModeTrueTypeDefaultWidth="unset"
-        notchIconMarginLeft={-81.5}
-        leftSideMarginLeft={-162.5}
-        rightSideIconMarginLeft={86.5}
-      />
-      <DarkModeFalse
-        darkModeFalsePosition="absolute"
-        darkModeFalseRight={0}
-        darkModeFalseBottom={0}
-        darkModeFalseLeft={0}
-        darkModeFalseWidth="unset"
-      />
     </View>
   );
 };

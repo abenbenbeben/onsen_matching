@@ -4,8 +4,6 @@ import { Image } from "expo-image";
 import FormContainer1 from "../components/FormContainer1";
 import FormContainer from "../components/FormContainer";
 import FormContainer4 from "../components/FormContainer4";
-import DarkModeTrueTypeDefault from "../components/DarkModeTrueTypeDefault";
-import DarkModeFalse from "../components/DarkModeFalse";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 
 const Frame1 = () => {
@@ -208,24 +206,6 @@ const Frame1 = () => {
         </View>
       </View>
       <StatusBar barStyle="default" />
-      <DarkModeTrueTypeDefault
-        darkModeTrueTypeDefaultPosition="absolute"
-        darkModeTrueTypeDefaultHeight={45}
-        darkModeTrueTypeDefaultTop={0}
-        darkModeTrueTypeDefaultRight={0}
-        darkModeTrueTypeDefaultLeft={0}
-        darkModeTrueTypeDefaultWidth="unset"
-        notchIconMarginLeft={-81.5}
-        leftSideMarginLeft={-162.5}
-        rightSideIconMarginLeft={86.5}
-      />
-      <DarkModeFalse
-        darkModeFalsePosition="absolute"
-        darkModeFalseRight={0}
-        darkModeFalseBottom={0}
-        darkModeFalseLeft={0}
-        darkModeFalseWidth="unset"
-      />
     </View>
   );
 };

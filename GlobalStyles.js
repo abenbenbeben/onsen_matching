@@ -1,16 +1,16 @@
 /* fonts */
 export const FontFamily = {
-  defaultBoldBody: "SF Pro Text",
   interMedium: "Inter-Medium",
   interRegular: "Inter-Regular",
+  defaultBoldBody: "SF Pro Text",
 };
 /* font sizes */
 export const FontSize = {
-  defaultBoldBody_size: 17,
   size_5xl: 24,
   size_2xs: 11,
   size_xl: 20,
   size_3xs: 10,
+  defaultBoldBody_size: 17,
   size_base: 16,
   size_3xl: 22,
 };
@@ -28,8 +28,6 @@ export const Color = {
 };
 /* border radiuses */
 export const Border = {
-  br_81xl: 100,
-  br_5xl: 24,
   br_3xs: 10,
   br_12xs: 1,
 };

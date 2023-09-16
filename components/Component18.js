@@ -8,7 +8,7 @@ const getStyleValue = (key, value) => {
   return { [key]: value === "unset" ? undefined : value };
 };
 const Component18 = ({ viewPosition, viewTop, viewLeft, viewHeight }) => {
-  const view15Style = useMemo(() => {
+  const viewStyle = useMemo(() => {
     return {
       ...getStyleValue("position", viewPosition),
       ...getStyleValue("top", viewTop),
@@ -18,7 +18,7 @@ const Component18 = ({ viewPosition, viewTop, viewLeft, viewHeight }) => {
   }, [viewPosition, viewTop, viewLeft, viewHeight]);
 
   return (
-    <View style={[styles.view, view15Style]}>
+    <View style={[styles.view, viewStyle]}>
       <Image
         style={[styles.child, styles.itemLayout]}
         contentFit="cover"

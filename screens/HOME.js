@@ -14,8 +14,6 @@ import FavoriteCard from "../components/FavoriteCard";
 import CardWithHotSpring from "../components/CardWithHotSpring";
 import SectionCard from "../components/SectionCard";
 import SectionCard1 from "../components/SectionCard1";
-import DarkModeTrueTypeDefault from "../components/DarkModeTrueTypeDefault";
-import DarkModeFalse from "../components/DarkModeFalse";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
 
 const HOME = () => {
@@ -77,24 +75,6 @@ const HOME = () => {
         </View>
       </ScrollView>
       <StatusBar style={styles.km3Position} barStyle="default" />
-      <DarkModeTrueTypeDefault
-        darkModeTrueTypeDefaultPosition="absolute"
-        darkModeTrueTypeDefaultHeight={45}
-        darkModeTrueTypeDefaultTop={0}
-        darkModeTrueTypeDefaultRight={0}
-        darkModeTrueTypeDefaultLeft={0}
-        darkModeTrueTypeDefaultWidth="unset"
-        notchIconMarginLeft={-81.5}
-        leftSideMarginLeft={-162.5}
-        rightSideIconMarginLeft={86.5}
-      />
-      <DarkModeFalse
-        darkModeFalsePosition="absolute"
-        darkModeFalseRight={0}
-        darkModeFalseBottom={0}
-        darkModeFalseLeft={0}
-        darkModeFalseWidth="unset"
-      />
     </View>
   );
 };
