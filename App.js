@@ -8,7 +8,6 @@ import FavoriteFrame from "./screens/FavoriteFrame";
 import HOME from "./screens/HOME";
 import Matching_Frame from "./screens/Matching_Frame";
 import ModalFrame from "./screens/ModalFrame";
-import Frame4 from "./screens/Frame4";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, Pressable, TouchableOpacity, Button } from "react-native";
