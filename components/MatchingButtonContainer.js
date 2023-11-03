@@ -10,13 +10,8 @@ import {
 import { useSharedValue } from "react-native-reanimated";
 import { TapGestureHandler, State } from 'react-native-gesture-handler';
 import Animated, {
-  Easing,
-  interpolate,
-  timing,
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import { Border, Color, FontSize, FontFamily } from "../GlobalStyles";
 import { Image } from "expo-image";

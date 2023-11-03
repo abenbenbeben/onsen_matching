@@ -1,25 +1,11 @@
 import * as React from "react";
 import { useState } from "react";
 import {
-  Pressable,
-  ImageBackground,
   StyleSheet,
   View,
   Text,
 } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
-import Animated, {
-  Easing,
-  interpolate,
-  timing,
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import { Border, Color, FontSize, FontFamily } from "../GlobalStyles";
-import { Image } from "expo-image";
 
 const OnsenDetailBlock = ({title,data}) => {
   return(

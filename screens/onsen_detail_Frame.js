@@ -1,12 +1,11 @@
 import * as React from "react";
 import { useEffect ,useState} from "react";
-import { StyleSheet, View, Text, StatusBar, Pressable,Button, ActivityIndicator, FlatList,TouchableOpacity,Linking} from "react-native";
+import { StyleSheet, View, Text, StatusBar, Pressable,Button, ActivityIndicator, FlatList,TouchableOpacity,Linking,ScrollView} from "react-native";
 import { Image } from "expo-image";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 import { IconButton, MD3Colors } from 'react-native-paper';
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
-import { ScrollView } from "react-native-gesture-handler";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc,getFirestore,getDocs,getDoc,doc } from "firebase/firestore";
 import { app } from "../firebaseconfig";
