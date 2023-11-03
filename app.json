@@ -18,16 +18,26 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.abebebe.onsen-matching"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.abebebe.onsen_maching"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2d91b8d2-c544-467c-99a7-0830e9569fdc"
+      }
+    },
+    "plugins": [
+      "expo-build-properties"
+    ]
   }
 }

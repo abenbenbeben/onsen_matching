@@ -2,31 +2,21 @@ const Stack = createNativeStackNavigator();
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import Frame from "./screens/Frame";
-import Frame1 from "./screens/Frame1";
-import Frame2 from "./screens/Frame2";
+import FirstFrame from "./screens/FirstFrame";
+import onsen_detail_Frame from "./screens/onsen_detail_Frame";
+import FavoriteFrame from "./screens/FavoriteFrame";
 import HOME from "./screens/HOME";
-import Frame3 from "./screens/Frame3";
+import Matching_Frame from "./screens/Matching_Frame";
+import ModalFrame from "./screens/ModalFrame";
 import Frame4 from "./screens/Frame4";
-import Component18 from "./components/Component18";
-import Component17 from "./components/Component17";
-import Component16 from "./components/Component16";
-import Component15 from "./components/Component15";
-import Component14 from "./components/Component14";
-import Component13 from "./components/Component13";
-import Component12 from "./components/Component12";
-import Component11 from "./components/Component11";
-import Component10 from "./components/Component10";
-import Component9 from "./components/Component9";
-import Component8 from "./components/Component8";
-import Component7 from "./components/Component7";
-import Component6 from "./components/Component6";
-import Component5 from "./components/Component5";
-import Component4 from "./components/Component4";
-import Component3 from "./components/Component3";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View, Text, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, TouchableOpacity, Button } from "react-native";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Tabs } from 'expo-router/tabs';
+
+
 
 const App = () => {
   const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
@@ -38,46 +28,100 @@ const App = () => {
   if (!fontsLoaded && !error) {
     return null;
   }
+  const Stack = createNativeStackNavigator();
+  const Tab = createBottomTabNavigator();
+
 
   return (
-    <>
       <NavigationContainer>
         {hideSplashScreen ? (
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Navigator
+            initialRouteName="FirstFrame"
+            screenOptions={{
+              headerStyle: { backgroundColor: '#3A6AE5'},
+              headerTitleStyle: { color: '#ffffff' },
+              headerTitle: 'スーパー銭湯マッチング',
+              headerTintColor: 'white',
+              headerBackTitle: 'Back',
+              animation: "slide_from_right",
+            }}>
             <Stack.Screen
-              name="Frame"
-              component={Frame}
-              options={{ headerShown: false }}
+              name="FirstFrame"
+              component={FirstFrame}
+              // options={{ headerShown: false }}
+              options={{
+                href: null,
+                tabBarIcon: ({ color }) => (
+                  <MaterialCommunityIcons name="home" color={color} size={26} />
+                ),
+              }}
             />
             <Stack.Screen
-              name="Frame1"
-              component={Frame1}
-              options={{ headerShown: false }}
+              name="Matching_Frame"
+              component={Matching_Frame}
+              // options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="Frame2"
-              component={Frame2}
-              options={{ headerShown: false }}
+              name="Root"
+              component={HomeTabs}
+              // options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="HOME"
-              component={HOME}
-              options={{ headerShown: false }}
+              name="Onsen_detail_Frame"
+              component={onsen_detail_Frame}
+              // options={{ headerBackVisible: false }}
             />
-            <Stack.Screen
-              name="Frame3"
-              component={Frame3}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Frame4"
-              component={Frame4}
-              options={{ headerShown: false }}
-            />
+
+            
           </Stack.Navigator>
         ) : null}
       </NavigationContainer>
-    </>
   );
 };
+
+
+function HomeTabs() {
+  const Tab = createBottomTabNavigator();
+
+  return (
+    <Tab.Navigator
+      initialRouteName="HOME"
+    >
+      <Tab.Screen
+        name="マッチング"
+        component={ModalFrame}
+        options={{ 
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="magnify" color={color} size={30} />
+          ),
+          tabBarActiveTintColor:"#3A6AE5",
+        }}
+      />
+      <Tab.Screen
+        name="HOME"
+        component={HOME}
+        options={{ 
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="home" color={color} size={30} />
+          ),
+          tabBarActiveTintColor:"#3A6AE5",
+        }}
+      />
+      <Tab.Screen
+        name="お気に入り"
+        component={FavoriteFrame}
+        options={{ 
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons name="star" color={color} size={30} />
+          ),
+          tabBarActiveTintColor:"#3A6AE5",
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
 export default App;

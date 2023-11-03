@@ -24,7 +24,7 @@ export const Color = {
   colorRed: "#ff002e",
   colorGainsboro: "#d9d9d9",
   colorRoyalblue: "#3a6ae5",
-  colorGray: "rgba(0, 0, 0, 0.4)",
+  colorGray: "rgba(0, 0, 0, 0.1)",
 };
 /* border radiuses */
 export const Border = {
