@@ -52,7 +52,7 @@ const Matching_Frame = ({navigation}) => {
         setLoading(false);// データ読み込みが完了したらローディング状態を解除
       } else {
         console.log("firebaseを読み込んだ！！")
-        // キャッシュが存在しない場合は、データを取得し、キャッシュに保存する
+        // キャッシュが存在しない場合は、データを取得し、キャッシュに保存する。
         const querySnapshot = await getDocs(collection(db, "matching_screen"));
         const fetchPromises = querySnapshot.docs.map(async (doc) => {
           const data = doc.data();
