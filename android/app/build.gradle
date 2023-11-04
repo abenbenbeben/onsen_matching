@@ -81,7 +81,7 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.onsenmaching"
+    namespace 'com.abebebe.onsen_maching'
     defaultConfig {
         applicationId 'com.abebebe.onsen_maching'
         minSdkVersion rootProject.ext.minSdkVersion
