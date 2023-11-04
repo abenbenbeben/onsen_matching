@@ -20,7 +20,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.abebebe.onsen-matching",
-      "icon": "./assets/icon.png"
+      "icon": "./assets/icon.png",
+      "buildNumber":"2"
     },
     "android": {
       "adaptiveIcon": {
