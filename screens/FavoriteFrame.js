@@ -31,23 +31,44 @@ const FavoriteFrame = () => {
 
   // コンポーネントがマウントされた後にお気に入りデータを読み込む
   const fetchFavoriteData = async () => {
-    const storedData = await AsyncStorage.getItem('favoriteArray');
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
+    const currentFavoritesString = await AsyncStorage.getItem('favoriteArray');
+    const beforeFavoritesString = await AsyncStorage.getItem('favoriteArrayBefore');
+    
+    if (currentFavoritesString) {
+      const currentFavorites = JSON.parse(currentFavoritesString);
+      const beforeFavorites = beforeFavoritesString ? JSON.parse(beforeFavoritesString) : [];
+      
+      // 新しく追加されたお気に入りと削除されたお気に入りを識別
+      const newFavoriteIds = currentFavorites.filter(id => !beforeFavorites.includes(id));
+      const removedFavoriteIds = beforeFavorites.filter(id => !currentFavorites.includes(id));
+      
+      // 既存のお気に入りデータを取得
+      let existingFavoritesData = beforeFavoritesString ? JSON.parse(await AsyncStorage.getItem('favoriteArrayData')) : [];
   
-      // Firestoreからお気に入りデータを取得
-      const fetch_favoriteData = [];
-      const favoriteDataArray =[];
-      for (const id of parsedData) {
+      // 削除されたお気に入りを既存のデータから削除
+      existingFavoritesData = existingFavoritesData.filter(item => !removedFavoriteIds.includes(item.id));
+  
+      // 新しいお気に入りデータをFirestoreから取得
+      const newFavoritesData = [];
+      for (const id of newFavoriteIds) {
         const docSnap = await getDoc(doc(db, 'onsen_data', id));
         if (docSnap.exists()) {
           const data = docSnap.data();
           data.id = docSnap.id;
-          data.image = await fetchURL(data.images[0])
-          fetch_favoriteData.push(data);
+          data.image = await fetchURL(data.images[0]);
+          newFavoritesData.push(data);
         }
       }
-      setFavoriteData(fetch_favoriteData) 
+  
+      // 既存のデータに新しいデータを追加
+      const updatedFavoritesData = [...existingFavoritesData, ...newFavoritesData];
+  
+      // 更新されたお気に入りデータをセット
+      setFavoriteData(updatedFavoritesData);
+      
+      // データをキャッシュに保存
+      await AsyncStorage.setItem('favoriteArrayData', JSON.stringify(updatedFavoritesData));
+      await AsyncStorage.setItem('favoriteArrayBefore', currentFavoritesString);
     }
     setLoading(false); // データ読み込みが完了したらローディング状態を解除
   };
