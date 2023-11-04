@@ -19,7 +19,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.abebebe.onsen-matching"
+      "bundleIdentifier": "com.abebebe.onsen-matching",
+      "icon": "./assets/icon.png"
     },
     "android": {
       "adaptiveIcon": {
