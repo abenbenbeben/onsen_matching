@@ -1,10 +1,8 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
 import { Image } from "expo-image";
-import { useSharedValue } from "react-native-reanimated";
 import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator} from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
-import { getApps, initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -81,6 +79,7 @@ const Matching_Frame = ({navigation}) => {
       }
     }catch (e) {
       console.error("Error fetching data: ", e);
+      
     }
   }
 
@@ -89,20 +88,20 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
   // ここでFirebaseのデータのタイムスタンプと比較して更新されたかを確認
   // 更新された場合は true を返す
   // 更新されていない場合は false を返す
-  let firebaseDataTimestamp="";
+  let matchingDataTimestamp="";
   const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
   querySnapshot_global.forEach((doc) => {
-    firebaseDataTimestamp=doc.data().firebaseDataTimestamp;
+    matchingDataTimestamp=doc.data().matchingDataTimestamp;
   });
-  console.log("firebaseDataTimestamp",firebaseDataTimestamp,lastUpdatedTimestamp)
+  console.log("matchingDataTimestamp",matchingDataTimestamp,lastUpdatedTimestamp)
   if (!lastUpdatedTimestamp) {
     // タイムスタンプが存在しない場合、データが更新されたとみなす（初回起動時）
-    await AsyncStorage.setItem('matchingDataLastUpdatedTimestamp', JSON.stringify(firebaseDataTimestamp));
+    await AsyncStorage.setItem('matchingDataLastUpdatedTimestamp', JSON.stringify(matchingDataTimestamp));
     return true;
   }
-  const dataUpdated = firebaseDataTimestamp  > lastUpdatedTimestamp;
+  const dataUpdated = matchingDataTimestamp  > lastUpdatedTimestamp;
   if(dataUpdated){
-    await AsyncStorage.setItem('matchingDataLastUpdatedTimestamp', JSON.stringify(firebaseDataTimestamp));
+    await AsyncStorage.setItem('matchingDataLastUpdatedTimestamp', JSON.stringify(matchingDataTimestamp));
   }
   console.log(dataUpdated)
   return dataUpdated

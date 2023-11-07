@@ -14,15 +14,12 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import { Image } from "expo-image";
-import { useNavigation } from "@react-navigation/native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
-import MapView, { Marker } from 'react-native-maps';
-import geolib from 'geolib';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
+import * as Linking from 'expo-linking';
 
 
 const db = getFirestore(app); 
@@ -35,6 +32,7 @@ const HOME = ({navigation, route}) => {
   const [favoriteDataArray, setFavoriteDataArray] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
+  const [loadingMessage, setLoadingMessage] = useState('');//ローディング中の文字を管理
 
   //firestorageの内のパスをURLに変換する関数
   const fetchURL = async (imagepath) => {
@@ -50,6 +48,7 @@ const HOME = ({navigation, route}) => {
 
   const fetch_matchingdata = async() => {
     try {
+        setLoadingMessage('現在地取得中...');
         let point2 = null;
         const cachedLocation = await AsyncStorage.getItem('currentLocation');
         const cachedLocationTimestamp = await AsyncStorage.getItem('currentLocationTimestamp');
@@ -97,8 +96,15 @@ const HOME = ({navigation, route}) => {
             await AsyncStorage.setItem('currentLocationTimestamp', currentTimestamp.toString());
           } else {
             console.error('Location permission denied.');
+            check_settings();
           }
         }
+        if(!point2){
+          check_settings();
+          //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
+        }
+        point2 = { latitude:36.01304231887564 , longitude: 139.55393558250717 };
+        setLoadingMessage('マッチング中...');
         let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
         querySnapshot_global.forEach((doc) => {
@@ -186,45 +192,57 @@ const HOME = ({navigation, route}) => {
       setFavoriteDataArray([])
     }
   };
-  
+
+//設定を開く関数
+const check_settings = () => {
+  Alert.alert(
+    "位置情報の許可が必要",
+    "この機能を使用するには、位置情報の許可が必要です。設定を開いて許可してください。",
+    [
+      {text: "設定を開く", onPress: () => Linking.openSettings()},
+      {text: "キャンセル", style: "cancel"}
+    ],
+    { cancelable: false }
+  );
+}
   
 
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "さいたま清河寺温泉",
-      feature: `竹林の中の温泉は薄い褐色でつるつる。デスクワークのコーナーにWi-Fiも照明も整備され非常に○。`,
-      zikan_heijitu_start: 1000,
-      zikan_heijitu_end: 2400,
-      zikan_kyujitu_start: 1000,
-      zikan_kyujitu_end: 2400,
+      onsen_name: "湯の森所沢",
+      feature: `天然温泉源泉かけ流しの水風呂がある。ずっと浸かってたくなるほど。`,
+      zikan_heijitu_start: 800,
+      zikan_heijitu_end: 2500,
+      zikan_kyujitu_start: 800,
+      zikan_kyujitu_end: 2500,
       sauna: 1,
       rouryu: 0,
       siosauna:0,
       doro:0,
       mizuburo:1,
       tennen:1,
-      sensitu:"ナトリウム一塩化物温泉 (拡張性・弱アルカリ性・温泉)",
+      sensitu:"単純泉（低張性：弱アルカリ性：低温泉）",
       sensituyosa:0.8,
-      tansan:1,
-      furosyurui:8,
+      tansan:0,
+      furosyurui:9,
       manga:0,
-      wifi:1,
-      tyusyazyo:1,
-      heijitunedan:820,
-      kyuzitunedan:920,
-      heikinnedan:870,
-      ganban:0,
-      ganbansyurui:0,
-      senzai:0.5,
+      wifi:0,
+      tyusyazyo:0.8,
+      heijitunedan:950,
+      kyuzitunedan:950,
+      heikinnedan:950,
+      ganban:1,
+      ganbansyurui:2,
+      senzai:0.2,
       facewash:0,
-      komiguai:0.7,
+      komiguai:0.2,
       wadai:0.2,
-      kodomo:0.2,
-      latitude: 35.93395036246008,
-      longitude: 139.58206893929895,
-      place: "埼玉県さいたま市西区清河寺６８３−４",
-      images:["onsen_images/seiganji1.jpeg","onsen_images/seiganji2.jpeg","onsen_images/seiganji3.jpeg","onsen_images/seiganji4.jpeg","onsen_images/seiganji5.jpeg","onsen_images/seiganji6.jpeg","onsen_images/seiganji7.jpeg"]
+      kodomo:0,
+      latitude: 35.79148243759966, 
+      longitude: 139.5018204682294,
+      place: "埼玉県所沢市下安松９４５−１",
+      images:["onsen_images/yunomori1.jpeg","onsen_images/yunomori2.jpeg","onsen_images/yunomori3.jpeg","onsen_images/yunomori4.jpeg","onsen_images/yunomori5.jpeg","onsen_images/yunomori6.jpeg","onsen_images/yunomori7.jpeg"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -300,7 +318,7 @@ useFocusEffect(
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" />
-        <Text>マッチング中...</Text>
+        <Text>{loadingMessage}</Text>
       </View>
     );
   }
