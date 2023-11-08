@@ -103,7 +103,7 @@ const HOME = ({navigation, route}) => {
           check_settings();
           //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         }
-        point2 = { latitude:36.01304231887564 , longitude: 139.55393558250717 };
+        //point2 = { latitude:36.01304231887564 , longitude: 139.55393558250717 };
         setLoadingMessage('マッチング中...');
         let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
@@ -111,7 +111,6 @@ const HOME = ({navigation, route}) => {
           furosyurui_max=doc.data().furosyurui_max;
           nedan_min = doc.data().nedan_min;
           ganbansyurui_max = doc.data().ganbansyurui_max;
-
         });
         let querySnapshot = null;
         querySnapshot = await getDocs(collection(db, "onsen_data"));
