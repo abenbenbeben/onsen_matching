@@ -21,7 +21,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.abebebe.onsen-matching",
       "icon": "./assets/icon.png",
-      "buildNumber":"3"
+      "buildNumber":"4"
     },
     "android": {
       "adaptiveIcon": {
