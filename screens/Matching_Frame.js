@@ -94,6 +94,7 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
     matchingDataTimestamp=doc.data().matchingDataTimestamp;
   });
   console.log("matchingDataTimestamp",matchingDataTimestamp,lastUpdatedTimestamp)
+  matchingDataTimestamp = matchingDataTimestamp || 1;
   if (!lastUpdatedTimestamp) {
     // タイムスタンプが存在しない場合、データが更新されたとみなす（初回起動時）
     await AsyncStorage.setItem('matchingDataLastUpdatedTimestamp', JSON.stringify(matchingDataTimestamp));
