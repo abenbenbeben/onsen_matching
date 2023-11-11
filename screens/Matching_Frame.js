@@ -109,7 +109,6 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
 };
 
   useEffect(() => {
-
     // fetch_matchingdata関数を呼び出す
     fetch_matchingdata();
   }, []);
@@ -191,17 +190,12 @@ const styles = StyleSheet.create({
   flatlist: {
     width:"100%",
     marginBottom:100,
-
-    // borderWidth:2,
-    // borderColor:"purple",
   },
   scrollview: {
     width:"96%",
     height:"100%",
     borderWidth:4,
 
-    // borderColor:"green",
-    // marginBottom:100,
   },
   textLayout: {
     height: 75,
@@ -219,23 +213,16 @@ const styles = StyleSheet.create({
     height: 1000,
     width:"100%",
     alignItems: "center",
-    
-
-    // borderWidth:2,
-    // borderColor:"blue",
   },
   column:{
     flexDirection:"row",
     justifyContent:"center",
     marginVertical:8,
-
-    // borderColor:"red",
-    // borderWidth:1,
   },
   text: {
     fontSize: FontSize.size_3xl,
     letterSpacing: 0,
-    lineHeight: 22,
+    // lineHeight: 22,
     fontWeight: "500",
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorLightPrimary,
@@ -245,6 +232,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: 75,
     width: 360,
+    // borderWidth:1,
+    // borderColor:"red",
   },
   wrapper: {
     top: 6,

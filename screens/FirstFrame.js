@@ -15,7 +15,7 @@ const FirstFrame = () => {
   const [showTermsModal, setShowTermsModal] = useState(false); // モーダルを表示するための状態
   const [hasAgreed, setHasAgreed] = useState(false);
   // let kiyaku_sentence = "";//利用規約文章
-  const [kiyaku_sentence, setkiyaku_sentence] = useState("");//利用規約文章
+  const [sentence, set_sentence] = useState("");//利用規約文章
 
   const handleAgreeTerms = async () => {
     setHasAgreed(true);
@@ -83,12 +83,14 @@ const FirstFrame = () => {
 }
  
  const fetch_global_data = async() => {
-  let data= "";
+  let data= {};
   const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
   querySnapshot_global.forEach((doc) => {
-    data = doc.data().kiyaku;
+    data.kiyakudata = doc.data().kiyaku;
+    data.pre_title = doc.data().pre_title;
+    data.pre_content = doc.data().pre_content;
   });
-  setkiyaku_sentence(data)
+  set_sentence(data)
  }
 
 
@@ -102,10 +104,10 @@ const FirstFrame = () => {
         setShowTermsModal(true);
       }
     }
-    // resetAsyncStorage();
+    //resetAsyncStorage();
     checkAgreement();
     fetch_global_data();
-    // additems();
+    // additems();/
   }, []);
 
   return (
@@ -114,6 +116,16 @@ const FirstFrame = () => {
       <Text style={[styles.text, styles.textPosition]}>{`あなたの求めている
 スーパー銭湯
 を探しましょう`}</Text>
+      <View style={styles.container}>
+      {sentence.pre_title && sentence.pre_content && (
+        <>
+          <View style={styles.box}>
+            <Text style={styles.title}>{sentence.pre_title}</Text>
+            <Text style={styles.content}>{sentence.pre_content}</Text>
+          </View>
+        </>
+        )}
+      </View>
       <Pressable
         style={styles.vectorParent}
         start_match="さっそく探す"
@@ -122,6 +134,7 @@ const FirstFrame = () => {
           routes: [{ name: 'Matching_Frame'}]
         })}
       >
+        
         <Image
           style={[styles.frameChild, styles.childPosition]}
           contentFit="cover"
@@ -138,16 +151,24 @@ const FirstFrame = () => {
             <Text style={styles.title}>利用規約</Text>
             <ScrollView>
               <Text style={styles.termsText}>
-                {kiyaku_sentence}
+                {sentence.kiyakudata}
               </Text>
             </ScrollView>
-            <Pressable onPress={handleAgreeTerms} style={styles.button}>
+            <Pressable 
+              onPress={handleAgreeTerms} 
+              style={({ pressed }) => [
+                styles.button,
+                pressed ? styles.buttonPressed : null,
+                !sentence.kiyakudata ? styles.buttonDisabled : null
+              ]}
+              disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
+            >
               <Text style={styles.buttonText}>同意</Text>
             </Pressable>
           </View>
-          
         </View>
       </Modal>
+
     </View>
   );
 };
@@ -184,6 +205,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignItems:"center",
   },
+  buttonDisabled: {//利用規約が表示されていない時のボタンスタイル
+    backgroundColor: 'grey', // 無効化されたボタンの色
+    // その他のスタイル定義
+  },
   buttonText: {
     color: 'white',
     fontSize: 18,
@@ -191,8 +216,6 @@ const styles = StyleSheet.create({
   //モーダルのスタイル終了
 
   textPosition: {
-    // borderColor:"red",
-    // borderWidth:2,
     textAlign: "center",
     lineHeight: 29,
     letterSpacing: 0,
@@ -263,6 +286,26 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 800,
     overflow: "hidden",
+  },
+
+  //メッセージボックス
+  container: {
+    // flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  box: {
+    alignItems: 'center',
+    marginVertical: 20, // 斜線との間隔
+  },
+  title: {
+    fontSize: 20,
+    fontWeight:"100",
+  },
+  content: {
+    fontSize: 14,
+    fontWeight:"100",
   },
 });
 

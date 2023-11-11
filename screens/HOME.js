@@ -13,6 +13,7 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
@@ -47,6 +48,37 @@ const HOME = ({navigation, route}) => {
   };
 
   const fetch_matchingdata = async() => {
+
+    //現在地情報を取得する関数。Androidが処理停止にならない対策。
+    function getCurrentLocation() {
+      const timeout = 10000;
+      return new Promise(async (resolve, reject) => {
+        setTimeout(() => { reject(new Error(`Error getting gps location after ${(timeout * 2) / 1000} s`)) }, timeout * 2);
+        setTimeout(async () => { resolve(await Location.getLastKnownPositionAsync()) }, timeout);
+        resolve(await Location.getCurrentPositionAsync());
+      });
+    }
+    // データが更新されたかどうかを確認する関数
+    const isDataOutdated = async(lastUpdatedTimestamp,matchingDataTimestamp) => {
+      // ここでFirebaseのデータのタイムスタンプと比較して更新されたかを確認
+      // 更新された場合は true を返す
+      // 更新されていない場合は false を返す
+      console.log("matchingResultDataArrayLastUpdatedTimestamp",matchingDataTimestamp,lastUpdatedTimestamp)
+      matchingDataTimestamp = matchingDataTimestamp || 1;
+      if (!lastUpdatedTimestamp) {
+        // タイムスタンプが存在しない場合、データが更新されたとみなす（初回起動時）
+        await AsyncStorage.setItem('matchingResultDataArrayLastUpdatedTimestamp', JSON.stringify(matchingDataTimestamp));
+        return true;
+      }
+      const dataUpdated = matchingDataTimestamp  > lastUpdatedTimestamp;
+      if(dataUpdated){
+        await AsyncStorage.setItem('matchingResultDataArrayLastUpdatedTimestamp', JSON.stringify(matchingDataTimestamp));
+      }
+      console.log(dataUpdated)
+      return dataUpdated
+    };
+
+
     try {
         setLoadingMessage('現在地取得中...');
         let point2 = null;
@@ -69,7 +101,7 @@ const HOME = ({navigation, route}) => {
             const { status } = await Location.requestForegroundPermissionsAsync();
     
             if (status === 'granted') {
-              const location = await Location.getCurrentPositionAsync({});
+              let location = await getCurrentLocation();
               const { latitude, longitude } = location.coords;
               point2 = { latitude, longitude };
     
@@ -81,96 +113,122 @@ const HOME = ({navigation, route}) => {
             }
           }
         } else {
-          console.log('No cached location. Fetching new location.');
-          // キャッシュが存在しない場合は新しい位置情報を取得
-          const { status } = await Location.requestForegroundPermissionsAsync();
-    
-          if (status === 'granted') {
-            const location = await Location.getCurrentPositionAsync({});
-            const { latitude, longitude } = location.coords;
-            point2 = { latitude, longitude };
-    
-            // 新しい位置情報とタイムスタンプをキャッシュに保存
-            const currentTimestamp = Date.now();
-            await AsyncStorage.setItem('currentLocation', JSON.stringify(point2));
-            await AsyncStorage.setItem('currentLocationTimestamp', currentTimestamp.toString());
-          } else {
-            console.error('Location permission denied.');
-            check_settings();
+          try{
+            console.log('No cached location. Fetching new location.');
+            // キャッシュが存在しない場合は新しい位置情報を取得
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            console.log("status:",status)
+      
+            if (status === 'granted') {
+              let location = await getCurrentLocation()
+              console.log("location:",location)
+              const { latitude, longitude } = location.coords;
+              point2 = { latitude, longitude };
+              console.log(point2)
+      
+              // 新しい位置情報とタイムスタンプをキャッシュに保存
+              const currentTimestamp = Date.now();
+              await AsyncStorage.setItem('currentLocation', JSON.stringify(point2));
+              await AsyncStorage.setItem('currentLocationTimestamp', currentTimestamp.toString());
+            } else {
+              console.error('Location permission denied.');
+              check_settings();
+            }
+          }catch(e){
+            console.log(e)
           }
         }
         if(!point2){
           check_settings();
           //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         }
-        //point2 = { latitude:36.01304231887564 , longitude: 139.55393558250717 };
+        //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
+        //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         setLoadingMessage('マッチング中...');
-        let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";
+        let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";let matchingDataResultTimestamp=null;
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
         querySnapshot_global.forEach((doc) => {
           furosyurui_max=doc.data().furosyurui_max;
           nedan_min = doc.data().nedan_min;
           ganbansyurui_max = doc.data().ganbansyurui_max;
+          matchingDataResultTimestamp = doc.data().matchingDataResultTimestamp;
         });
         let querySnapshot = null;
-        querySnapshot = await getDocs(collection(db, "onsen_data"));
-        const matchingDataArray = await Promise.all(querySnapshot.docs.map(async (doc) => {
-          const data = doc.data();
-          const matchDataDict = {};
-          matchDataDict.scoreData = match_array.map((field) => {
+        let matchingDataArray = null;
+        let matchingDataArray_origin = null;
+        let matchingDataArray_cache = await AsyncStorage.getItem('matchingResultDataArray');
+        matchingDataArray_origin = JSON.parse(matchingDataArray_cache);
+
+        let lastUpdatedTimestamp = await AsyncStorage.getItem('matchingResultDataArrayLastUpdatedTimestamp');
+        const shouldFetchFromFirebase = await isDataOutdated(lastUpdatedTimestamp,matchingDataResultTimestamp) || !lastUpdatedTimestamp ;
+        if(!matchingDataArray_origin || shouldFetchFromFirebase){
+          console.log("HOME画面：firebaseを読み込んだ")
+          querySnapshot = await getDocs(collection(db, "onsen_data"));
+          matchingDataArray_origin = await Promise.all(querySnapshot.docs.map(async (doc) => {
+              let data = doc.data();
+              data.id = doc.id;
+              data.onsenName = data.onsen_name;
+              data.heijitunedan = data.heijitunedan;
+              data.kyujitunedan = data.kyuzitunedan;
+              return data;
+          }));
+          await AsyncStorage.setItem('matchingResultDataArray', JSON.stringify(matchingDataArray_origin));
+        }
+
+
+        // processField 関数を定義して、必要なデータ処理を行う
+        function processField(field, fieldData) {
+          if (field === "furosyurui") {
+            return parseFloat((fieldData/furosyurui_max).toFixed(2)); // furosyuruiの場合に処理を実行
+          }else if(field === "heikinnedan") {
+            return parseFloat((nedan_min/fieldData).toFixed(2)); // heikinnedanの場合に処理を実行
+          }else if(field === "ganbansyurui") {
+            return parseFloat((fieldData/ganbansyurui_max).toFixed(2)); // ganbansyuruiの場合に処理を実行
+          }else if(field === "komiguai") {
+            return 1-fieldData; // komiguaiの場合に処理を実行
+          }else {
+            return fieldData; // それ以外の場合は処理を行わず、元のデータを返す
+          }
+        }
+        // 2つの座標の緯度と経度をラジアンに変換するヘルパー関数
+        function toRadians(degrees) {
+          return degrees * (Math.PI / 180);
+        }
+        // ヒュベニの公式を使用して2つの座標間の距離を計算
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+          const R = 6371; // 地球の半径（単位: km）
+
+          const dLat = toRadians(lat2 - lat1);
+          const dLon = toRadians(lon2 - lon1);
+
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+          return R * c;
+        }
+
+
+        matchingDataArray = await Promise.all(matchingDataArray_origin.map(async (item) => {
+          item.scoreData = match_array.map((field) => {
             // データを加工してから scoreData に追加
-            return processField(field,data[field]);
+            return processField(field,item[field]);
           });
           
-          // processField 関数を定義して、必要なデータ処理を行う
-          function processField(field, fieldData) {
-            if (field === "furosyurui") {
-              return parseFloat((fieldData/furosyurui_max).toFixed(2)); // furosyuruiの場合に処理を実行
-            }if(field === "heikinnedan") {
-              return parseFloat((nedan_min/fieldData).toFixed(2)); // heikinnedanの場合に処理を実行
-            }if(field === "ganbansyurui") {
-              return parseFloat((fieldData/ganbansyurui_max).toFixed(2)); // ganbansyuruiの場合に処理を実行
-            }if(field === "komiguai") {
-              return 1-fieldData; // komiguaiの場合に処理を実行
-            }else {
-              return fieldData; // それ以外の場合は処理を行わず、元のデータを返す
-            }
-          }
-          // 2つの座標の緯度と経度をラジアンに変換するヘルパー関数
-          function toRadians(degrees) {
-            return degrees * (Math.PI / 180);
-          }
-
-          // ヒュベニの公式を使用して2つの座標間の距離を計算
-          function haversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // 地球の半径（単位: km）
-
-            const dLat = toRadians(lat2 - lat1);
-            const dLon = toRadians(lon2 - lon1);
-
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-            return R * c;
-          }
-          // matchDataDict.scoreData配列の平均を計算
-          const average = (matchDataDict.scoreData.reduce((acc, value) => acc + value, 0) / matchDataDict.scoreData.length)*100;
+          //matchDataDict.scoreData配列の平均を計算
+          const average = (item.scoreData.reduce((acc, value) => acc + value, 0) / item.scoreData.length)*100;
           // 平均を matchDataDict.score に代入
-          matchDataDict.score = Math.floor(average);
-          const point1 = { latitude: data.latitude, longitude: data.longitude }; 
-          // const point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
+          item.score = Math.floor(average);
+          const point1 = { latitude: item.latitude, longitude: item.longitude };
           const distanceInMeters = haversineDistance(point1.latitude,point1.longitude,point2.latitude,point2.longitude);
-          matchDataDict.distance = parseFloat((distanceInMeters).toFixed(1));
-          matchDataDict.id = doc.id;
-          matchDataDict.onsenName = data.onsen_name;
-          matchDataDict.heijitunedan = data.heijitunedan;
-          matchDataDict.kyujitunedan = data.kyuzitunedan;
-          matchDataDict.images = await fetchURL(data.images[0]);
+          item.distance = parseFloat((distanceInMeters).toFixed(1));
+          if(item.distance <= 30 && item.score > 50){
+            item.images = await fetchURL(item.images[0]);
+          }
+          return item;
+        }));
 
-          return matchDataDict;
-      }));
       setMatchingItems(matchingDataArray);
       setLoading(false); // データ読み込みが完了したらローディング状態を解除
     }catch (e) {
@@ -209,39 +267,39 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "おふろの王様 和光店",
-      feature: `オシャレなかまくらラウンジ。源泉を冷やして使用する水風呂も最高。`,
+      onsen_name: "越生温泉 美白の湯 『 梅の湯 』",
+      feature: `高アルカリのぬるぬるの美肌の湯`,
       zikan_heijitu_start: 900,
-      zikan_heijitu_end: 2400,
+      zikan_heijitu_end: 2100,
       zikan_kyujitu_start: 900,
-      zikan_kyujitu_end: 2400,
-      sauna: 1,
-      rouryu: 1,
-      siosauna:1,
-      doro:1,
-      mizuburo:1,
+      zikan_kyujitu_end: 2100,
+      sauna: 0,
+      rouryu: 0,
+      siosauna:0,
+      doro:0,
+      mizuburo:0,
       tennen:1,
-      sensitu:"ナトリウム-塩化物・炭酸水素塩温泉",
-      sensituyosa:0.8,
-      tansan:1,
-      furosyurui:9,
-      manga:1,
-      wifi:1,
+      sensitu:"強アルカリ泉",
+      sensituyosa:1,
+      tansan:0,
+      furosyurui:2,
+      manga:0,
+      wifi:0,
       tyusyazyo:1,
-      heijitunedan:1000,
-      kyuzitunedan:1090,
-      heikinnedan:10450,
+      heijitunedan:600,
+      kyuzitunedan:700,
+      heikinnedan:650,
       ganban:0,
       ganbansyurui:0,
-      senzai:0.2,
+      senzai:0,
       facewash:0,
-      komiguai:0.7,
-      wadai:0.4,
+      komiguai:0.3,
+      wadai:0,
       kodomo:0,
-      latitude: 35.78366584595829, 
-      longitude: 139.60585851954318,
-      place: "埼玉県和光市広沢１−５−５５",
-      images:["onsen_images/osamawako1.jpeg","onsen_images/osamawako2.jpeg","onsen_images/osamawako3.jpeg","onsen_images/osamawako4.jpeg","onsen_images/osamawako5.jpeg","onsen_images/osamawako6.jpeg","onsen_images/osamawako7.jpeg"]
+      latitude:35.97992689879138, 
+      longitude: 139.2758944586734,
+      place: "埼玉県入間郡越生町古池",
+      images:["onsen_images/umenoyu1.jpeg","onsen_images/umenoyu2.png","onsen_images/umenoyu3.png","onsen_images/umenoyu4.png","onsen_images/umenoyu5.png","onsen_images/umenoyu6.png","onsen_images/umenoyu7.png"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -249,7 +307,7 @@ const additems = async() => {
   }
 }
 
-// const additems = async() => {
+// const additems = async() => {//
 //   try {
 //     const docRef = await addDoc(doc(db, "global_match_data","z9eDm6HDqFRpf3fO9nkd"), {
 //       firebaseDataTimestamp: serverTimestamp(),
@@ -268,10 +326,10 @@ useEffect(() => {
   
 }, []);
 
-useEffect(() => {
-  // matchingItems が更新された際にログを出力
-  console.log(matchingItems);
-}, [matchingItems]);
+// useEffect(() => {
+//   // matchingItems が更新された際にログを出力
+//   console.log(matchingItems);
+// }, [matchingItems]);
 
 //お気に入り配列を取得
 useEffect(() => {
@@ -324,6 +382,7 @@ useFocusEffect(
 
   return (
     <View style={styles.home}>
+
       <ScrollView>
         {within5Km.length > 0 && (
           <>
@@ -415,6 +474,21 @@ useFocusEffect(
             </View>
           </>
         )}
+        {within5Km.length === 0 && within10Km.length === 0 && within15Km.length === 0 && within20Km.length === 0 && within25Km.length === 0 && within30Km.length === 0 && (
+          <View style={styles.container}>
+            {/* ... 他のコンテンツ ... */}
+            <Text style={styles.title}>{`スーパー銭湯は
+見つかりませんでした。`}</Text>
+            <Text style={styles.content}>
+              {`以下Googleフォームから
+追加してほしい地域をおしえてください。
+優先して追加します。`}
+            </Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://docs.google.com/forms/d/e/1FAIpQLSfXT5iEFCHz7HE1y__QKaZorrwj5CdOMt26gzHPND0sHcfKjw/viewform?usp=sf_link')}>
+              <Text style={styles.link}>Googleフォームを開く</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -434,25 +508,12 @@ const styles = StyleSheet.create({
     alignContent:"center",
     alignItems:"center",
     justifyContent:"center",
-
-    // borderWidth:1,
-    // borderColor:"red",
   },
   home: {
     backgroundColor: Color.labelColorDarkPrimary,
-    // flex: 1,
     height: "100%",
     overflow: "hidden",
     width: "100%",
-    // justifyContent:"center",
-
-    // borderColor:"red",
-    // borderWidth:2,
-  },
-  flatlist: {
-    // borderColor:"red",
-    // borderWidth:1,
-    
   },
   flatlistContent:{
       // width: "100%",
@@ -462,6 +523,29 @@ const styles = StyleSheet.create({
 
     // borderColor:"blue",
     // borderWidth:1,
+  },
+
+  //アイテムなしの時のスタイル
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  content: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  link: {
+    fontSize: 16,
+    color: 'blue',
+    marginTop: 10,
   },
 });
 

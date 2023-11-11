@@ -30,7 +30,8 @@ const styles = StyleSheet.create({
     width: 114,
     // position: "absolute",
     marginRight:-1,
-    marginBottom:-2,
+    marginTop:0,
+    marginBottom:-1,
   },
   wifi: {
     left: 0,

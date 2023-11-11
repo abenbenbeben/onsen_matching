@@ -127,7 +127,7 @@ const Onsen_detail_Frame = ({navigation, route}) => {
       <ScrollView style={styles.parent}>
       <View>
         <View style={[styles.view1, styles.textPosition]}>
-          <Text style={[styles.text, styles.textTypo1]}>{contents_data.onsen_name}</Text>
+          <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
         </View>
         <FavoriteButton
           id={data_id}
@@ -212,10 +212,18 @@ const styles = StyleSheet.create({
     display: "flex",
     textAlign: "left",
     fontFamily: FontFamily.interMedium,
+    fontSize: FontSize.size_xl,
     fontWeight: "500",
-    lineHeight: 22,
+    // lineHeight: 22,
     letterSpacing: 0,
     color: Color.labelColorLightPrimary,
+
+    width: 344,
+    left: 0,
+    height: 32,
+
+    // borderColor:"red",
+    // borderWidth:1,
   },
   childLayout: {
     width: 144,
@@ -223,26 +231,6 @@ const styles = StyleSheet.create({
     top: 0,
     // position: "absolute",
     // left: 288,
-  },
-
-  text: {
-    width: 344,
-    fontSize: FontSize.size_xl,
-    left: 0,
-    height: 32,
-    // top: 0,
-    // position: "absolute",
-    alignItems: "center",
-    // display: "flex",
-    textAlign: "left",
-    fontFamily: FontFamily.interMedium,
-    fontWeight: "500",
-    lineHeight: 22,
-    letterSpacing: 0,
-    color: Color.labelColorLightPrimary,
-
-    // borderColor:"red",
-    // borderWidth:1,
   },
   view1: {
     height: 32,
@@ -355,13 +343,15 @@ const styles = StyleSheet.create({
 
   },
   view7: {
-
-    height: 628,
+    // height: 700,
     width: "97%",
     left: 7,
     // overflow: "hidden",
     // alignItems:"center",
-    marginVertical:10,
+    marginVertical:20,
+
+    // borderWidth:1,
+    // borderColor:"red",
 
   },
   parent: {
@@ -369,8 +359,6 @@ const styles = StyleSheet.create({
     backgroundColor: Color.colorWhitesmoke_100,
     width: "100%",
     height: "99%",
-
-
   },
   view: {
     flex: 1,
