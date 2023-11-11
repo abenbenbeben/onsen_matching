@@ -107,7 +107,7 @@ const FirstFrame = () => {
     //resetAsyncStorage();
     checkAgreement();
     fetch_global_data();
-    // additems();/
+    // additems();
   }, []);
 
   return (
