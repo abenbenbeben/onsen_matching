@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
 import { Image } from "expo-image";
-import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator} from "react-native";
+import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator,TouchableOpacity} from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
@@ -21,6 +21,7 @@ const Matching_Frame = ({navigation}) => {
   const [selecteddata, setSelecteddata] = useState([]);
   const [matchingItems, setMatchingItems] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
+  // タブの状態を管理
 
   const fetchURL = async (imagepath) => {
     try {
@@ -154,7 +155,7 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
             >{`あなたがスーパー銭湯に求める
 ことを選んでください`}</Text>
         </View>
-            <FlatList
+          <FlatList
               data={matchingItems}
               numColumns={2} // 2列で表示
               keyExtractor={(item) => item.id}
@@ -265,6 +266,37 @@ const styles = StyleSheet.create({
     // borderWidth:2,
     // borderColor:"red",
     
+  },
+
+  //タブのスタイル
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    padding: 10,
+    // backgroundColor: '#f8f8f8', // 薄いグレーの背景色
+  },
+  tabButton: {
+    borderBottomWidth: 2,
+    borderColor: 'transparent', // 透明な境界線
+    paddingBottom: 8,
+    paddingHorizontal: 20,
+    marginHorizontal: 10,
+  },
+  tabButtonText: {
+    color: '#666', // 暗めのグレーテキスト
+    fontSize: 16,
+  },
+  tabButtonActive: {
+    //borderBottomColor: '#007BFF', // アクティブなタブの境界線は青色
+    borderBottomWidth:1,
+    paddingBottom: 6, // アクティブなタブは少し境界線に近づける
+    marginBottom:2,
+
+    borderColor:"#007BFF",
+  },
+  tabButtonTextActive: {
+    color: '#007BFF', // アクティブなタブのテキストも青色
+    fontWeight: 'bold',
   },
 
 });

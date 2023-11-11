@@ -14,6 +14,7 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
