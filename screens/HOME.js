@@ -51,14 +51,39 @@ const HOME = ({navigation, route}) => {
   const fetch_matchingdata = async() => {
 
     //現在地情報を取得する関数。Androidが処理停止にならない対策。
-    function getCurrentLocation() {
+    // function getCurrentLocation() {
+    //   const timeout = 10000;
+    //   return new Promise(async (resolve, reject) => {
+    //     setTimeout(() => { reject(new Error(`Error getting gps location after ${(timeout * 2) / 1000} s`)) }, timeout * 2);
+    //     setTimeout(async () => { resolve(await Location.getLastKnownPositionAsync()) }, timeout);
+    //     resolve(await Location.getCurrentPositionAsync());
+    //   });
+    // }
+    async function getCurrentLocation() {
       const timeout = 10000;
-      return new Promise(async (resolve, reject) => {
-        setTimeout(() => { reject(new Error(`Error getting gps location after ${(timeout * 2) / 1000} s`)) }, timeout * 2);
-        setTimeout(async () => { resolve(await Location.getLastKnownPositionAsync()) }, timeout);
-        resolve(await Location.getCurrentPositionAsync());
-      });
-    }
+    
+      try {
+        // 最初に現在の位置情報を取得を試みる
+        const currentPosition = await Promise.race([
+          Location.getCurrentPositionAsync(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error(`Error getting GPS location after ${timeout / 1000} s`)), timeout))
+        ]);
+        return currentPosition;
+      } catch (error) {
+        // 現在の位置情報の取得に失敗した場合、最後に知られている位置情報を試みる
+        try {
+          const lastKnownPosition = await Location.getLastKnownPositionAsync();
+          if (lastKnownPosition) {
+            return lastKnownPosition;
+          } else {
+            throw new Error('No known last position');
+          }
+        } catch (lastError) {
+          // 最後に知られている位置情報の取得も失敗した場合、エラーを返す
+          throw new Error(`Unable to get location: ${lastError.message}`);
+        }
+      }
+    }    
     // データが更新されたかどうかを確認する関数
     const isDataOutdated = async(lastUpdatedTimestamp,matchingDataTimestamp) => {
       // ここでFirebaseのデータのタイムスタンプと比較して更新されたかを確認
@@ -145,6 +170,7 @@ const HOME = ({navigation, route}) => {
         }
         //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
+        //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
         setLoadingMessage('マッチング中...');
         let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";let matchingDataResultTimestamp=null;
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
@@ -212,11 +238,13 @@ const HOME = ({navigation, route}) => {
 
 
         matchingDataArray = await Promise.all(matchingDataArray_origin.map(async (item) => {
+          if(item.zikan_heijitu_start<800||item.zikan_kyujitu_start<800||item.zikan_heijitu_end>3000||item.zikan_kyujitu_end>3000){
+            item.asaeigyo=1;
+          }
           item.scoreData = match_array.map((field) => {
             // データを加工してから scoreData に追加
             return processField(field,item[field]);
           });
-          
           //matchDataDict.scoreData配列の平均を計算
           const average = (item.scoreData.reduce((acc, value) => acc + value, 0) / item.scoreData.length)*100;
           // 平均を matchDataDict.score に代入
@@ -268,39 +296,39 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "越生温泉 美白の湯 『 梅の湯 』",
-      feature: `高アルカリのぬるぬるの美肌の湯`,
-      zikan_heijitu_start: 900,
-      zikan_heijitu_end: 2100,
-      zikan_kyujitu_start: 900,
-      zikan_kyujitu_end: 2100,
+      onsen_name: "道の駅 両神温泉 薬師の湯",
+      feature: `ねっとり絡むアルカリ性のお湯。地元のお野菜も買えて安くて量多くて美味しい。`,
+      zikan_heijitu_start:1000,
+      zikan_heijitu_end: 2000,
+      zikan_kyujitu_start: 1000,
+      zikan_kyujitu_end: 2000,
       sauna: 0,
       rouryu: 0,
       siosauna:0,
       doro:0,
       mizuburo:0,
       tennen:1,
-      sensitu:"強アルカリ泉",
-      sensituyosa:1,
+      sensitu:"アルカリ性単純温泉",
+      sensituyosa:0.8,
       tansan:0,
-      furosyurui:2,
+      furosyurui:1,
       manga:0,
       wifi:0,
       tyusyazyo:1,
-      heijitunedan:600,
+      heijitunedan:700,
       kyuzitunedan:700,
-      heikinnedan:650,
+      heikinnedan:700,
       ganban:0,
       ganbansyurui:0,
-      senzai:0,
+      senzai:0.5,
       facewash:0,
-      komiguai:0.3,
+      komiguai:0,
       wadai:0,
       kodomo:0,
-      latitude:35.97992689879138, 
-      longitude: 139.2758944586734,
-      place: "埼玉県入間郡越生町古池",
-      images:["onsen_images/umenoyu1.jpeg","onsen_images/umenoyu2.png","onsen_images/umenoyu3.png","onsen_images/umenoyu4.png","onsen_images/umenoyu5.png","onsen_images/umenoyu6.png","onsen_images/umenoyu7.png"]
+      latitude:36.0051210358652,
+      longitude: 138.97148054403834,
+      place: "埼玉県秩父郡小鹿野町両神薄２３８０",
+      images:["onsen_images/yakusinoyu1.jpeg","onsen_images/yakusinoyu2.jpeg","onsen_images/yakusinoyu3.jpeg","onsen_images/yakusinoyu4.jpeg","onsen_images/yakusinoyu5.jpeg","onsen_images/yakusinoyu6.jpeg","onsen_images/yakusinoyu7.jpeg"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -323,10 +351,10 @@ const additems = async() => {
 
 useEffect(() => {
   fetch_matchingdata();
-  // additems();
+   //additems();
   
 }, []);
-
+//
 // useEffect(() => {
 //   // matchingItems が更新された際にログを出力
 //   console.log(matchingItems);

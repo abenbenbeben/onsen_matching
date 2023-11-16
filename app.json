@@ -2,7 +2,7 @@
   "expo": {
     "name": "onsen_maching",
     "slug": "onsen_maching",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,14 +24,14 @@
       },
       "bundleIdentifier": "com.abebebe.onsen-matching",
       "icon": "./assets/icon.png",
-      "buildNumber":"5"
+      "buildNumber":"1"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "versionCode": 2,
+      "versionCode": 1,
       "package": "com.abebebe.onsen_maching"
     },
     "web": {

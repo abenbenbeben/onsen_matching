@@ -11,7 +11,7 @@ import { collection, addDoc,getFirestore,getDocs,getDoc,doc } from "firebase/fir
 import { app } from "../firebaseconfig";
 import OnsenDetailBlock from "../components/OnsenDetailBlock";
 
-const db = getFirestore(app); 
+const db = getFirestore(app);
 const storage = getStorage(app);
 
 const Onsen_detail_Frame = ({navigation, route}) => {
@@ -76,6 +76,29 @@ const Onsen_detail_Frame = ({navigation, route}) => {
       console.error("Error fetching data: ", e);
     }
   }
+
+  //時間変換する関数
+  function formatTime(time) {
+    let hours = Math.floor(time / 100);
+    let minutes = time % 100;
+  
+    // 24時間を超える時間を処理
+    if (hours >= 24) {
+      hours = hours - 24;
+      hours = `翌${hours}`
+    }
+  
+    // 時間と分が1桁の場合は0を追加
+    // if (hours < 10) {
+    //   hours = `0${hours}`;
+    // }
+    if (minutes < 10) {
+      minutes = `0${minutes}`;
+    }
+  
+    return `${hours}:${minutes}`;
+  }
+  
 
 
   // const additems = async() => {
@@ -149,7 +172,13 @@ const Onsen_detail_Frame = ({navigation, route}) => {
             />
         <View style={styles.view4}>
           <Text style={styles.text1}>
-            祝日：{contents_data.kyuzitunedan}円　平日：{contents_data.heijitunedan}円
+            平日：{contents_data.heijitunedan}円　祝日：{contents_data.kyuzitunedan}円
+          </Text>
+        </View>
+        <View style={styles.view4}>
+          <Text style={styles.text1}>
+            平日：{formatTime(contents_data.zikan_heijitu_start)}-{formatTime(contents_data.zikan_heijitu_end)},
+            祝日：{formatTime(contents_data.zikan_kyujitu_start)}-{formatTime(contents_data.zikan_kyujitu_end)}
           </Text>
         </View>
         
