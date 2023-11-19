@@ -50,17 +50,8 @@ const HOME = ({navigation, route}) => {
 
   const fetch_matchingdata = async() => {
 
-    //現在地情報を取得する関数。Androidが処理停止にならない対策。
-    // function getCurrentLocation() {
-    //   const timeout = 10000;
-    //   return new Promise(async (resolve, reject) => {
-    //     setTimeout(() => { reject(new Error(`Error getting gps location after ${(timeout * 2) / 1000} s`)) }, timeout * 2);
-    //     setTimeout(async () => { resolve(await Location.getLastKnownPositionAsync()) }, timeout);
-    //     resolve(await Location.getCurrentPositionAsync());
-    //   });
-    // }
     async function getCurrentLocation() {
-      const timeout = 10000;
+      const timeout = 50000;
     
       try {
         // 最初に現在の位置情報を取得を試みる
@@ -168,7 +159,7 @@ const HOME = ({navigation, route}) => {
           check_settings();
           //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         }
-        //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
+        point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
         setLoadingMessage('マッチング中...');
@@ -252,7 +243,7 @@ const HOME = ({navigation, route}) => {
           const point1 = { latitude: item.latitude, longitude: item.longitude };
           const distanceInMeters = haversineDistance(point1.latitude,point1.longitude,point2.latitude,point2.longitude);
           item.distance = parseFloat((distanceInMeters).toFixed(1));
-          if(item.distance <= 30 && item.score > 50){
+          if(item.distance <= 40 && item.score > 50){
             item.images = await fetchURL(item.images[0]);
           }
           return item;
@@ -296,39 +287,39 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "道の駅 両神温泉 薬師の湯",
-      feature: `ねっとり絡むアルカリ性のお湯。地元のお野菜も買えて安くて量多くて美味しい。`,
-      zikan_heijitu_start:1000,
-      zikan_heijitu_end: 2000,
-      zikan_kyujitu_start: 1000,
-      zikan_kyujitu_end: 2000,
-      sauna: 0,
-      rouryu: 0,
-      siosauna:0,
-      doro:0,
-      mizuburo:0,
+      onsen_name: "竜泉寺の湯 スパメッツァ おおたか",
+      feature: `「2022今行くべきサウナランキング全国１位」3種の水風呂、3種のサウナ。`,
+      zikan_heijitu_start:600,
+      zikan_heijitu_end: 2600,
+      zikan_kyujitu_start: 600,
+      zikan_kyujitu_end: 2600,
+      sauna: 1,
+      rouryu: 1,
+      siosauna:1,
+      doro:1,
+      mizuburo:1,
       tennen:1,
-      sensitu:"アルカリ性単純温泉",
-      sensituyosa:0.8,
-      tansan:0,
-      furosyurui:1,
-      manga:0,
-      wifi:0,
+      sensitu:"ナトリウム－塩化物温泉",
+      sensituyosa:0.7,
+      tansan:1,
+      furosyurui:12,
+      manga:1,
+      wifi:1,
       tyusyazyo:1,
-      heijitunedan:700,
-      kyuzitunedan:700,
-      heikinnedan:700,
-      ganban:0,
-      ganbansyurui:0,
-      senzai:0.5,
-      facewash:0,
-      komiguai:0,
-      wadai:0,
-      kodomo:0,
-      latitude:36.0051210358652,
-      longitude: 138.97148054403834,
-      place: "埼玉県秩父郡小鹿野町両神薄２３８０",
-      images:["onsen_images/yakusinoyu1.jpeg","onsen_images/yakusinoyu2.jpeg","onsen_images/yakusinoyu3.jpeg","onsen_images/yakusinoyu4.jpeg","onsen_images/yakusinoyu5.jpeg","onsen_images/yakusinoyu6.jpeg","onsen_images/yakusinoyu7.jpeg"]
+      heijitunedan:1100,
+      kyuzitunedan:1280,
+      heikinnedan:1190,
+      ganban:1,
+      ganbansyurui:4,
+      senzai:0.7,
+      facewash:1,
+      komiguai:0.8,
+      wadai:1,
+      kodomo:0.7,
+      latitude:35.87302602890614, 
+      longitude: 139.92266187619666,
+      place: "千葉県流山市おおたかの森西１丁目15番１",
+      images:["onsen_images/spametsaotaka1.png","onsen_images/spametsaotaka2.png","onsen_images/spametsaotaka3.png","onsen_images/spametsaotaka4.png","onsen_images/spametsaotaka5.png","onsen_images/spametsaotaka6.png","onsen_images/spametsaotaka7.png"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -398,6 +389,8 @@ useFocusEffect(
   const within20Km = matchingItems.filter(item => item.distance > 15 && item.distance <= 20 && item.score > 50);
   const within25Km = matchingItems.filter(item => item.distance > 20 && item.distance <= 25 && item.score > 50);
   const within30Km = matchingItems.filter(item => item.distance > 25 && item.distance <= 30 && item.score > 50);
+  const within35Km = matchingItems.filter(item => item.distance > 30 && item.distance <= 35 && item.score > 50);
+  const within40Km = matchingItems.filter(item => item.distance > 35 && item.distance <= 40 && item.score > 50);
 
   if (loading) {
     // ローディング中の表示
@@ -503,10 +496,40 @@ useFocusEffect(
             </View>
           </>
         )}
+        {within35Km.length > 0 && (
+          <>
+            <Text style={styles.kmLayout}>35km圏内</Text>
+            <View>
+              <FlatList
+                data={within35Km}
+                renderItem={({ item }) => renderCard(item)}
+                keyExtractor={(item) => item.onsenName}
+                style={styles.flatlist}
+                contentContainerStyle={styles.flatlistContent}
+                scrollEnabled={false}
+              />
+            </View>
+          </>
+        )}
+        {within40Km.length > 0 && (
+          <>
+            <Text style={styles.kmLayout}>40km圏内</Text>
+            <View>
+              <FlatList
+                data={within40Km}
+                renderItem={({ item }) => renderCard(item)}
+                keyExtractor={(item) => item.onsenName}
+                style={styles.flatlist}
+                contentContainerStyle={styles.flatlistContent}
+                scrollEnabled={false}
+              />
+            </View>
+          </>
+        )}
         {within5Km.length === 0 && within10Km.length === 0 && within15Km.length === 0 && within20Km.length === 0 && within25Km.length === 0 && within30Km.length === 0 && (
           <View style={styles.container}>
             {/* ... 他のコンテンツ ... */}
-            <Text style={styles.title}>{`スーパー銭湯は
+            <Text style={styles.title}>{`マッチ度の高いスーパー銭湯は
 見つかりませんでした。`}</Text>
             <Text style={styles.content}>
               {`以下Googleフォームから

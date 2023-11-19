@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "スーパー銭湯マッチング",
-    "slug": "super-sento-matching",
-    "version": "2.0.0",
+    "slug": "onsen_maching",
+    "version": "2.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

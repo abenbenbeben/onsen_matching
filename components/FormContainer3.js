@@ -5,7 +5,7 @@ import { useNavigation, CommonActions } from "@react-navigation/native";
 import { Color, FontFamily, Border, FontSize } from "../GlobalStyles";
 import Button from "./Button";
 
-const FormContainer3 = ({navigation,selectednum,data}) => {
+const FormContainer3 = ({navigation,selectednum,data,maxnum}) => {
   //  const navigation = useNavigation();
 
   const handleSaveButtonPress = () => {
@@ -25,7 +25,7 @@ const FormContainer3 = ({navigation,selectednum,data}) => {
   return (
     <View style={styles.view}>
       <View style={styles.view1}>
-        <Text style={styles.text2}>{selectednum} / 4</Text>
+        <Text style={styles.text2}>{selectednum} / {maxnum}</Text>
         <Text style={styles.text1}>選択中</Text>
       </View>
       <Button

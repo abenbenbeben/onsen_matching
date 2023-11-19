@@ -10,6 +10,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc,getFirestore,getDocs,getDoc,doc } from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import OnsenDetailBlock from "../components/OnsenDetailBlock";
+import { useFocusEffect } from '@react-navigation/native';
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -98,6 +99,15 @@ const Onsen_detail_Frame = ({navigation, route}) => {
   
     return `${hours}:${minutes}`;
   }
+
+  const handleEditPress = () => {
+    // 編集ボタンが押されたときの処理
+    navigation.navigate("Editdetail_Frame",{
+      data:contents_data,
+      data_id:data_id
+    })
+    console.log('編集ボタンが押されました。');
+  };
   
 
 
@@ -129,6 +139,15 @@ const Onsen_detail_Frame = ({navigation, route}) => {
   useEffect(() => {
     console.log(contents_data)
   },[contents_data])
+
+  //Backボタンで戻ってきた時に動く。
+useFocusEffect(
+  React.useCallback(() => {
+    // ここにフォーカスが戻ってきた時に実行したい処理を記述
+    // 例: 関数の呼び出し
+    fetch_matchingdata();
+  }, [])
+);
 
 
 
@@ -225,6 +244,12 @@ const Onsen_detail_Frame = ({navigation, route}) => {
           />
         </View>
       </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <TouchableOpacity style={styles.button} onPress={handleEditPress}>
+          <Text style={styles.buttonText}>編集する</Text>
+        </TouchableOpacity>
+      </View>
+
       </ScrollView>
       <StatusBar barStyle="default" />
     </View>
@@ -401,7 +426,30 @@ const styles = StyleSheet.create({
   },
   flatlistContent:{
     alignItems:"center",
-  }
+  },
+
+  //編集するボタンのスタイル
+  button: {
+    width:200,
+    backgroundColor: '#007BFF', // 青色の背景
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom:50,
+  },
+  buttonText: {
+    color: 'white', // 白色のテキスト
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  //編集するボタンのスタイル終了
+
 });
 
 export default Onsen_detail_Frame;

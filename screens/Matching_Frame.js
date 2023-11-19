@@ -3,6 +3,7 @@ import { useState,useEffect } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator,TouchableOpacity} from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
+import MatchingButtonContainer_purpose from "../components/MatchingButtonContainer_purpose";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,9 +20,13 @@ const storage = getStorage(app);
 const Matching_Frame = ({navigation}) => {
   const [selectedButtons, setSelectedButtons] = useState([]);
   const [selecteddata, setSelecteddata] = useState([]);
+  const [selectedButtons_purpose, setSelectedButtons_purpose] = useState([]);
+  const [selecteddata_purpose, setSelecteddata_purpose] = useState([]);
   const [matchingItems, setMatchingItems] = useState([]);
+  const [matchingItemsPurpose, setMatchingItemsPurpose] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
-  // タブの状態を管理
+  const [activeTab, setActiveTab] = useState(1); // タブの状態を管理例えば、1と2のタブがあると仮定
+
 
   const fetchURL = async (imagepath) => {
     try {
@@ -40,20 +45,24 @@ const Matching_Frame = ({navigation}) => {
     try {
       // キャッシュからデータを取得する
       const cachedData = await AsyncStorage.getItem('matchingDataCache');
+      const cachedData_purpose = await AsyncStorage.getItem('matchingDataCache_purpose');
       
       const lastUpdatedTimestamp = await AsyncStorage.getItem('matchingDataLastUpdatedTimestamp');
       const shouldFetchFromFirebase = await isDataOutdated(lastUpdatedTimestamp) || !lastUpdatedTimestamp ;
-      if (cachedData && !shouldFetchFromFirebase) {
+      if (cachedData && cachedData_purpose && !shouldFetchFromFirebase) {
         console.log("キャッシュを読み込んだ！！")
         // キャッシュが存在する場合は、キャッシュからデータを読み込む
         const matchingDataArray = JSON.parse(cachedData);
+        const matchingDataArray_purpose = JSON.parse(cachedData_purpose);
         setMatchingItems(matchingDataArray);
+        setMatchingItemsPurpose(matchingDataArray_purpose);
         setLoading(false);// データ読み込みが完了したらローディング状態を解除
       } else {
         console.log("firebaseを読み込んだ！！")
         // キャッシュが存在しない場合は、データを取得し、キャッシュに保存する。
         const querySnapshot = await getDocs(collection(db, "matching_screen"));
-        const fetchPromises = querySnapshot.docs.map(async (doc) => {
+        const querySnapshot_purpose = await getDocs(collection(db, "matching_screen_purpose"));
+        const processData = async (doc) => {
           const data = doc.data();
           const beforeImagePromise = fetchURL(data.beforeimage);
           const afterImagePromise = fetchURL(data.afterimage);
@@ -69,12 +78,18 @@ const Matching_Frame = ({navigation}) => {
             data: data.data,
             // その他のデータフィールドを追加
           };
-        });
+        };
+        const fetchPromises = querySnapshot.docs.map(doc => processData(doc));
+        const fetchPromises_purpose = querySnapshot_purpose.docs.map(doc => processData(doc));
+        
         const matchingDataArray = await Promise.all(fetchPromises);
+        const matchingDataArray_purpose = await Promise.all(fetchPromises_purpose);
 
         // データをキャッシュに保存
         await AsyncStorage.setItem('matchingDataCache', JSON.stringify(matchingDataArray));
+        await AsyncStorage.setItem('matchingDataCache_purpose', JSON.stringify(matchingDataArray_purpose));
         
+        setMatchingItemsPurpose(matchingDataArray_purpose);
         setMatchingItems(matchingDataArray);
         setLoading(false); // データ読み込みが完了したらローディング状態を解除
       }
@@ -108,10 +123,24 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
   console.log(dataUpdated)
   return dataUpdated
 };
+  const additems = async() => {
+    try {
+      const docRef = await addDoc(collection(db, "matching_screen_purpose"), {
+        afterimage: "matching_images/kondenai.png",
+        beforeimage: "matching_images/kondenai_dark.png",
+        data:["komiguai","manga","wifi"],
+        sentence: "コスパが良い"
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  }
 
   useEffect(() => {
     // fetch_matchingdata関数を呼び出す
     fetch_matchingdata();
+    //additems();
   }, []);
 
 
@@ -120,7 +149,6 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
   //'matching_images/go_onsen.png'
 
   const handleButtonToggle = (buttonIndex,buttondata) => {
-    console.log("handleButtonToggle動いた")
 
     if (selectedButtons.includes(buttonIndex)) {
       // すでに選択されている場合、選択を解除
@@ -133,6 +161,22 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
     } else {
       // 2つ以上のボタンが選択された場合、アラートを表示
       Alert.alert('注意', '4つ以上のボタンを選択できません。');
+    }
+  };
+
+  const handleButtonToggle_purpose = (buttonIndex,buttondata) => {
+
+    if (selectedButtons_purpose.includes(buttonIndex)) {
+      // すでに選択されている場合、選択を解除
+      setSelectedButtons_purpose(selectedButtons_purpose.filter((index) => index !== buttonIndex));
+      setSelecteddata_purpose(selecteddata_purpose.filter((index) => index !== buttondata));
+    } else if (selectedButtons_purpose.length < 1) {
+      // 2つ以上選択されていない場合、選択を許可
+      setSelectedButtons_purpose([...selectedButtons_purpose, buttonIndex]);
+      setSelecteddata_purpose([...selecteddata_purpose, buttondata]);
+    } else {
+      // 2つ以上のボタンが選択された場合、アラートを表示
+      Alert.alert('注意', '1つ以上のボタンを選択できません。');
     }
   };
 
@@ -155,7 +199,30 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
             >{`あなたがスーパー銭湯に求める
 ことを選んでください`}</Text>
         </View>
-          <FlatList
+
+        <View style={styles.tabContainer}>
+          <TouchableOpacity 
+            style={[styles.tabButton, activeTab === 1 ? styles.tabButtonActive : null]}
+            onPress={() => setActiveTab(1)}
+          >
+            <Text style={[styles.tabButtonText, activeTab === 1 ? styles.tabButtonTextActive : null]}>
+              特徴から
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.tabButton, activeTab === 2 ? styles.tabButtonActive : null]}
+            onPress={() => setActiveTab(2)}
+          >
+            <Text style={[styles.tabButtonText, activeTab === 2 ? styles.tabButtonTextActive : null]}>
+              目的から
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {activeTab === 1 && (
+          <>
+            <FlatList
               data={matchingItems}
               numColumns={2} // 2列で表示
               keyExtractor={(item) => item.id}
@@ -172,13 +239,42 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
                 />
               )}
             />
+            <FormContainer3 
+              navigation = {navigation}
+              selectednum = {selectedButtons.length}
+              data = {selecteddata}
+              maxnum={4}
+            />
+          </>
+        )}
+        {activeTab === 2 && (
+          <>
+            <FlatList
+              data={matchingItemsPurpose}
+              numColumns={1} // 2列で表示
+              keyExtractor={(item) => item.id}
+              style={styles.flatlist}
+              contentContainerStyle={styles.flatlistContent}
+              renderItem={({ item }) => (
+    
+                <MatchingButtonContainer_purpose
+                    value={item.sentence}
+                    beforeImage={item.beforeImage}
+                    afterImage={item.afterImage}
+                    onToggle={() => handleButtonToggle_purpose(item.id,item.data)}
+                    selected={selectedButtons_purpose.includes(item.id)}
+                />
+              )}
+            />
+            <FormContainer3 
+              navigation = {navigation}
+              selectednum = {selectedButtons_purpose.length}
+              data = {selecteddata_purpose}
+              maxnum={1}
+            />
+          </>
+        )}
       </View>
-      <FormContainer3 
-        navigation = {navigation}
-        selectednum = {selectedButtons.length}
-        data = {selecteddata}
-      />
-      <StatusBar style={styles.textPosition} barStyle="default" />
     </View>
   );
 };
@@ -298,7 +394,7 @@ const styles = StyleSheet.create({
     color: '#007BFF', // アクティブなタブのテキストも青色
     fontWeight: 'bold',
   },
-
+  //タブのスタイル終了
 });
 
 export default Matching_Frame;
