@@ -30,7 +30,7 @@ const Editdetail_Frame = ({navigation, route}) => {
     // 確認ダイアログを表示
     Alert.alert(
       "確認", 
-      "データを保存しますか？",
+      "データを更新しますか？",
       [
         {
           text: "キャンセル",
@@ -46,7 +46,16 @@ const Editdetail_Frame = ({navigation, route}) => {
               await updateDoc(washingtonRef, {
                 ...onsenDetailData
               });
-              alert("データを更新しました。");
+              const washingtonRef_global = doc(db, "global_match_data", "z9eDm6HDqFRpf3fO9nkd");
+              let matchingDataResultTimestamp=null;
+              const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
+              querySnapshot_global.forEach((doc) => {
+                matchingDataResultTimestamp = doc.data().matchingDataResultTimestamp;
+              });
+              await updateDoc(washingtonRef_global, {
+                matchingDataResultTimestamp: matchingDataResultTimestamp+1
+              });
+              Alert.alert("完了","データを更新しました。");
               navigation.goBack(); // 保存後に前の画面に戻る
             } catch (error) {
               console.error("Error updating data: ", error);
