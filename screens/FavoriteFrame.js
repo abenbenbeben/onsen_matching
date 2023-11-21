@@ -12,7 +12,6 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import FavoriteCard from "../components/FavoriteCard";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc,getFirestore,getDocs,getDoc,doc } from "firebase/firestore";

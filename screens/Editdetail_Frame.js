@@ -113,6 +113,62 @@ const Editdetail_Frame = ({navigation, route}) => {
     setonsenDetailData({ ...onsenDetailData, [key]: value });
   };
 
+  const PriceAdjuster = ({ label, value, onChange }) => (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.furosyuruiContainer}>
+        <TouchableOpacity onPress={() => onChange(value - 10)}>
+          <FontAwesome name="arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.furosyuruiText}>{value}円</Text>
+        <TouchableOpacity onPress={() => onChange(value + 10)}>
+          <FontAwesome name="arrow-right" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const ButtonSelector = ({ label, options, selectedValue, onValueChange }) => (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.buttonContainer}>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option.label}
+            style={[
+              styles.button,
+              selectedValue === option.value ? styles.selected : styles.unselected
+            ]}
+            onPress={() => onValueChange(option.value)}
+          >
+            <Text style={styles.buttonText}>{option.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
+  const ButtonRange = ({ label, options, selectedValue, onValue }) => (
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.buttonContainer}>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option.label}
+            style={[
+              styles.button,
+              selectedValue >= option.min && selectedValue <= option.max ? styles.selected : styles.unselected
+            ]}
+            onPress={() => handlePress(onValue, (option.min + option.max) / 2)}
+          >
+            <Text style={styles.buttonText}>{option.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+  
+
   useEffect(() => {
     console.log(onsenDetailData)
   }, [onsenDetailData]);
@@ -145,26 +201,16 @@ const Editdetail_Frame = ({navigation, route}) => {
         <View style={[styles.view1, styles.textPosition]}>
           <Text style={styles.textTypo1}>{onsenDetailData.onsen_name}</Text>
         </View>
-        <Text style={styles.label}>平日値段</Text>
-        <View style={styles.furosyuruiContainer}>
-          <TouchableOpacity onPress={() => changeProperty('heijitunedan',-10)}>
-            <FontAwesome name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.furosyuruiText}>{onsenDetailData.heijitunedan}円</Text>
-          <TouchableOpacity onPress={() => changeProperty('heijitunedan',10)}>
-            <FontAwesome name="arrow-right" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-        <Text style={styles.label}>休日値段</Text>
-        <View style={styles.furosyuruiContainer}>
-          <TouchableOpacity onPress={() => changeProperty('kyuzitunedan',-10)}>
-            <FontAwesome name="arrow-left" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.furosyuruiText}>{onsenDetailData.kyuzitunedan}円</Text>
-          <TouchableOpacity onPress={() => changeProperty('kyuzitunedan',10)}>
-            <FontAwesome name="arrow-right" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
+        <PriceAdjuster
+          label="平日値段"
+          value={onsenDetailData.heijitunedan}
+          onChange={(newValue) => setonsenDetailData({ ...onsenDetailData, heijitunedan: newValue })}
+        />
+        <PriceAdjuster
+          label="休日値段"
+          value={onsenDetailData.kyuzitunedan}
+          onChange={(newValue) => setonsenDetailData({ ...onsenDetailData, kyuzitunedan: newValue })}
+        />
 
         <Text style={styles.label}>平日営業開始時間</Text>
         <TimeEditor
@@ -188,111 +234,49 @@ const Editdetail_Frame = ({navigation, route}) => {
           setTime={(newTime) => setonsenDetailData({ ...onsenDetailData, zikan_kyujitu_end: newTime })}
         />
 
-        <Text style={styles.label}>フェイスウォッシュ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p1.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.facewash === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('facewash', option.value)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>塩サウナ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p1.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.siosauna === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('siosauna', option.value)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>マンガ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p3.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.manga >= option.min && onsenDetailData.manga <= option.max ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('manga', (option.min + option.max) / 2)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>サウナ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p2.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.sauna === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('sauna', option.value)} // 'sauna' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>ロウリュウ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p1.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.rouryu === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('rouryu', option.value)} // 'rouryu' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>水風呂</Text>
-        <View style={styles.buttonContainer}>
-          {options_p2.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.mizuburo === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('mizuburo', option.value)} // 'mizuburo' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>炭酸泉</Text>
-        <View style={styles.buttonContainer}>
-          {options_p2.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.tansan === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('tansan', option.value)} // 'tansan' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <ButtonSelector
+          label="フェイスウォッシュ"
+          options={options_p1}
+          selectedValue={onsenDetailData.facewash}
+          onValueChange={(value) => handlePress('facewash', value)}
+        />
+        <ButtonSelector
+          label="塩サウナ"
+          options={options_p1}
+          selectedValue={onsenDetailData.siosauna}
+          onValueChange={(value) => handlePress('siosauna', value)}
+        />
+        <ButtonRange
+          label="マンガ"
+          options={options_p3}
+          selectedValue={onsenDetailData.manga}
+          onValue='manga'
+        />
+        <ButtonSelector
+          label="サウナ"
+          options={options_p2}
+          selectedValue={onsenDetailData.sauna}
+          onValueChange={(value) => handlePress('sauna', value)}
+        />
+        <ButtonSelector
+          label="ロウリュウ"
+          options={options_p1}
+          selectedValue={onsenDetailData.rouryu}
+          onValueChange={(value) => handlePress('rouryu', value)}
+        />
+        <ButtonSelector
+          label="水風呂"
+          options={options_p2}
+          selectedValue={onsenDetailData.mizuburo}
+          onValueChange={(value) => handlePress('mizuburo', value)}
+        />
+        <ButtonSelector
+          label="炭酸泉"
+          options={options_p2}
+          selectedValue={onsenDetailData.tansan}
+          onValueChange={(value) => handlePress('tansan', value)}
+        />
+
         <Text style={styles.label}>お風呂の種類</Text>
         <View style={styles.furosyuruiContainer}>
           <TouchableOpacity onPress={() => changeProperty('furosyurui',-1)}>
@@ -303,96 +287,42 @@ const Editdetail_Frame = ({navigation, route}) => {
             <FontAwesome name="arrow-right" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <Text style={styles.label}>天然温泉</Text>
-        <View style={styles.buttonContainer}>
-          {options_p4.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.tennen === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('tennen', option.value)} // 'tennen' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>子供も楽しめるか</Text>
-        <View style={styles.buttonContainer}>
-          {options_p5.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.kodomo >= option.min && onsenDetailData.kodomo <= option.max ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('kodomo', (option.min + option.max) / 2)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>泥パック</Text>
-        <View style={styles.buttonContainer}>
-          {options_p1.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.doro === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('doro', option.value)} // 'doro' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>フリーwifi</Text>
-        <View style={styles.buttonContainer}>
-          {options_p2.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.wifi === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('wifi', option.value)} // 'wifi' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>ソープの良さ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p6.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.senzai >= option.min && onsenDetailData.senzai <= option.max ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('senzai', (option.min + option.max) / 2)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>岩盤浴</Text>
-        <View style={styles.buttonContainer}>
-          {options_p2.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.ganban === option.value ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('ganban', option.value)} // 'ganban' を指定
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <ButtonSelector
+          label="天然温泉"
+          options={options_p4}
+          selectedValue={onsenDetailData.tennen}
+          onValueChange={(value) => handlePress('tennen', value)}
+        />
+        <ButtonRange
+          label="子供も楽しめるか"
+          options={options_p5}
+          selectedValue={onsenDetailData.kodomo}
+          onValue='kodomo'
+        />
+        <ButtonSelector
+          label="泥パック"
+          options={options_p1}
+          selectedValue={onsenDetailData.doro}
+          onValueChange={(value) => handlePress('doro', value)}
+        />
+        <ButtonSelector
+          label="フリーwifi"
+          options={options_p2}
+          selectedValue={onsenDetailData.wifi}
+          onValueChange={(value) => handlePress('wifi', value)}
+        />
+        <ButtonRange
+          label="ソープの良さ"
+          options={options_p6}
+          selectedValue={onsenDetailData.senzai}
+          onValue='senzai'
+        />
+        <ButtonSelector
+          label="岩盤浴"
+          options={options_p2}
+          selectedValue={onsenDetailData.ganban}
+          onValueChange={(value) => handlePress('ganban', value)}
+        />
         <Text style={styles.label}>岩盤浴の種類</Text>
         <View style={styles.furosyuruiContainer}>
           <TouchableOpacity onPress={() => changeProperty('ganbansyurui',-1)}>
@@ -418,36 +348,18 @@ const Editdetail_Frame = ({navigation, route}) => {
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={styles.label}>泉質の良さ</Text>
-        <View style={styles.buttonContainer}>
-          {options_p8.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.sensituyosa >= option.min && onsenDetailData.sensituyosa <= option.max ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('sensituyosa', (option.min + option.max) / 2)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={styles.label}>混み具合</Text>
-        <View style={styles.buttonContainer}>
-          {options_p9.map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[
-                styles.button,
-                onsenDetailData.komiguai >= option.min && onsenDetailData.komiguai <= option.max ? styles.selected : styles.unselected
-              ]}
-              onPress={() => handlePress('komiguai', (option.min + option.max) / 2)}
-            >
-              <Text style={styles.buttonText}>{option.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <ButtonRange
+          label="泉質の良さ"
+          options={options_p8}
+          selectedValue={onsenDetailData.sensituyosa}
+          onValue='sensituyosa'
+        />
+        <ButtonRange
+          label="混み具合"
+          options={options_p9}
+          selectedValue={onsenDetailData.komiguai}
+          onValue='komiguai'
+        />
         {/* 他のフィールドも同様に追加... */}
       </View>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

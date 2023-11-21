@@ -1,15 +1,13 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
-import { IconButton, MD3Colors } from 'react-native-paper';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { IconButton } from 'react-native-paper';
+import { StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 const FavoriteButton = (data) => {
     const data_id = data.id
-    const [isPressed, setIsPressed] = useState();
-    const [isIcon, setIsIcon] = useState();
     const [favoriteDataArray, setFavoriteDataArray] = useState([]);
     const fetchFavorite = async () => {
         if (favoriteDataArray.includes(data_id)) {

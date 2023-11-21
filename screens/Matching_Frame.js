@@ -3,7 +3,6 @@ import { useState,useEffect } from "react";
 import { Image } from "expo-image";
 import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator,TouchableOpacity} from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
-import MatchingButtonContainer_purpose from "../components/MatchingButtonContainer_purpose";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -236,6 +235,8 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
                     afterImage={item.afterImage}
                     onToggle={() => handleButtonToggle(item.id,item.data)}
                     selected={selectedButtons.includes(item.id)}
+                    height={88}
+                    width={156}
                 />
               )}
             />
@@ -257,12 +258,14 @@ const isDataOutdated = async(lastUpdatedTimestamp) => {
               contentContainerStyle={styles.flatlistContent}
               renderItem={({ item }) => (
     
-                <MatchingButtonContainer_purpose
+                <MatchingButtonContainer
                     value={item.sentence}
                     beforeImage={item.beforeImage}
                     afterImage={item.afterImage}
                     onToggle={() => handleButtonToggle_purpose(item.id,item.data)}
                     selected={selectedButtons_purpose.includes(item.id)}
+                    height={132}
+                    width={328}
                 />
               )}
             />

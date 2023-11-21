@@ -345,11 +345,11 @@ useEffect(() => {
    //additems();
   
 }, []);
-//
-// useEffect(() => {
-//   // matchingItems が更新された際にログを出力
-//   console.log(matchingItems);
-// }, [matchingItems]);
+
+useEffect(() => {
+  // matchingItems が更新された際にログを出力
+  console.log(matchingItems);
+}, [matchingItems]);
 
 //お気に入り配列を取得
 useEffect(() => {

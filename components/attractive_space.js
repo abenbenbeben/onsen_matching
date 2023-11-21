@@ -1,23 +1,16 @@
 import * as React from "react";
-import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { FontFamily, Color, FontSize, Border } from '../GlobalStyles';
-import { Image } from 'expo-image';
 
 const AttractiveSpace = ({miryokuText}) => {
     return (
         <View style={styles.rectangleView}>
-            <Text style={styles.text4}>魅力</Text>
+            <Text style={styles.text4}></Text>
             <View style={styles.wrapper}>
                 <Text style={styles.text3}>
                     {miryokuText}
                 </Text>
             </View>
-            {/* <Image
-                style={[styles.child2, styles.text4Position]}
-                contentFit="cover"
-                source={require("../assets/rectangle-101.png")}
-            /> */}
         </View>
     )
 }

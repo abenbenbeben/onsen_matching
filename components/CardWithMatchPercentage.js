@@ -1,16 +1,9 @@
-import React, { useMemo } from "react";
-import { useState,useEffect } from "react";
+import React from "react";
 import { Pressable, StyleSheet, View, Text } from "react-native";
-import { IconButton, MD3Colors } from 'react-native-paper';
+import { IconButton } from 'react-native-paper';
 import { Image } from "expo-image";
 import { FontSize, FontFamily, Color, Border } from "../GlobalStyles";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 
-const getStyleValue = (key, value) => {
-  if (value === undefined) return;
-  return { [key]: value === "unset" ? undefined : value };
-};
 const CardWithMatchPercentage = ({
   onsenName,
   matchPercentage,
@@ -117,10 +110,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     lineHeight: 22,
     letterSpacing: 0,
-    // left: 111,
     color: Color.labelColorLightPrimary,
     marginVertical:1,
-    // position: "absolute",
 
   },
   text1: {
@@ -128,12 +119,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   view: {
-    // top: 24,
     width: 80,
     height: 16,
-    // left: 111,
     overflow: "hidden",
-    // position: "absolute",
     marginVertical:1,
 
   },
@@ -144,16 +132,11 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     marginVertical:1,
-    // top: 40,
     width: 153,
     height: 16,
-    // left: 111,
     overflow: "hidden",
-    // position: "absolute",
   },
   rectangleParent: {
-    // top: 136,
-    // left: 8,
     borderRadius: Border.br_12xs,
     borderStyle: "solid",
     borderColor: "black",
@@ -162,9 +145,6 @@ const styles = StyleSheet.create({
     height: 96,
     width: 343,
     marginVertical:4,
-
-
-
   },
 });
 

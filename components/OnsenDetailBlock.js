@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -23,12 +22,9 @@ const OnsenDetailBlock = ({title,data}) => {
 
 const styles = StyleSheet.create({
   rectangleParent: {
-    // top: 0,
-    // left: 2,
     height: 80,
     overflow: "hidden",
     width: 114,
-    // position: "absolute",
     marginRight:-1,
     marginTop:0,
     marginBottom:-1,
@@ -66,7 +62,6 @@ const styles = StyleSheet.create({
   },
   innerText:{
     fontFamily: FontFamily.interMedium,
-    // lineHeight: 22,
     color: Color.labelColorLightPrimary,
     fontSize: FontSize.size_xl,
     fontWeight: "500",
