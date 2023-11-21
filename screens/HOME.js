@@ -159,7 +159,7 @@ const HOME = ({navigation, route}) => {
           check_settings();
           //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         }
-        point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
+        //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
         setLoadingMessage('マッチング中...');
