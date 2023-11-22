@@ -2,7 +2,7 @@
   "expo": {
     "name": "スーパー銭湯マッチング",
     "slug": "onsen_maching",
-    "version": "3.0.2",
+    "version": "3.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "versionCode": 5,
+      "versionCode": 6,
       "package": "com.abebebe.onsen_maching",
       "name": "スーパー銭湯マッチング"
     },

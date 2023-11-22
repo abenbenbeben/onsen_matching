@@ -10,6 +10,7 @@ import Matching_Frame from "./screens/Matching_Frame";
 import ModalFrame from "./screens/ModalFrame";
 import ContactScreen from "./screens/ContactFrame";
 import Editdetail_Frame from "./screens/Editdetail_Frame.js";
+import Reportdetail_Frame from "./screens/Reportdetail_Frame.js";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, Pressable, TouchableOpacity, Button } from "react-native";
@@ -75,6 +76,11 @@ const App = () => {
             <Stack.Screen
               name="Editdetail_Frame"
               component={Editdetail_Frame}
+              // options={{ headerBackVisible: false }}
+            />
+            <Stack.Screen
+              name="Reportdetail_Frame"
+              component={Reportdetail_Frame}
               // options={{ headerBackVisible: false }}
             />
 

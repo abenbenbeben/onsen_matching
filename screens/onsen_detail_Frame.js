@@ -108,7 +108,14 @@ const Onsen_detail_Frame = ({navigation, route}) => {
     })
     console.log('編集ボタンが押されました。');
   };
-  
+  const handleReportPress = () => {
+    // 編集ボタンが押されたときの処理
+    navigation.navigate("Reportdetail_Frame",{
+      data:contents_data,
+      data_id:data_id
+    })
+    console.log('報告ボタンが押されました。');
+  }; 
 
 
   // const additems = async() => {
@@ -162,7 +169,6 @@ useFocusEffect(
     );
   }
 
-  console.log(onsen_data)
 
   return (
     <View style={styles.view}>
@@ -189,6 +195,11 @@ useFocusEffect(
               showsHorizontalScrollIndicator={false}
               style={styles.flatlist}
             />
+            <View style={styles.inyou}>
+              <Text style={styles.inyou_text}>
+                画像は{contents_data.onsen_name}公式サイトから引用
+              </Text>
+            </View>
         <View style={styles.view4}>
           <Text style={styles.text1}>
             平日：{contents_data.heijitunedan}円　祝日：{contents_data.kyuzitunedan}円
@@ -245,11 +256,36 @@ useFocusEffect(
         </View>
       </View>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <TouchableOpacity style={styles.button} onPress={handleReportPress}>
+          <Text style={styles.buttonText}>情報の修正を依頼する</Text>
+        </TouchableOpacity>
+      </View>
+      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <TouchableOpacity style={styles.button} onPress={handleEditPress}>
           <Text style={styles.buttonText}>編集する</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
+      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom:50 }}>
+        <TouchableOpacity
+          onPress={() => {
+            // const location = ; // 表示したい場所の住所
+            const url = `${contents_data.url}`;
+            console.log(url)
+            Linking.openURL(url);
+          }}
+        >
+          <Text style={styles.urlText}>引用元サイト</Text>
+        </TouchableOpacity>
+      </View> */}
+
+      {contents_data.url &&(
+        <View style={{ marginBottom:50, marginHorizontal: 20 }}>
+          <Text style={styles.syutten_text}>画像出典</Text>
+          <Text style={styles.syutten_text}>{contents_data.onsen_name}</Text>
+          <Text style={styles.syutten_text}>{contents_data.url}</Text>
+        </View>
+      )}
       </ScrollView>
       <StatusBar barStyle="default" />
     </View>
@@ -258,9 +294,23 @@ useFocusEffect(
 
 const styles = StyleSheet.create({
   flatlist: {
+    padding:3,
+    borderColor:"#ffa07a",
+    borderWidth:1,
     left:7,
     marginVertical:4,
   },
+  //引用注意書きのスタイル
+  inyou:{
+    right:3,
+
+  },
+  inyou_text:{
+    textAlign:"right",
+    fontSize:10,
+    color:"#696969",
+  },
+  //引用注意書きのスタイル終了
   textTypo1: {
     alignItems: "center",
     display: "flex",
@@ -450,6 +500,20 @@ const styles = StyleSheet.create({
   },
   //編集するボタンのスタイル終了
 
+  //引用元のスタイル
+  urlText:{
+    color: '#007BFF', // 白色のテキスト
+    fontSize: 14,
+    fontWeight: "300",
+  },
+
+  //引用元のスタイル終了
+
+  //出典のスタイル
+  syutten_text:{
+    color:"#696969"
+  }
+  //出典のスタイル終了
 });
 
 export default Onsen_detail_Frame;

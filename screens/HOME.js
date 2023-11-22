@@ -9,8 +9,6 @@ import {
   View,
   ScrollView,
   Text,
-  StatusBar,
-  Pressable,
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
@@ -287,39 +285,40 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "竜泉寺の湯 スパメッツァ おおたか",
-      feature: `「2022今行くべきサウナランキング全国１位」3種の水風呂、3種のサウナ。`,
-      zikan_heijitu_start:600,
-      zikan_heijitu_end: 2600,
-      zikan_kyujitu_start: 600,
-      zikan_kyujitu_end: 2600,
+      onsen_name: "湯乃市 鎌ヶ谷店",
+      feature: `炭酸泉の濃度が濃く肌にまとわりつく。サウナも広めでサウナーにも○`,
+      zikan_heijitu_start:900,
+      zikan_heijitu_end: 2300,
+      zikan_kyujitu_start: 800,
+      zikan_kyujitu_end: 2300,
       sauna: 1,
       rouryu: 1,
-      siosauna:1,
-      doro:1,
+      siosauna:0,
+      doro:0,
       mizuburo:1,
-      tennen:1,
-      sensitu:"ナトリウム－塩化物温泉",
-      sensituyosa:0.7,
+      tennen:0,
+      sensitu:"なし",
+      sensituyosa:0,
       tansan:1,
-      furosyurui:12,
-      manga:1,
-      wifi:1,
+      furosyurui:4,
+      manga:0,
+      wifi:0,
       tyusyazyo:1,
-      heijitunedan:1100,
-      kyuzitunedan:1280,
-      heikinnedan:1190,
-      ganban:1,
-      ganbansyurui:4,
-      senzai:0.7,
-      facewash:1,
-      komiguai:0.8,
-      wadai:1,
-      kodomo:0.7,
-      latitude:35.87302602890614, 
-      longitude: 139.92266187619666,
-      place: "千葉県流山市おおたかの森西１丁目15番１",
-      images:["onsen_images/spametsaotaka1.png","onsen_images/spametsaotaka2.png","onsen_images/spametsaotaka3.png","onsen_images/spametsaotaka4.png","onsen_images/spametsaotaka5.png","onsen_images/spametsaotaka6.png","onsen_images/spametsaotaka7.png"]
+      heijitunedan:750,
+      kyuzitunedan:850,
+      heikinnedan:800,
+      ganban:0,
+      ganbansyurui:0,
+      senzai:0,
+      facewash:0,
+      komiguai:0.3,
+      wadai:0,
+      kodomo:0,
+      url:"https://yunoichi.com/kamagaya/",
+      latitude:35.75300461788604,  
+      longitude:140.0051185007162,
+      place: "千葉県鎌ケ谷市鎌ケ谷９丁目１−１３",
+      images:["onsen_images/yunoitikamagaya1.jpeg","onsen_images/yunoitikamagaya2.jpeg","onsen_images/yunoitikamagaya3.jpeg","onsen_images/yunoitikamagaya4.jpeg","onsen_images/yunoitikamagaya5.jpeg","onsen_images/yunoitikamagaya6.jpeg","onsen_images/yunoitikamagaya7.jpeg"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -346,10 +345,10 @@ useEffect(() => {
   
 }, []);
 
-useEffect(() => {
-  // matchingItems が更新された際にログを出力
-  console.log(matchingItems);
-}, [matchingItems]);
+// useEffect(() => {
+//   // matchingItems が更新された際にログを出力
+//   console.log(matchingItems);
+// }, [matchingItems]);
 
 //お気に入り配列を取得
 useEffect(() => {
