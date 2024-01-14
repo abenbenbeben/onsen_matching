@@ -1,12 +1,16 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
-import { StyleSheet, View, Text, Pressable, StatusBar, Modal,ScrollView } from "react-native";
+import { StyleSheet, View, Text, Pressable, StatusBar, Modal,ScrollView, Platform,Alert,Linking, AppState} from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { collection, addDoc,getFirestore,getDocs,getDoc,doc,serverTimestamp, query,updateDoc } from "firebase/firestore";
 import { app } from "../firebaseconfig";
+
+import Constants from 'expo-constants';
+import * as Application from 'expo-application';
+import { useFocusEffect } from '@react-navigation/native';
 
 const db = getFirestore(app); 
 
@@ -16,6 +20,7 @@ const FirstFrame = () => {
   const [hasAgreed, setHasAgreed] = useState(false);
   // let kiyaku_sentence = "";//利用規約文章
   const [sentence, set_sentence] = useState("");//利用規約文章
+  const [appState, setAppState] = useState(AppState.currentState);
 
   const handleAgreeTerms = async () => {
     setHasAgreed(true);
@@ -31,6 +36,23 @@ const FirstFrame = () => {
       console.log('AsyncStorage has been cleared.');
     } catch (error) {
       console.error('Error clearing AsyncStorage: ', error);
+    }
+  };
+
+  const checkVersionAndUpdateIfNeeded = async () => {
+    const currentVersion = Platform.OS === 'android' ? Constants.expoConfig.android.versionCode : Constants.expoConfig.ios.buildNumber;
+    const latestVersion = Platform.OS === 'android' ? sentence.android_version : sentence.ios_version;
+    const storeUrl = Platform.OS === 'android'
+      ? 'https://play.google.com/store/apps/details?id=com.abebebe.onsen_maching'
+      : 'https://apps.apple.com/jp/app/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E9%8A%AD%E6%B9%AF%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0/id6471331298';
+  
+    if (currentVersion !== latestVersion) {
+      Alert.alert(
+        "新しいバージョンが利用可能です",
+        "最新の機能を利用するには、ストアからアップデートしてください。",
+        [{ text: "ストアへ遷移", onPress: () => Linking.openURL(storeUrl) }],
+        { cancelable: false }
+      );
     }
   };
 
@@ -89,6 +111,8 @@ const FirstFrame = () => {
     data.kiyakudata = doc.data().kiyaku;
     data.pre_title = doc.data().pre_title;
     data.pre_content = doc.data().pre_content;
+    data.android_version=doc.data().android_version;
+    data.ios_version=doc.data().ios_version;
   });
   set_sentence(data)
  }
@@ -108,7 +132,31 @@ const FirstFrame = () => {
     checkAgreement();
     fetch_global_data();
     // additems();
+
+
   }, []);
+  
+  useEffect(() => {
+    if(sentence.ios_version&&sentence.android_version){
+      checkVersionAndUpdateIfNeeded();
+    }
+  },[sentence])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", nextAppState => {
+      if (appState.match(/inactive|background/) && nextAppState === "active") {
+        console.log("アプリがフォアグラウンドに戻りました！");
+        // ここに実行したい関数を呼び出す
+        checkVersionAndUpdateIfNeeded();
+      }
+      setAppState(nextAppState);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState]);
+
 
   return (
     <View style={styles.view}>

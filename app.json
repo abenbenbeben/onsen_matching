@@ -2,7 +2,7 @@
   "expo": {
     "name": "スーパー銭湯マッチング",
     "slug": "onsen_maching",
-    "version": "3.1.0",
+    "version": "7.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,7 +24,7 @@
       },
       "bundleIdentifier": "com.abebebe.onsen-matching",
       "icon": "./assets/icon.png",
-      "buildNumber":"1",
+      "buildNumber":"7.0.0",
       "name": "スーパー銭湯マッチング"
     },
     "android": {
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "versionCode": 6,
+      "versionCode": 7,
       "package": "com.abebebe.onsen_maching",
       "name": "スーパー銭湯マッチング"
     },

@@ -49,7 +49,7 @@ const HOME = ({navigation, route}) => {
   const fetch_matchingdata = async() => {
 
     async function getCurrentLocation() {
-      const timeout = 50000;
+      const timeout = 5000;
     
       try {
         // 最初に現在の位置情報を取得を試みる
@@ -158,8 +158,10 @@ const HOME = ({navigation, route}) => {
           //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         }
         //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
+        //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
+        //point2 = { latitude:35.443018794602715, longitude: 139.3872117068581 };//海老名
         setLoadingMessage('マッチング中...');
         let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";let matchingDataResultTimestamp=null;
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
@@ -285,40 +287,43 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "湯乃市 鎌ヶ谷店",
-      feature: `炭酸泉の濃度が濃く肌にまとわりつく。サウナも広めでサウナーにも○`,
-      zikan_heijitu_start:900,
-      zikan_heijitu_end: 2300,
-      zikan_kyujitu_start: 800,
-      zikan_kyujitu_end: 2300,
+      onsen_name: "武蔵小山温泉 清水湯",
+      feature:`都内で希少な含鉄泉の天然温泉。水風呂にも源泉が使われている。
+サウナ追加料金450円
+土曜祝日営業時間12:00-24:00`,
+      zikan_heijitu_start:1200,
+      zikan_heijitu_end:2400,
+      zikan_kyujitu_start:800,
+      zikan_kyujitu_end:2400,
       sauna: 1,
-      rouryu: 1,
+      rouryu: 0,
       siosauna:0,
       doro:0,
       mizuburo:1,
-      tennen:0,
-      sensitu:"なし",
-      sensituyosa:0,
-      tansan:1,
+      tennen:1,
+      sensitu:"炭酸水素塩泉",
+      sensituyosa:1,
+      tansan:0,
       furosyurui:4,
       manga:0,
       wifi:0,
-      tyusyazyo:1,
-      heijitunedan:750,
-      kyuzitunedan:850,
-      heikinnedan:800,
+      tyusyazyo:0,
+      heijitunedan:520,
+      kyuzitunedan:520,
+      heikinnedan:520,
       ganban:0,
       ganbansyurui:0,
       senzai:0,
       facewash:0,
-      komiguai:0.3,
+      komiguai:0.8,
       wadai:0,
       kodomo:0,
-      url:"https://yunoichi.com/kamagaya/",
-      latitude:35.75300461788604,  
-      longitude:140.0051185007162,
-      place: "千葉県鎌ケ谷市鎌ケ谷９丁目１−１３",
-      images:["onsen_images/yunoitikamagaya1.jpeg","onsen_images/yunoitikamagaya2.jpeg","onsen_images/yunoitikamagaya3.jpeg","onsen_images/yunoitikamagaya4.jpeg","onsen_images/yunoitikamagaya5.jpeg","onsen_images/yunoitikamagaya6.jpeg","onsen_images/yunoitikamagaya7.jpeg"]
+      ekitika:1,
+      url:"http://www.shimizuyu.com/",
+      latitude:35.620397153178274, 
+      longitude:139.70772914400246,
+      place:"東京都品川区小山３丁目９−１",
+      images:["onsen_images/shimizuyumusasikoyama1.jpeg","onsen_images/shimizuyumusasikoyama2.jpeg","onsen_images/shimizuyumusasikoyama3.jpeg","onsen_images/shimizuyumusasikoyama4.jpeg","onsen_images/shimizuyumusasikoyama5.jpeg","onsen_images/shimizuyumusasikoyama6.jpeg","onsen_images/shimizuyumusasikoyama7.jpeg"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -341,7 +346,7 @@ const additems = async() => {
 
 useEffect(() => {
   fetch_matchingdata();
-   //additems();
+  //additems();
   
 }, []);
 
