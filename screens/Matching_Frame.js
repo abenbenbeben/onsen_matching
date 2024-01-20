@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
 import { Image } from "expo-image";
-import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator,TouchableOpacity} from "react-native";
+import { StyleSheet, View, Text, Pressable, StatusBar, ScrollView, Alert,FlatList,ActivityIndicator,TouchableOpacity, PixelRatio} from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     marginVertical:8,
   },
   text: {
-    fontSize: FontSize.size_3xl,
+    fontSize: 22/PixelRatio.getFontScale(),
     letterSpacing: 0,
     // lineHeight: 22,
     fontWeight: "500",
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   tabButtonText: {
     color: '#666', // 暗めのグレーテキスト
-    fontSize: 16,
+    fontSize: 16/PixelRatio.getFontScale(),
   },
   tabButtonActive: {
     //borderBottomColor: '#007BFF', // アクティブなタブの境界線は青色

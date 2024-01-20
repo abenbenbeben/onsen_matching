@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState,useEffect } from "react";
-import { StyleSheet, View, Text, Pressable, StatusBar, Modal,ScrollView, Platform,Alert,Linking, AppState} from "react-native";
+import { StyleSheet, View, Text, Pressable, StatusBar, Modal,ScrollView, Platform,Alert,Linking, AppState, PixelRatio,} from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   title: {
-    fontSize: 20,
+    fontSize: 20/PixelRatio.getFontScale(),
     fontWeight: 'bold',
     marginBottom:10,
   },
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   termsText: {
-    fontSize: 16,
+    fontSize: 16/PixelRatio.getFontScale(),
   },
   button: {
     backgroundColor: 'blue',
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 18/PixelRatio.getFontScale(),
   },
   //モーダルのスタイル終了
 
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   text: {
     marginLeft: -143.5,
     top: 190,
-    fontSize: FontSize.size_5xl,
+    fontSize: 24/PixelRatio.getFontScale(),
     fontFamily: FontFamily.interRegular,
     color: Color.labelColorLightPrimary,
     width: 286,
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
   text1: {
     marginLeft: -132,
-    fontSize: 36,
+    fontSize: 36/PixelRatio.getFontScale(),
     fontWeight: "500",
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorDarkPrimary,
@@ -348,11 +348,11 @@ const styles = StyleSheet.create({
     marginVertical: 20, // 斜線との間隔
   },
   title: {
-    fontSize: 20,
+    fontSize: 20/PixelRatio.getFontScale(),
     fontWeight:"100",
   },
   content: {
-    fontSize: 14,
+    fontSize: 14/PixelRatio.getFontScale(),
     fontWeight:"100",
   },
 });

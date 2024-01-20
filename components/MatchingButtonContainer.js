@@ -5,6 +5,7 @@ import {
   StyleSheet,
   View,
   Text,
+  PixelRatio
 } from "react-native";
 import { useSharedValue } from "react-native-reanimated";
 import Animated, {
@@ -96,7 +97,7 @@ const styles = (height,width) => StyleSheet.create({
     left: 0,
   },
   text: {
-    fontSize: FontSize.size_3xl,
+    fontSize: FontSize.size_3xl/PixelRatio.getFontScale(),
     letterSpacing: 0,
     fontWeight: "500",
     fontFamily: FontFamily.interMedium,

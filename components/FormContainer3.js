@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, View, Text, Alert } from "react-native";
+import { StyleSheet, View, Text, Alert, PixelRatio} from "react-native";
 import { Color, FontFamily, FontSize } from "../GlobalStyles";
 import Button from "./Button";
 
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   text1: {
     left: 52,
     width:96,
-    fontSize: FontSize.size_xl,
+    fontSize: 20/PixelRatio.getFontScale(),
     color: Color.labelColorLightPrimary,
     alignItems: "center",
     textAlign: "center",
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   text2: {
     left: 40,
-    fontSize: FontSize.size_5xl,
+    fontSize: 24/PixelRatio.getFontScale(),
   },
   view1: {
     top: 8,

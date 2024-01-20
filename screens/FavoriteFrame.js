@@ -9,6 +9,7 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
+  PixelRatio,
 } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     height: 15,
     justifyContent: "center",
     textAlign: "center",
-    fontSize: FontSize.size_2xs,
+    fontSize: 11/PixelRatio.getFontScale(),
     alignItems: "center",
     display: "flex",
     color: Color.labelColorLightPrimary,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   },
   text: {
     // top: 2,
-    fontSize: FontSize.defaultBoldBody_size,
+    fontSize: 17/PixelRatio.getFontScale(),
     textAlign: "left",
     // height: 29,
     // alignItems: "center",

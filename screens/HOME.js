@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  PixelRatio,
 } from "react-native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
@@ -161,7 +162,7 @@ const HOME = ({navigation, route}) => {
         //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
-        //point2 = { latitude:35.443018794602715, longitude: 139.3872117068581 };//海老名
+        point2 = { latitude:35.443018794602715, longitude: 139.3872117068581 };//海老名
         setLoadingMessage('マッチング中...');
         let furosyurui_max="";let nedan_min="";let ganbansyurui_max="";let matchingDataResultTimestamp=null;
         const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
@@ -287,43 +288,41 @@ const check_settings = () => {
 const additems = async() => {
   try {
     const docRef = await addDoc(collection(db, "onsen_data"), {
-      onsen_name: "武蔵小山温泉 清水湯",
-      feature:`都内で希少な含鉄泉の天然温泉。水風呂にも源泉が使われている。
-サウナ追加料金450円
-土曜祝日営業時間12:00-24:00`,
-      zikan_heijitu_start:1200,
-      zikan_heijitu_end:2400,
-      zikan_kyujitu_start:800,
-      zikan_kyujitu_end:2400,
+      onsen_name: "THE SPA 成城",
+      feature:`天然の黒湯。露天風呂も開放感がある。`,
+      zikan_heijitu_start:1000,
+      zikan_heijitu_end:2300,
+      zikan_kyujitu_start:700,
+      zikan_kyujitu_end:2300,
       sauna: 1,
       rouryu: 0,
-      siosauna:0,
+      siosauna:0.5,
       doro:0,
       mizuburo:1,
       tennen:1,
-      sensitu:"炭酸水素塩泉",
-      sensituyosa:1,
+      sensitu:"ナトリウム－塩化物・炭酸水素塩泉",
+      sensituyosa:0.8,
       tansan:0,
-      furosyurui:4,
-      manga:0,
-      wifi:0,
+      furosyurui:7,
+      manga:1,
+      wifi:1,
       tyusyazyo:0,
-      heijitunedan:520,
-      kyuzitunedan:520,
-      heikinnedan:520,
+      heijitunedan:1320,
+      kyuzitunedan:1740,
+      heikinnedan:1530,
       ganban:0,
       ganbansyurui:0,
       senzai:0,
       facewash:0,
-      komiguai:0.8,
+      komiguai:0.5,
       wadai:0,
       kodomo:0,
-      ekitika:1,
-      url:"http://www.shimizuyu.com/",
-      latitude:35.620397153178274, 
-      longitude:139.70772914400246,
-      place:"東京都品川区小山３丁目９−１",
-      images:["onsen_images/shimizuyumusasikoyama1.jpeg","onsen_images/shimizuyumusasikoyama2.jpeg","onsen_images/shimizuyumusasikoyama3.jpeg","onsen_images/shimizuyumusasikoyama4.jpeg","onsen_images/shimizuyumusasikoyama5.jpeg","onsen_images/shimizuyumusasikoyama6.jpeg","onsen_images/shimizuyumusasikoyama7.jpeg"]
+      ekitika:0,
+      url:"https://www.central.co.jp/thespa/seijo/",
+      latitude:35.65379957459642,
+      longitude: 139.61535788171076,
+      place:"東京都世田谷区千歳台３丁目２０−２ セントラルウェルネスタウン ２階",
+      images:["onsen_images/thespaseijo1.jpeg","onsen_images/thespaseijo2.jpeg","onsen_images/thespaseijo3.jpeg","onsen_images/thespaseijo4.jpeg","onsen_images/thespaseijo5.jpeg","onsen_images/thespaseijo6.jpeg","onsen_images/thespaseijo7.jpeg"]
     });
     console.log("Document written with ID: ", docRef.id);
   } catch (e) {
@@ -560,7 +559,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     // lineHeight: 22,
     letterSpacing: 0,
-    fontSize: FontSize.defaultBoldBody_size,
+    fontSize: 17/PixelRatio.getFontScale(),
     alignContent:"center",
     alignItems:"center",
     justifyContent:"center",
@@ -589,17 +588,17 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 20/PixelRatio.getFontScale(),
     fontWeight: 'bold',
     textAlign: 'center',
   },
   content: {
-    fontSize: 16,
+    fontSize: 16/PixelRatio.getFontScale(),
     textAlign: 'center',
     marginTop: 10,
   },
   link: {
-    fontSize: 16,
+    fontSize: 16/PixelRatio.getFontScale(),
     color: 'blue',
     marginTop: 10,
   },

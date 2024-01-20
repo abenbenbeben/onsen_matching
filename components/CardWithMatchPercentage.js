@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, View, Text } from "react-native";
+import { Pressable, StyleSheet, View, Text, PixelRatio } from "react-native";
 import { IconButton } from 'react-native-paper';
 import { Image } from "expo-image";
 import { FontSize, FontFamily, Color, Border } from "../GlobalStyles";
@@ -70,14 +70,15 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   textTypo: {
-    fontSize: FontSize.size_3xs,
+    fontSize: 10/PixelRatio.getFontScale(),
     height: 16,
     alignItems: "center",
     display: "flex",
     textAlign: "left",
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
-    lineHeight: 22,
+    // lineHeight: 22,
+    paddingVertical:6,
     letterSpacing: 0,
     left: 0,
     top: 0,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
   },
   text: {
     top: 3,
-    fontSize: FontSize.size_base,
+    fontSize: 16/PixelRatio.getFontScale(),
     width: 224,
     height: 21,
     alignItems: "center",
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
   text2: {
     width: 160,
     color: Color.labelColorLightPrimary,
-    fontSize: FontSize.size_3xs,
+    fontSize: 10/PixelRatio.getFontScale(),
   },
   wrapper: {
     marginVertical:1,
