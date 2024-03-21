@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, PixelRatio} from 'react-native';
 import { FontFamily, Color, FontSize, Border } from '../GlobalStyles';
 
 const AttractiveSpace = ({miryokuText}) => {
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
         lineHeight: 23,
         letterSpacing: 0,
         color: Color.labelColorLightPrimary,
-        fontSize: FontSize.size_xl,
+        fontSize: 20/PixelRatio.getFontScale(),
         // left: 8,
         marginTop:5,
         marginBottom:20,
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         color: Color.colorLightpink,
         width: 41,
         height: 9,
-        fontSize: FontSize.size_3xs,
+        fontSize: 10/PixelRatio.getFontScale(),
         textAlign: "center",
         
         justifyContent: "center",

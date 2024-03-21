@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useEffect ,useState} from "react";
-import { StyleSheet, View, Text, StatusBar, Pressable,Button, ActivityIndicator, FlatList,TouchableOpacity,Linking,ScrollView} from "react-native";
+import { StyleSheet, View, Text, StatusBar, Pressable,Button, ActivityIndicator, FlatList,TouchableOpacity,Linking,ScrollView, PixelRatio} from "react-native";
 import { Image } from "expo-image";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 import { IconButton, MD3Colors } from 'react-native-paper';
@@ -211,12 +211,16 @@ useFocusEffect(
             祝日：{formatTime(contents_data.zikan_kyujitu_start)}-{formatTime(contents_data.zikan_kyujitu_end)}
           </Text>
         </View>
-        
+        <View style={styles.view5}>
+            <Text style={styles.text3}>
+              住所：{contents_data.place}
+            </Text>
+        </View>
         <View style={styles.view5}>
           <TouchableOpacity
             onPress={() => {
               // const location = ; // 表示したい場所の住所
-              const url = `https://www.google.com/maps?q=${contents_data.place}`;
+              const url = `https://www.google.com/maps?q=${contents_data.onsen_name}`;
               Linking.openURL(url);
             }}
           >
@@ -229,7 +233,7 @@ useFocusEffect(
               />
             </View>
             <Text style={styles.text2}>
-              {contents_data.place}
+              GoogleMapで開く
             </Text>
           </TouchableOpacity>
         </View>
@@ -307,7 +311,7 @@ const styles = StyleSheet.create({
   },
   inyou_text:{
     textAlign:"right",
-    fontSize:10,
+    fontSize:10/PixelRatio.getFontScale(),
     color:"#696969",
   },
   //引用注意書きのスタイル終了
@@ -316,7 +320,7 @@ const styles = StyleSheet.create({
     display: "flex",
     textAlign: "left",
     fontFamily: FontFamily.interMedium,
-    fontSize: FontSize.size_xl,
+    fontSize: 20/PixelRatio.getFontScale(),
     fontWeight: "500",
     // lineHeight: 22,
     letterSpacing: 0,
@@ -373,7 +377,7 @@ const styles = StyleSheet.create({
     marginVertical:3
   },
   text1: {
-    fontSize: FontSize.defaultBoldBody_size,
+    fontSize: 17/PixelRatio.getFontScale(),
     height: 24,
     alignItems: "center",
     display: "flex",
@@ -410,7 +414,7 @@ const styles = StyleSheet.create({
     left: 33,
     width: "85%",
     height: "100%",
-    fontSize: FontSize.size_xl,
+    fontSize: 20/PixelRatio.getFontScale(),
     top: 0,
     // position: "absolute",
 
@@ -423,8 +427,25 @@ const styles = StyleSheet.create({
     // lineHeight: 22,
     // letterSpacing: 0,
     color: Color.labelColorLightPrimary,
+    textDecorationLine:"underline",
+  },
+  text3: {
+    left:0,
+    width: "85%",
+    height: "100%",
+    fontSize: 17/PixelRatio.getFontScale(),
+    top: 0,
+    // position: "absolute",
 
 
+    // display: "flex",
+    textAlign: "left",
+    textAlignVertical:"center",
+    fontFamily: FontFamily.interMedium,
+    fontWeight: "500",
+    // lineHeight: 22,
+    // letterSpacing: 0,
+    color: Color.labelColorLightPrimary,
   },
   view5: {
     width: "98%",
@@ -495,7 +516,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white', // 白色のテキスト
-    fontSize: 16,
+    fontSize: 16/PixelRatio.getFontScale(),
     fontWeight: 'bold',
   },
   //編集するボタンのスタイル終了
@@ -503,7 +524,7 @@ const styles = StyleSheet.create({
   //引用元のスタイル
   urlText:{
     color: '#007BFF', // 白色のテキスト
-    fontSize: 14,
+    fontSize: 14/PixelRatio.getFontScale(),
     fontWeight: "300",
   },
 

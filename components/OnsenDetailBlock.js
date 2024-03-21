@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
+  PixelRatio,
 } from "react-native";
 import { Border, Color, FontSize, FontFamily } from "../GlobalStyles";
 
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
     lineHeight: 22,
-    fontSize: FontSize.size_3xs,
+    fontSize: 10/PixelRatio.getFontScale(),
     height: 24,
     color: Color.labelColorLightPrimary,
     width: 114,
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   innerText:{
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorLightPrimary,
-    fontSize: FontSize.size_xl,
+    fontSize: 20/PixelRatio.getFontScale(),
     fontWeight: "500",
 
   },

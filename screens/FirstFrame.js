@@ -1,51 +1,81 @@
 import * as React from "react";
-import { useState,useEffect } from "react";
-import { StyleSheet, View, Text, Pressable, StatusBar, Modal,ScrollView, Platform,Alert,Linking, AppState, PixelRatio,} from "react-native";
+import { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Pressable,
+  StatusBar,
+  Modal,
+  ScrollView,
+  Platform,
+  Alert,
+  Linking,
+  AppState,
+  PixelRatio,
+} from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { collection, addDoc,getFirestore,getDocs,getDoc,doc,serverTimestamp, query,updateDoc } from "firebase/firestore";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  collection,
+  addDoc,
+  getFirestore,
+  getDocs,
+  getDoc,
+  doc,
+  serverTimestamp,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { app } from "../firebaseconfig";
 
-import Constants from 'expo-constants';
-import * as Application from 'expo-application';
-import { useFocusEffect } from '@react-navigation/native';
+import Constants from "expo-constants";
+import * as Application from "expo-application";
+import { useFocusEffect } from "@react-navigation/native";
 
-const db = getFirestore(app); 
+const db = getFirestore(app);
 
 const FirstFrame = () => {
   const navigation = useNavigation();
   const [showTermsModal, setShowTermsModal] = useState(false); // モーダルを表示するための状態
   const [hasAgreed, setHasAgreed] = useState(false);
   // let kiyaku_sentence = "";//利用規約文章
-  const [sentence, set_sentence] = useState("");//利用規約文章
+  const [sentence, set_sentence] = useState(""); //利用規約文章
   const [appState, setAppState] = useState(AppState.currentState);
 
   const handleAgreeTerms = async () => {
     setHasAgreed(true);
     setShowTermsModal(false);
-    
+
     // 同意ボタンが押されたら同意フラグを保存
-    await AsyncStorage.setItem('hasAgreedToTerms', 'true');
+    await AsyncStorage.setItem("hasAgreedToTerms", "true");
   };
 
   const resetAsyncStorage = async () => {
     try {
       await AsyncStorage.clear();
-      console.log('AsyncStorage has been cleared.');
+      console.log("AsyncStorage has been cleared.");
     } catch (error) {
-      console.error('Error clearing AsyncStorage: ', error);
+      console.error("Error clearing AsyncStorage: ", error);
     }
   };
 
   const checkVersionAndUpdateIfNeeded = async () => {
-    const currentVersion = Platform.OS === 'android' ? Constants.expoConfig.android.versionCode : Constants.expoConfig.ios.buildNumber;
-    const latestVersion = Platform.OS === 'android' ? sentence.android_version : sentence.ios_version;
-    const storeUrl = Platform.OS === 'android'
-      ? 'https://play.google.com/store/apps/details?id=com.abebebe.onsen_maching'
-      : 'https://apps.apple.com/jp/app/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E9%8A%AD%E6%B9%AF%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0/id6471331298';
-  
+    const currentVersion =
+      Platform.OS === "android"
+        ? Constants.expoConfig.android.versionCode
+        : Constants.expoConfig.ios.buildNumber;
+    const latestVersion =
+      Platform.OS === "android"
+        ? sentence.android_version
+        : sentence.ios_version;
+    const storeUrl =
+      Platform.OS === "android"
+        ? "https://play.google.com/store/apps/details?id=com.abebebe.onsen_maching"
+        : "https://apps.apple.com/jp/app/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E9%8A%AD%E6%B9%AF%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0/id6471331298";
+
     if (currentVersion !== latestVersion) {
       Alert.alert(
         "新しいバージョンが利用可能です",
@@ -56,10 +86,12 @@ const FirstFrame = () => {
     }
   };
 
-  const additems = async() => {
-  try {
-    const docRef = await updateDoc(doc(db, "global_match_data","z9eDm6HDqFRpf3fO9nkd"),  {
-      kiyaku: `アプリ「スーパー銭湯マッチング」の利用規約
+  const additems = async () => {
+    try {
+      const docRef = await updateDoc(
+        doc(db, "global_match_data", "z9eDm6HDqFRpf3fO9nkd"),
+        {
+          kiyaku: `アプリ「スーパー銭湯マッチング」の利用規約
 
 
 この利用規約（以下、「本規約」といいます）は、アプリ「スーパー銭湯マッチング」（以下、「アプリ」といいます）の利用に関する条件を定めるものです。アプリをダウンロードし、ご利用いただく前に、本規約をよくお読みいただき、内容を理解した上でご利用ください。アプリを利用することで、本規約に同意したものとみなします。
@@ -96,33 +128,35 @@ const FirstFrame = () => {
 7.2 本規約に関する一切の紛争については、[提供者の所在地]の裁判所を専属の管轄裁判所とします。
 
 本利用規約は、2023年11月1日に制定され、効力を発揮します。
-`
+`,
+        }
+      );
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
+  const fetch_global_data = async () => {
+    let data = {};
+    const querySnapshot_global = await getDocs(
+      collection(db, "global_match_data")
+    );
+    querySnapshot_global.forEach((doc) => {
+      data.kiyakudata = doc.data().kiyaku;
+      data.pre_title = doc.data().pre_title;
+      data.pre_content = doc.data().pre_content;
+      data.android_version = doc.data().android_version;
+      data.ios_version = doc.data().ios_version;
     });
-    console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
-}
- 
- const fetch_global_data = async() => {
-  let data= {};
-  const querySnapshot_global = await getDocs(collection(db, "global_match_data"));
-  querySnapshot_global.forEach((doc) => {
-    data.kiyakudata = doc.data().kiyaku;
-    data.pre_title = doc.data().pre_title;
-    data.pre_content = doc.data().pre_content;
-    data.android_version=doc.data().android_version;
-    data.ios_version=doc.data().ios_version;
-  });
-  set_sentence(data)
- }
+    set_sentence(data);
+  };
 
-
- // 初回起動時に同意フラグを読み込む
+  // 初回起動時に同意フラグを読み込む
   useEffect(() => {
     async function checkAgreement() {
-      const agreed = await AsyncStorage.getItem('hasAgreedToTerms');
-      if (agreed === 'true') {
+      const agreed = await AsyncStorage.getItem("hasAgreedToTerms");
+      if (agreed === "true") {
         setHasAgreed(true);
       } else {
         setShowTermsModal(true);
@@ -132,18 +166,16 @@ const FirstFrame = () => {
     checkAgreement();
     fetch_global_data();
     // additems();
-
-
   }, []);
-  
+
   useEffect(() => {
-    if(sentence.ios_version&&sentence.android_version){
+    if (sentence.ios_version && sentence.android_version) {
       checkVersionAndUpdateIfNeeded();
     }
-  },[sentence])
+  }, [sentence]);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener("change", nextAppState => {
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (appState.match(/inactive|background/) && nextAppState === "active") {
         console.log("アプリがフォアグラウンドに戻りました！");
         // ここに実行したい関数を呼び出す
@@ -157,7 +189,6 @@ const FirstFrame = () => {
     };
   }, [appState]);
 
-
   return (
     <View style={styles.view}>
       <View style={styles.grid} />
@@ -165,24 +196,25 @@ const FirstFrame = () => {
 スーパー銭湯
 を探しましょう`}</Text>
       <View style={styles.container}>
-      {sentence.pre_title && sentence.pre_content && (
-        <>
-          <View style={styles.box}>
-            <Text style={styles.title}>{sentence.pre_title}</Text>
-            <Text style={styles.content}>{sentence.pre_content}</Text>
-          </View>
-        </>
+        {sentence.pre_title && sentence.pre_content && (
+          <>
+            <View style={styles.box}>
+              <Text style={styles.title}>{sentence.pre_title}</Text>
+              <Text style={styles.content}>{sentence.pre_content}</Text>
+            </View>
+          </>
         )}
       </View>
       <Pressable
         style={styles.vectorParent}
         start_match="さっそく探す"
-        onPress={() => navigation.reset({
-          index: 0,
-          routes: [{ name: 'Matching_Frame'}]
-        })}
+        onPress={() =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Matching_Frame" }],
+          })
+        }
       >
-        
         <Image
           style={[styles.frameChild, styles.childPosition]}
           contentFit="cover"
@@ -198,16 +230,14 @@ const FirstFrame = () => {
           <View style={styles.termsContainer}>
             <Text style={styles.title}>利用規約</Text>
             <ScrollView>
-              <Text style={styles.termsText}>
-                {sentence.kiyakudata}
-              </Text>
+              <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
             </ScrollView>
-            <Pressable 
-              onPress={handleAgreeTerms} 
+            <Pressable
+              onPress={handleAgreeTerms}
               style={({ pressed }) => [
                 styles.button,
                 pressed ? styles.buttonPressed : null,
-                !sentence.kiyakudata ? styles.buttonDisabled : null
+                !sentence.kiyakudata ? styles.buttonDisabled : null,
               ]}
               disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
             >
@@ -216,50 +246,49 @@ const FirstFrame = () => {
           </View>
         </View>
       </Modal>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-
   //モーダルのスタイル
   modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   title: {
-    fontSize: 20/PixelRatio.getFontScale(),
-    fontWeight: 'bold',
-    marginBottom:10,
+    fontSize: 20 / PixelRatio.getFontScale(),
+    fontWeight: "bold",
+    marginBottom: 10,
   },
   termsContainer: {
-    maxHeight: '60%',
-    width: '80%',
-    backgroundColor: 'white',
+    maxHeight: "60%",
+    width: "80%",
+    backgroundColor: "white",
     padding: 16,
     marginVertical: 10,
     borderRadius: 10,
   },
   termsText: {
-    fontSize: 16/PixelRatio.getFontScale(),
+    fontSize: 16 / PixelRatio.getFontScale(),
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
-    alignItems:"center",
+    alignItems: "center",
   },
-  buttonDisabled: {//利用規約が表示されていない時のボタンスタイル
-    backgroundColor: 'grey', // 無効化されたボタンの色
+  buttonDisabled: {
+    //利用規約が表示されていない時のボタンスタイル
+    backgroundColor: "grey", // 無効化されたボタンの色
     // その他のスタイル定義
   },
   buttonText: {
-    color: 'white',
-    fontSize: 18/PixelRatio.getFontScale(),
+    color: "white",
+    fontSize: 18 / PixelRatio.getFontScale(),
   },
   //モーダルのスタイル終了
 
@@ -294,7 +323,7 @@ const styles = StyleSheet.create({
   text: {
     marginLeft: -143.5,
     top: 190,
-    fontSize: 24/PixelRatio.getFontScale(),
+    fontSize: 24 / PixelRatio.getFontScale(),
     fontFamily: FontFamily.interRegular,
     color: Color.labelColorLightPrimary,
     width: 286,
@@ -309,7 +338,7 @@ const styles = StyleSheet.create({
   },
   text1: {
     marginLeft: -132,
-    fontSize: 36/PixelRatio.getFontScale(),
+    fontSize: 36 / PixelRatio.getFontScale(),
     fontWeight: "500",
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorDarkPrimary,
@@ -339,21 +368,21 @@ const styles = StyleSheet.create({
   //メッセージボックス
   container: {
     // flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   box: {
-    alignItems: 'center',
+    alignItems: "center",
     marginVertical: 20, // 斜線との間隔
   },
   title: {
-    fontSize: 20/PixelRatio.getFontScale(),
-    fontWeight:"100",
+    fontSize: 20 / PixelRatio.getFontScale(),
+    fontWeight: "100",
   },
   content: {
-    fontSize: 14/PixelRatio.getFontScale(),
-    fontWeight:"100",
+    fontSize: 14 / PixelRatio.getFontScale(),
+    fontWeight: "100",
   },
 });
 
