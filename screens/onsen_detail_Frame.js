@@ -1,27 +1,50 @@
 import * as React from "react";
-import { useEffect ,useState} from "react";
-import { StyleSheet, View, Text, StatusBar, Pressable,Button, ActivityIndicator, FlatList,TouchableOpacity,Linking,ScrollView, PixelRatio} from "react-native";
+import { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Pressable,
+  Button,
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+  Linking,
+  ScrollView,
+  PixelRatio,
+} from "react-native";
 import { Image } from "expo-image";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
-import { IconButton, MD3Colors } from 'react-native-paper';
+import { IconButton, MD3Colors } from "react-native-paper";
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
+import LinkButton from "../components/LinkButton";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { collection, addDoc,getFirestore,getDocs,getDoc,doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getFirestore,
+  getDocs,
+  getDoc,
+  doc,
+} from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import OnsenDetailBlock from "../components/OnsenDetailBlock";
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "@react-navigation/native";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const Onsen_detail_Frame = ({navigation, route}) => {
+const Onsen_detail_Frame = ({ navigation, route }) => {
   const data_id = route.params.data;
-  const [contents_data, setcontents_data]=useState();
+  const [contents_data, setcontents_data] = useState();
   const [onsen_detail_data, setonsen_detail_data] = useState();
   const [imageData, setImageData] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   let onsen_data = "";
+  let salesFlag;
+  const dayOfWeekName = ["日", "月", "火", "水", "木", "金", "土"];
 
   const fetchURL = async (imagepath) => {
     try {
@@ -34,23 +57,25 @@ const Onsen_detail_Frame = ({navigation, route}) => {
     }
   };
 
-  const fetch_matchingdata = async() => {
+  const fetch_matchingdata = async () => {
     try {
-      const querySnapshot = await getDoc(doc(db, "onsen_data",data_id));
-      const querySnapshot_detail = await getDocs(collection(db, "onsen_detail_data"))
-      onsen_data=querySnapshot.data();
+      const querySnapshot = await getDoc(doc(db, "onsen_data", data_id));
+      const querySnapshot_detail = await getDocs(
+        collection(db, "onsen_detail_data")
+      );
+      onsen_data = querySnapshot.data();
       const imageData = await Promise.all(
         onsen_data.images.map(async (item) => await fetchURL(item))
       );
       setImageData(imageData);
       setcontents_data(onsen_data);
 
-      function checkValue(value,valuetitle) {
-        if(valuetitle == "furosyurui"){
-          return value+"種類"
+      function checkValue(value, valuetitle) {
+        if (valuetitle == "furosyurui") {
+          return value + "種類";
         }
-        if(valuetitle == "ganbansyurui"){
-          return value+"種類"
+        if (valuetitle == "ganbansyurui") {
+          return value + "種類";
         }
         if (value <= 0.3) {
           return "×";
@@ -66,29 +91,75 @@ const Onsen_detail_Frame = ({navigation, route}) => {
         const matchDataDict = {
           id: doc.id,
           title: data.title,
-          data: checkValue(onsen_data[data.data],data.data),
+          data: checkValue(onsen_data[data.data], data.data),
           // その他のデータフィールドを追加
         };
         return matchDataDict;
       });
-      setonsen_detail_data(matchingDataArray)
-      setLoading(false);  //データ読み込みが完了したらローディング状態を解除
-    }catch (e) {
+      setonsen_detail_data(matchingDataArray);
+      setLoading(false); //データ読み込みが完了したらローディング状態を解除
+    } catch (e) {
       console.error("Error fetching data: ", e);
     }
+  };
+
+  function getSalesFlag(periods) {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const dayOfWeek = now.getDay();
+    let closeTime = null;
+    let SalesFlag = false;
+    const currentFormatedTime = `${hours}${
+      minutes < 10 ? `0${minutes}` : minutes
+    }`;
+    const period = periods.filter((dayinfo) => dayinfo.day === dayOfWeek)[0];
+    const nextPeriod = () => {
+      for (let i = 1; i <= periods.length; i++) {
+        const nextDay = (dayOfWeek + i) % 7;
+        const dayinfo = periods.find((day) => day.day === nextDay);
+        if (dayinfo && dayinfo.open !== null && dayinfo.close !== null) {
+          return dayinfo;
+        }
+        console.log(nextDay, dayinfo);
+        return null;
+      }
+    };
+    // const nextPeriod = periods.filter(
+    //   (dayinfo) => dayinfo.day === (dayOfWeek + 1) % 7
+    // )[0];
+    if (period.close) {
+      closeTime = period.close < 1200 ? period.close + 2400 : period.close;
+    }
+    if (period.open && closeTime) {
+      SalesFlag =
+        period.open < currentFormatedTime && closeTime > currentFormatedTime;
+    }
+    const result = {
+      SalesFlag: SalesFlag,
+      dayOfWeek: dayOfWeek,
+      period: period,
+      nextPeriod: true,
+      nextPeriodFlag: currentFormatedTime > closeTime,
+    };
+
+    return result;
+  }
+  if (contents_data) {
+    salesFlag = getSalesFlag(contents_data.periods);
   }
 
   //時間変換する関数
   function formatTime(time) {
     let hours = Math.floor(time / 100);
     let minutes = time % 100;
-  
+
     // 24時間を超える時間を処理
     if (hours >= 24) {
       hours = hours - 24;
-      hours = `翌${hours}`
+      hours = `翌${hours}`;
     }
-  
+
     // 時間と分が1桁の場合は0を追加
     // if (hours < 10) {
     //   hours = `0${hours}`;
@@ -96,27 +167,26 @@ const Onsen_detail_Frame = ({navigation, route}) => {
     if (minutes < 10) {
       minutes = `0${minutes}`;
     }
-  
+
     return `${hours}:${minutes}`;
   }
 
   const handleEditPress = () => {
     // 編集ボタンが押されたときの処理
-    navigation.navigate("Editdetail_Frame",{
-      data:contents_data,
-      data_id:data_id
-    })
-    console.log('編集ボタンが押されました。');
+    navigation.navigate("Editdetail_Frame", {
+      data: contents_data,
+      data_id: data_id,
+    });
+    console.log("編集ボタンが押されました。");
   };
   const handleReportPress = () => {
     // 編集ボタンが押されたときの処理
-    navigation.navigate("Reportdetail_Frame",{
-      data:contents_data,
-      data_id:data_id
-    })
-    console.log('報告ボタンが押されました。');
-  }; 
-
+    navigation.navigate("Reportdetail_Frame", {
+      data: contents_data,
+      data_id: data_id,
+    });
+    console.log(`報告ボタンが押されました。${data_id}`);
+  };
 
   // const additems = async() => {
   //   try {
@@ -130,147 +200,139 @@ const Onsen_detail_Frame = ({navigation, route}) => {
   //   }
   // }
 
-
   useEffect(() => {
     fetch_matchingdata();
     // additems();
-    
   }, []);
 
   useEffect(() => {
-    console.log(onsen_detail_data)
+    console.log(onsen_detail_data);
   }, [onsen_detail_data]);
-  // useEffect(() => {
-  //   console.log(imageData)
-  // }, [imageData]);
   useEffect(() => {
-    console.log(contents_data)
-  },[contents_data])
+    console.log(contents_data);
+  }, [contents_data]);
 
   //Backボタンで戻ってきた時に動く。
-useFocusEffect(
-  React.useCallback(() => {
-    // ここにフォーカスが戻ってきた時に実行したい処理を記述
-    // 例: 関数の呼び出し
-    fetch_matchingdata();
-  }, [])
-);
-
-
-
+  useFocusEffect(
+    React.useCallback(() => {
+      // ここにフォーカスが戻ってきた時に実行したい処理を記述
+      // 例: 関数の呼び出し
+      fetch_matchingdata();
+    }, [])
+  );
 
   if (loading) {
     // ローディング中の表示
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" />
         <Text>Loading...</Text>
       </View>
     );
   }
 
-
   return (
     <View style={styles.view}>
       <ScrollView style={styles.parent}>
-      <View>
-        <View style={[styles.view1, styles.textPosition]}>
-          <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
-        </View>
-        <FavoriteButton
-          id={data_id}
-        />
-            <FlatList
-              data={imageData}
-              renderItem={({ item }) => (
-                <Image
-                  style={ styles.childLayout}
-                  contentFit="cover"
-                  source={item}
-                />
-              )}
-              keyExtractor={(item, index) => index.toString()}
-              horizontal={true} // 横方向にスクロール
-              numColumns={1} // 列数を1に設定
-              showsHorizontalScrollIndicator={false}
-              style={styles.flatlist}
-            />
-            <View style={styles.inyou}>
-              <Text style={styles.inyou_text}>
-                画像は{contents_data.onsen_name}公式サイトから引用
-              </Text>
-            </View>
-        <View style={styles.view4}>
-          <Text style={styles.text1}>
-            平日：{contents_data.heijitunedan}円　祝日：{contents_data.kyuzitunedan}円
-          </Text>
-        </View>
-        <View style={styles.view4}>
-          <Text style={styles.text1}>
-            平日：{formatTime(contents_data.zikan_heijitu_start)}-{formatTime(contents_data.zikan_heijitu_end)},
-            祝日：{formatTime(contents_data.zikan_kyujitu_start)}-{formatTime(contents_data.zikan_kyujitu_end)}
-          </Text>
-        </View>
-        <View style={styles.view5}>
-            <Text style={styles.text3}>
-              住所：{contents_data.place}
-            </Text>
-        </View>
-        <View style={styles.view5}>
-          <TouchableOpacity
-            onPress={() => {
-              // const location = ; // 表示したい場所の住所
-              const url = `https://www.google.com/maps?q=${contents_data.onsen_name}`;
-              Linking.openURL(url);
-            }}
-          >
-            <View style={styles.iconContainer}>
-              <IconButton
-                icon="map-marker"
-                iconColor="black"
-                size={30}
-                style={styles.frameIcon}
+        <View>
+          <View style={[styles.view1, styles.textPosition]}>
+            <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
+          </View>
+          <FavoriteButton id={data_id} />
+          <FlatList
+            data={imageData}
+            renderItem={({ item }) => (
+              <Image
+                style={styles.childLayout}
+                contentFit="cover"
+                source={item}
               />
-            </View>
-            <Text style={styles.text2}>
-              GoogleMapで開く
+            )}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal={true} // 横方向にスクロール
+            numColumns={1} // 列数を1に設定
+            showsHorizontalScrollIndicator={false}
+            style={styles.flatlist}
+          />
+          <View style={styles.inyou}>
+            <Text style={styles.inyou_text}>
+              画像は{contents_data.onsen_name}公式サイトから引用
             </Text>
+          </View>
+          <View style={styles.view4}>
+            <Text style={styles.text1}>
+              平日：{contents_data.heijitunedan}円　祝日：
+              {contents_data.kyuzitunedan}円
+            </Text>
+          </View>
+          <View style={styles.view4}>
+            <Text style={styles.text1}>
+              浴場：
+              {salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}・
+              {salesFlag.SalesFlag &&
+                `終了時間: ${
+                  salesFlag.period.close > 0 && salesFlag.period.close < 1200
+                    ? dayOfWeekName[(salesFlag.dayOfWeek + 1) % 7]
+                    : ""
+                } ${formatTime(salesFlag.period.close)}`}
+              {!salesFlag.SalesFlag &&
+                !salesFlag.nextPeriodFlag &&
+                `開始時間: ${formatTime(salesFlag.period.open)}`}
+              {!salesFlag.SalesFlag &&
+                salesFlag.nextPeriodFlag &&
+                `開始時間: ${
+                  dayOfWeekName[salesFlag.nextPeriod.day]
+                } ${formatTime(salesFlag.nextPeriod.open)}`}
+            </Text>
+          </View>
+          <View style={styles.view5}>
+            <Text style={styles.text3}>住所：{contents_data.place}</Text>
+          </View>
+          <View style={styles.LinkButtonContainer}>
+            <LinkButton
+              ButtonText={"GoogleMap"}
+              ButtonFlag={"GoogleMap"}
+              url={`https://www.google.com/maps?q=${contents_data.onsen_name}`}
+            />
+            <LinkButton
+              locationName={contents_data.onsen_name}
+              ButtonText={"公式サイト"}
+              ButtonFlag={"OfficialSite"}
+              url={contents_data.url}
+            />
+          </View>
+
+          <View style={styles.view6}>
+            <AttractiveSpace miryokuText={contents_data.feature} />
+          </View>
+          <View style={styles.view7}>
+            <FlatList
+              data={onsen_detail_data}
+              renderItem={({ item }) => (
+                <OnsenDetailBlock title={item.title} data={item.data} />
+              )}
+              keyExtractor={(item) => item.id}
+              numColumns={3} // 3列で表示
+              // style={styles.flatlist}
+              contentContainerStyle={styles.flatlistContent}
+              scrollEnabled={false}
+            />
+          </View>
+        </View>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <TouchableOpacity style={styles.button} onPress={handleReportPress}>
+            <Text style={styles.buttonText}>情報の修正を依頼する</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.view6}>
-          <AttractiveSpace 
-            miryokuText={contents_data.feature}
-          />
-        </View>
-        <View style={styles.view7}>
-          <FlatList
-                data={onsen_detail_data}
-                renderItem={({ item }) => 
-                  <OnsenDetailBlock
-                    title={item.title}
-                    data={item.data}
-                  />
-                }
-                keyExtractor={(item) => item.id}
-                numColumns={3} // 3列で表示
-                // style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-          />
-        </View>
-      </View>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <TouchableOpacity style={styles.button} onPress={handleReportPress}>
-          <Text style={styles.buttonText}>情報の修正を依頼する</Text>
-        </TouchableOpacity>
-      </View>
-      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <TouchableOpacity style={styles.button} onPress={handleEditPress}>
           <Text style={styles.buttonText}>編集する</Text>
         </TouchableOpacity>
       </View> */}
 
-      {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom:50 }}>
+        {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom:50 }}>
         <TouchableOpacity
           onPress={() => {
             // const location = ; // 表示したい場所の住所
@@ -283,13 +345,13 @@ useFocusEffect(
         </TouchableOpacity>
       </View> */}
 
-      {contents_data.url &&(
-        <View style={{ marginBottom:50, marginHorizontal: 20 }}>
-          <Text style={styles.syutten_text}>画像出典</Text>
-          <Text style={styles.syutten_text}>{contents_data.onsen_name}</Text>
-          <Text style={styles.syutten_text}>{contents_data.url}</Text>
-        </View>
-      )}
+        {contents_data.url && (
+          <View style={{ marginBottom: 50, marginHorizontal: 20 }}>
+            <Text style={styles.syutten_text}>画像出典</Text>
+            <Text style={styles.syutten_text}>{contents_data.onsen_name}</Text>
+            <Text style={styles.syutten_text}>{contents_data.url}</Text>
+          </View>
+        )}
       </ScrollView>
       <StatusBar barStyle="default" />
     </View>
@@ -298,21 +360,20 @@ useFocusEffect(
 
 const styles = StyleSheet.create({
   flatlist: {
-    padding:3,
-    borderColor:"#ffa07a",
-    borderWidth:1,
-    left:7,
-    marginVertical:4,
+    padding: 3,
+    borderColor: "#ffa07a",
+    borderWidth: 1,
+    left: 7,
+    marginVertical: 4,
   },
   //引用注意書きのスタイル
-  inyou:{
-    right:3,
-
+  inyou: {
+    right: 3,
   },
-  inyou_text:{
-    textAlign:"right",
-    fontSize:10/PixelRatio.getFontScale(),
-    color:"#696969",
+  inyou_text: {
+    textAlign: "right",
+    fontSize: 10 / PixelRatio.getFontScale(),
+    color: "#696969",
   },
   //引用注意書きのスタイル終了
   textTypo1: {
@@ -320,7 +381,7 @@ const styles = StyleSheet.create({
     display: "flex",
     textAlign: "left",
     fontFamily: FontFamily.interMedium,
-    fontSize: 20/PixelRatio.getFontScale(),
+    fontSize: 20 / PixelRatio.getFontScale(),
     fontWeight: "500",
     // lineHeight: 22,
     letterSpacing: 0,
@@ -346,7 +407,7 @@ const styles = StyleSheet.create({
     width: 330,
     left: 7,
     overflow: "hidden",
-    marginVertical:4,
+    marginVertical: 4,
 
     // borderColor:"red",
     // borderWidth:2,
@@ -374,10 +435,10 @@ const styles = StyleSheet.create({
     // top: 41,
     width: 342,
     left: 7,
-    marginVertical:3
+    marginVertical: 3,
   },
   text1: {
-    fontSize: 17/PixelRatio.getFontScale(),
+    fontSize: 17 / PixelRatio.getFontScale(),
     height: 24,
     alignItems: "center",
     display: "flex",
@@ -389,8 +450,6 @@ const styles = StyleSheet.create({
     color: Color.labelColorLightPrimary,
     left: 0,
     top: 0,
-
-
   },
   view4: {
     // top: 194,
@@ -400,10 +459,9 @@ const styles = StyleSheet.create({
     width: 345,
     height: 24,
     // position: "absolute",
-    marginVertical:3,
+    marginVertical: 3,
   },
   frameIcon: {
-  
     left: -12,
     top: -16,
     // maxHeight: "100%",
@@ -414,33 +472,26 @@ const styles = StyleSheet.create({
     left: 33,
     width: "85%",
     height: "100%",
-    fontSize: 20/PixelRatio.getFontScale(),
+    fontSize: 20 / PixelRatio.getFontScale(),
     top: 0,
-    // position: "absolute",
-
-
-    // display: "flex",
     textAlign: "left",
-    textAlignVertical:"center",
+    textAlignVertical: "center",
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
-    // lineHeight: 22,
-    // letterSpacing: 0,
     color: Color.labelColorLightPrimary,
-    textDecorationLine:"underline",
+    textDecorationLine: "underline",
   },
   text3: {
-    left:0,
-    width: "85%",
+    left: 0,
+    width: "100%",
     height: "100%",
-    fontSize: 17/PixelRatio.getFontScale(),
+    fontSize: 17 / PixelRatio.getFontScale(),
     top: 0,
     // position: "absolute",
 
-
     // display: "flex",
     textAlign: "left",
-    textAlignVertical:"center",
+    textAlignVertical: "center",
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
     // lineHeight: 22,
@@ -452,20 +503,26 @@ const styles = StyleSheet.create({
     height: 30,
     left: 7,
     overflow: "hidden",
-    justifyContent:"center",
-    marginVertical:3,
-
+    justifyContent: "center",
+    marginVertical: 3,
+  },
+  LinkButtonContainer: {
+    width: "100%",
+    flexDirection: "row",
+    // overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    marginVertical: 3,
   },
   view6: {
-    marginVertical:3,
+    marginVertical: 3,
     // height: 104,
     width: "98%",
     left: 7,
     overflow: "hidden",
     // justifyContent:"center",
-    alignContent:"center",
-    marginVertical:5,
-
+    alignContent: "center",
+    marginVertical: 5,
   },
   view7: {
     // height: 700,
@@ -473,11 +530,10 @@ const styles = StyleSheet.create({
     left: 7,
     // overflow: "hidden",
     // alignItems:"center",
-    marginVertical:20,
+    marginVertical: 20,
 
     // borderWidth:1,
     // borderColor:"red",
-
   },
   parent: {
     marginBottom: 10,
@@ -495,45 +551,45 @@ const styles = StyleSheet.create({
     // borderColor:"red",
     // borderWidth:2,
   },
-  flatlistContent:{
-    alignItems:"center",
+  flatlistContent: {
+    alignItems: "center",
   },
 
   //編集するボタンのスタイル
   button: {
-    width:200,
-    backgroundColor: '#007BFF', // 青色の背景
+    width: 200,
+    backgroundColor: "#007BFF", // 青色の背景
     padding: 10,
     borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginBottom:50,
+    marginBottom: 50,
   },
   buttonText: {
-    color: 'white', // 白色のテキスト
-    fontSize: 16/PixelRatio.getFontScale(),
-    fontWeight: 'bold',
+    color: "white", // 白色のテキスト
+    fontSize: 16 / PixelRatio.getFontScale(),
+    fontWeight: "bold",
   },
   //編集するボタンのスタイル終了
 
   //引用元のスタイル
-  urlText:{
-    color: '#007BFF', // 白色のテキスト
-    fontSize: 14/PixelRatio.getFontScale(),
+  urlText: {
+    color: "#007BFF", // 白色のテキスト
+    fontSize: 14 / PixelRatio.getFontScale(),
     fontWeight: "300",
   },
 
   //引用元のスタイル終了
 
   //出典のスタイル
-  syutten_text:{
-    color:"#696969"
-  }
+  syutten_text: {
+    color: "#696969",
+  },
   //出典のスタイル終了
 });
 

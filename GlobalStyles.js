@@ -20,10 +20,12 @@ export const Color = {
   labelColorLightPrimary: "#000",
   colorWhitesmoke_100: "#f3f3f3",
   colorWhitesmoke_200: "rgba(238, 238, 238, 0.7)",
+  colorBrightBlack: "#333",
   colorLightpink: "#ffafaf",
   colorRed: "#ff002e",
   colorGainsboro: "#d9d9d9",
   colorRoyalblue: "#3a6ae5",
+  colorAzureBlue: "#4285F4",
   colorGray: "rgba(0, 0, 0, 0.1)",
 };
 /* border radiuses */
