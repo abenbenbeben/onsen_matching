@@ -107,7 +107,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
-    const dayOfWeek = now.getDay();
+    let dayOfWeek = now.getDay();
     let closeTime = null;
     let SalesFlag = false;
     const currentFormatedTime = `${hours}${
@@ -121,13 +121,9 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
         if (dayinfo && dayinfo.open !== null && dayinfo.close !== null) {
           return dayinfo;
         }
-        console.log(nextDay, dayinfo);
-        return null;
       }
+      return null;
     };
-    // const nextPeriod = periods.filter(
-    //   (dayinfo) => dayinfo.day === (dayOfWeek + 1) % 7
-    // )[0];
     if (period.close) {
       closeTime = period.close < 1200 ? period.close + 2400 : period.close;
     }
@@ -139,7 +135,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       SalesFlag: SalesFlag,
       dayOfWeek: dayOfWeek,
       period: period,
-      nextPeriod: true,
+      nextPeriod: nextPeriod(),
       nextPeriodFlag: currentFormatedTime > closeTime,
     };
 
@@ -268,7 +264,18 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <View style={styles.view4}>
             <Text style={styles.text1}>
               浴場：
-              {salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}・
+              <Text
+                style={{
+                  color: salesFlag.SalesFlag
+                    ? Color.colorForestGreen
+                    : Color.colorRedOrange,
+                  fontWeight: "bold",
+                  fontFamily: "System",
+                }}
+              >
+                {salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}
+              </Text>
+              ・
               {salesFlag.SalesFlag &&
                 `終了時間: ${
                   salesFlag.period.close > 0 && salesFlag.period.close < 1200
@@ -281,8 +288,12 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
               {!salesFlag.SalesFlag &&
                 salesFlag.nextPeriodFlag &&
                 `開始時間: ${
-                  dayOfWeekName[salesFlag.nextPeriod.day]
-                } ${formatTime(salesFlag.nextPeriod.open)}`}
+                  dayOfWeekName[
+                    salesFlag.nextPeriod.day ? salesFlag.nextPeriod.day : 0
+                  ]
+                } ${formatTime(
+                  salesFlag.nextPeriod.open ? salesFlag.nextPeriod.open : 0
+                )}`}
             </Text>
           </View>
           <View style={styles.view5}>
@@ -444,7 +455,7 @@ const styles = StyleSheet.create({
     display: "flex",
     textAlign: "left",
     fontFamily: FontFamily.interMedium,
-    fontWeight: "500",
+    // fontWeight: "500",
     lineHeight: 22,
     letterSpacing: 0,
     color: Color.labelColorLightPrimary,
@@ -452,13 +463,11 @@ const styles = StyleSheet.create({
     top: 0,
   },
   view4: {
-    // top: 194,
     height: 24,
     left: 7,
     overflow: "hidden",
     width: 345,
     height: 24,
-    // position: "absolute",
     marginVertical: 3,
   },
   frameIcon: {

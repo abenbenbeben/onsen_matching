@@ -23,6 +23,8 @@ export const Color = {
   colorBrightBlack: "#333",
   colorLightpink: "#ffafaf",
   colorRed: "#ff002e",
+  colorRedOrange: "#DC362E",
+  colorForestGreen: "#198639",
   colorGainsboro: "#d9d9d9",
   colorRoyalblue: "#3a6ae5",
   colorAzureBlue: "#4285F4",
