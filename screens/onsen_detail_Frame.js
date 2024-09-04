@@ -20,6 +20,7 @@ import { IconButton, MD3Colors } from "react-native-paper";
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
 import LinkButton from "../components/LinkButton";
+import OperatingHours from "../components/OperatingHours";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
@@ -44,7 +45,6 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   let onsen_data = "";
   let salesFlag;
-  const dayOfWeekName = ["日", "月", "火", "水", "木", "金", "土"];
 
   const fetchURL = async (imagepath) => {
     try {
@@ -102,70 +102,6 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       console.error("Error fetching data: ", e);
     }
   };
-
-  function getSalesFlag(periods) {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    let dayOfWeek = now.getDay();
-    let closeTime = null;
-    let SalesFlag = false;
-    const currentFormatedTime = `${hours}${
-      minutes < 10 ? `0${minutes}` : minutes
-    }`;
-    const period = periods.filter((dayinfo) => dayinfo.day === dayOfWeek)[0];
-    const nextPeriod = () => {
-      for (let i = 1; i <= periods.length; i++) {
-        const nextDay = (dayOfWeek + i) % 7;
-        const dayinfo = periods.find((day) => day.day === nextDay);
-        if (dayinfo && dayinfo.open !== null && dayinfo.close !== null) {
-          return dayinfo;
-        }
-      }
-      return null;
-    };
-    if (period.close) {
-      closeTime = period.close < 1200 ? period.close + 2400 : period.close;
-    }
-    if (period.open && closeTime) {
-      SalesFlag =
-        period.open < currentFormatedTime && closeTime > currentFormatedTime;
-    }
-    const result = {
-      SalesFlag: SalesFlag,
-      dayOfWeek: dayOfWeek,
-      period: period,
-      nextPeriod: nextPeriod(),
-      nextPeriodFlag: currentFormatedTime > closeTime,
-    };
-
-    return result;
-  }
-  if (contents_data) {
-    salesFlag = getSalesFlag(contents_data.periods);
-  }
-
-  //時間変換する関数
-  function formatTime(time) {
-    let hours = Math.floor(time / 100);
-    let minutes = time % 100;
-
-    // 24時間を超える時間を処理
-    if (hours >= 24) {
-      hours = hours - 24;
-      hours = `翌${hours}`;
-    }
-
-    // 時間と分が1桁の場合は0を追加
-    // if (hours < 10) {
-    //   hours = `0${hours}`;
-    // }
-    if (minutes < 10) {
-      minutes = `0${minutes}`;
-    }
-
-    return `${hours}:${minutes}`;
-  }
 
   const handleEditPress = () => {
     // 編集ボタンが押されたときの処理
@@ -261,41 +197,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
               {contents_data.kyuzitunedan}円
             </Text>
           </View>
-          <View style={styles.view4}>
-            <Text style={styles.text1}>
-              浴場：
-              <Text
-                style={{
-                  color: salesFlag.SalesFlag
-                    ? Color.colorForestGreen
-                    : Color.colorRedOrange,
-                  fontWeight: "bold",
-                  fontFamily: "System",
-                }}
-              >
-                {salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}
-              </Text>
-              ・
-              {salesFlag.SalesFlag &&
-                `終了時間: ${
-                  salesFlag.period.close > 0 && salesFlag.period.close < 1200
-                    ? dayOfWeekName[(salesFlag.dayOfWeek + 1) % 7]
-                    : ""
-                } ${formatTime(salesFlag.period.close)}`}
-              {!salesFlag.SalesFlag &&
-                !salesFlag.nextPeriodFlag &&
-                `開始時間: ${formatTime(salesFlag.period.open)}`}
-              {!salesFlag.SalesFlag &&
-                salesFlag.nextPeriodFlag &&
-                `開始時間: ${
-                  dayOfWeekName[
-                    salesFlag.nextPeriod.day ? salesFlag.nextPeriod.day : 0
-                  ]
-                } ${formatTime(
-                  salesFlag.nextPeriod.open ? salesFlag.nextPeriod.open : 0
-                )}`}
-            </Text>
-          </View>
+          <OperatingHours contents_data={contents_data} />
           <View style={styles.view5}>
             <Text style={styles.text3}>住所：{contents_data.place}</Text>
           </View>
