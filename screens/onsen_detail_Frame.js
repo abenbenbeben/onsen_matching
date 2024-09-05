@@ -13,6 +13,8 @@ import {
   Linking,
   ScrollView,
   PixelRatio,
+  Clipboard,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
@@ -101,6 +103,13 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     } catch (e) {
       console.error("Error fetching data: ", e);
     }
+  };
+  const copyToClipboard = (text, CopyContents) => {
+    Clipboard.setString(text);
+    Alert.alert(
+      "コピー完了",
+      `${CopyContents}をクリップボードにコピーしました。`
+    );
   };
 
   const handleEditPress = () => {
@@ -199,7 +208,12 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           </View>
           <OperatingHours contents_data={contents_data} />
           <View style={styles.view5}>
-            <Text style={styles.text3}>住所：{contents_data.place}</Text>
+            <Text
+              onLongPress={() => copyToClipboard(contents_data.place, "住所")}
+              style={styles.text3}
+            >
+              住所：{contents_data.place}
+            </Text>
           </View>
           <View style={styles.LinkButtonContainer}>
             <LinkButton
