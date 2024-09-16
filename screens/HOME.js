@@ -457,6 +457,7 @@ const HOME = ({ navigation, route }) => {
       onFramePressablePress={() =>
         navigation.navigate("Onsen_detail_Frame", {
           data: item.id,
+          match_array: match_array,
         })
       }
       heijitunedan={item.heijitunedan}

@@ -7,9 +7,13 @@ const OperatingHours = ({ contents_data }) => {
   let salesFlag;
   const dayOfWeekName = ["日", "月", "火", "水", "木", "金", "土"];
   const [isOpen, setIsOpen] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+  };
+  const handlePress = () => {
+    setIsClicked(!isClicked);
   };
 
   //時間変換する関数
@@ -126,16 +130,30 @@ const OperatingHours = ({ contents_data }) => {
       </View>
       <View>
         {isOpen && (
-          <View style={styles.dropdown}>
-            {reorderArray(contents_data.periods, salesFlag.dayOfWeek).map(
-              (hours, index) => (
-                <Text key={index} style={styles.dropdownText}>
-                  　　　{dayOfWeekName[hours.day]}曜日　　　
-                  {formatTime(hours.open)} 〜 {formatTime(hours.close)}
+          <>
+            <View style={styles.dropdown}>
+              <View style={styles.periods}>
+                {reorderArray(contents_data.periods, salesFlag.dayOfWeek).map(
+                  (hours, index) => (
+                    <Text key={index} style={styles.dropdownText}>
+                      {dayOfWeekName[hours.day]}曜日　　　
+                      {formatTime(hours.open)} 〜 {formatTime(hours.close)}
+                    </Text>
+                  )
+                )}
+              </View>
+              <TouchableOpacity onPress={handlePress} style={styles.button}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    isClicked && styles.clickedButtonText,
+                  ]}
+                >
+                  新しい営業時間を提案
                 </Text>
-              )
-            )}
-          </View>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
       </View>
     </>
@@ -176,7 +194,7 @@ const styles = {
   dropdown: {
     // プルダウンメニューのスタイル
     // marginTop: 8,
-    // marginrLeft: 10,
+    paddingLeft: 54,
     padding: 8,
     paddingBottom: 12,
     justifyContent: "center",
@@ -185,6 +203,22 @@ const styles = {
     // 営業時間のテキストスタイル
     fontSize: 17 / PixelRatio.getFontScale(),
     paddingVertical: 4,
+  },
+
+  periods: {
+    paddingBottom: 10,
+  },
+
+  // ボタンのスタイル
+  button: {
+    // ボタンの初期状態（背景色なし、枠なし）
+    padding: 4,
+  },
+  buttonText: {
+    // テキストの初期スタイル
+    fontSize: 17 / PixelRatio.getFontScale(),
+    fontWeight: 500,
+    color: "blue",
   },
 };
 

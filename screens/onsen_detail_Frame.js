@@ -15,14 +15,15 @@ import {
   PixelRatio,
   Clipboard,
   Alert,
+  Modal,
 } from "react-native";
 import { Image } from "expo-image";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
-import { IconButton, MD3Colors } from "react-native-paper";
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
 import LinkButton from "../components/LinkButton";
 import OperatingHours from "../components/OperatingHours";
+import FacilityCard from "../components/FacilityContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
@@ -41,10 +42,14 @@ const storage = getStorage(app);
 
 const Onsen_detail_Frame = ({ navigation, route }) => {
   const data_id = route.params.data;
+  const match_array = route.params.match_array;
+  console.log("match_array" + match_array);
   const [contents_data, setcontents_data] = useState();
   const [onsen_detail_data, setonsen_detail_data] = useState();
   const [imageData, setImageData] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   let onsen_data = "";
   let salesFlag;
 
@@ -104,6 +109,18 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       console.error("Error fetching data: ", e);
     }
   };
+
+  const openModal = (image) => {
+    console.log("SelectedImage: " + image);
+    setSelectedImage(image);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedImage(null);
+  };
+
   const copyToClipboard = (text, CopyContents) => {
     Clipboard.setString(text);
     Alert.alert(
@@ -118,7 +135,6 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       data: contents_data,
       data_id: data_id,
     });
-    console.log("編集ボタンが押されました。");
   };
   const handleReportPress = () => {
     // 編集ボタンが押されたときの処理
@@ -129,21 +145,20 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     console.log(`報告ボタンが押されました。${data_id}`);
   };
 
-  // const additems = async() => {
-  //   try {
-  //     const docRef = await addDoc(collection(db, "onsen_detail_data"), {
-  //       title: "岩盤浴の種類",
-  //       data:"ganbansyurui",
-  //     });
-  //     console.log("Document written with ID: ", docRef.id);
-  //   } catch (e) {
-  //     console.error("Error adding document: ", e);
-  //   }
-  // }
+  const additems = async () => {
+    try {
+      const docRef = await addDoc(collection(db, "onsen_detail_data_v2"), {
+        title: "最寄駅",
+        data: "moyorieki",
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
 
   useEffect(() => {
     fetch_matchingdata();
-    // additems();
   }, []);
 
   useEffect(() => {
@@ -183,11 +198,13 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <FlatList
             data={imageData}
             renderItem={({ item }) => (
-              <Image
-                style={styles.childLayout}
-                contentFit="cover"
-                source={item}
-              />
+              <TouchableOpacity onPress={() => openModal(item)}>
+                <Image
+                  style={styles.childLayout}
+                  contentFit="cover"
+                  source={item}
+                />
+              </TouchableOpacity>
             )}
             keyExtractor={(item, index) => index.toString()}
             horizontal={true} // 横方向にスクロール
@@ -195,6 +212,18 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
             showsHorizontalScrollIndicator={false}
             style={styles.flatlist}
           />
+          {/* モーダル */}
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            onRequestClose={closeModal}
+          >
+            <View style={styles.modalBackground}>
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <Image source={selectedImage} style={styles.fullImage} />
+              </TouchableOpacity>
+            </View>
+          </Modal>
           <View style={styles.inyou}>
             <Text style={styles.inyou_text}>
               画像は{contents_data.onsen_name}公式サイトから引用
@@ -209,7 +238,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <OperatingHours contents_data={contents_data} />
           <View style={styles.view5}>
             <Text
-              onLongPress={() => copyToClipboard(contents_data.place, "住所")}
+              onPress={() => copyToClipboard(contents_data.place, "住所")}
               style={styles.text3}
             >
               住所：{contents_data.place}
@@ -232,6 +261,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <View style={styles.view6}>
             <AttractiveSpace miryokuText={contents_data.feature} />
           </View>
+          <FacilityCard />
           <View style={styles.view7}>
             <FlatList
               data={onsen_detail_data}
@@ -292,6 +322,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     left: 7,
     marginVertical: 4,
+  },
+  // モーダル画像のスタイル
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+
+    borderWidth: 1,
+    borderColor: "blue",
+  },
+  closeButton: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullImage: {
+    // width: "90%",
+    width: 500,
+    height: "90%",
+    resizeMode: "contain",
+
+    borderWidth: 1,
+    borderColor: "white",
   },
   //引用注意書きのスタイル
   inyou: {
