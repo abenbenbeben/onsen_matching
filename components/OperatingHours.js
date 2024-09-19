@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, PixelRatio } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // 矢印アイコン用のライブラリ
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
+import { GlobalData } from "../GlobalData";
 
 const OperatingHours = ({ contents_data }) => {
   let salesFlag;
-  const dayOfWeekName = ["日", "月", "火", "水", "木", "金", "土"];
+  const dayOfWeekName = GlobalData.dayOfWeekName;
   const [isOpen, setIsOpen] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
@@ -70,7 +71,9 @@ const OperatingHours = ({ contents_data }) => {
       SalesFlag =
         period.open < currentFormatedTime && closeTime > currentFormatedTime;
     }
+
     const result = {
+      regularHoliday: period.open == null && period.close == null,
       SalesFlag: SalesFlag,
       dayOfWeek: dayOfWeek,
       period: period,
@@ -80,7 +83,7 @@ const OperatingHours = ({ contents_data }) => {
 
     return result;
   }
-  if (contents_data) {
+  if (contents_data !== null) {
     salesFlag = getSalesFlag(contents_data.periods);
   }
 
@@ -98,7 +101,9 @@ const OperatingHours = ({ contents_data }) => {
               fontFamily: "System",
             }}
           >
-            {salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}
+            {salesFlag.regularHoliday ? "定休日" : ""}
+            {!salesFlag.regularHoliday &&
+              `${salesFlag.SalesFlag ? "入浴可能" : "入浴時間外"}`}
           </Text>
           ・
           {salesFlag.SalesFlag &&
@@ -137,7 +142,11 @@ const OperatingHours = ({ contents_data }) => {
                   (hours, index) => (
                     <Text key={index} style={styles.dropdownText}>
                       {dayOfWeekName[hours.day]}曜日　　　
-                      {formatTime(hours.open)} 〜 {formatTime(hours.close)}
+                      {(hours.open !== null || hours.close !== null) &&
+                        `${formatTime(hours.open)} 〜 ${formatTime(
+                          hours.close
+                        )}`}
+                      {hours.open == null && hours.close == null && `定休日`}
                     </Text>
                   )
                 )}

@@ -1,26 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,Alert } from 'react-native';
-import { collection, addDoc,getFirestore} from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Switch,
+} from "react-native";
+import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { app } from "../firebaseconfig";
+import { GlobalData } from "../GlobalData";
 
-const db = getFirestore(app); 
+const db = getFirestore(app);
 
-const Reportdetail_Frame = ({navigation,route}) => {
+const Reportdetail_Frame = ({ navigation, route }) => {
   const data_id = route.params.data_id;
   const data = route.params.data;
   const [selectedItems, setSelectedItems] = useState({});
-  const [reportDetails, setReportDetails] = useState('');
+  const [reportDetails, setReportDetails] = useState("");
+  const [isBusinessHoursChecked, setIsBusinessHoursChecked] = useState(false);
+  const [businessHours, setBusinessHours] = useState(data.periods);
 
   const items = [
-    '施設設備について',
-    '営業時間・料金について',
-    'その他',
+    "施設設備",
+    "営業時間",
+    "料金",
+    "その他",
     // 他に必要な項目を追加
   ];
   //matchingItems.filter(item => item.distance <= 5 && item.score > 50);
 
   const handleCheckboxChange = (item) => {
-    let instance = { ...selectedItems, [item]: !selectedItems[item] }
+    let instance = selectedItems;
+    if (selectedItems[item]) {
+      instance[item] = false;
+    } else {
+      Object.keys(instance).forEach((key) => {
+        instance[key] = false;
+      });
+      instance = { ...selectedItems, [item]: !selectedItems[item] };
+    }
+
     let filteredInstance = Object.keys(instance).reduce((newObj, key) => {
       if (instance[key] === true) {
         newObj[key] = true;
@@ -30,8 +52,15 @@ const Reportdetail_Frame = ({navigation,route}) => {
     setSelectedItems(filteredInstance);
   };
 
+  const handleBusinessHoursChange = (day, type, value) => {
+    setBusinessHours((prevHours) => ({
+      ...prevHours,
+      [day]: { ...prevHours[day], [type]: value },
+    }));
+  };
+
   const submitReport = () => {
-    const additems = async() => {
+    const additems = async () => {
       try {
         const docRef = await addDoc(collection(db, "report_onsen_data"), {
           data_id: data_id,
@@ -40,17 +69,23 @@ const Reportdetail_Frame = ({navigation,route}) => {
           detail: reportDetails,
         });
         console.log("Document written with ID: ", docRef.id);
-        Alert.alert("送信完了","ご報告ありがとうございました！")
+        Alert.alert("送信完了", "ご報告ありがとうございました！");
       } catch (e) {
         console.error("Error adding document: ", e);
-        Alert.alert("送信失敗","再度送信してください。")
+        Alert.alert("送信失敗", "再度送信してください。");
       }
-    }
-    console.log('報告内容:', data.onsen_name ,data_id,selectedItems, reportDetails);
-    console.log(Object.keys(selectedItems).length)
-    if(reportDetails.length <=0 || Object.keys(selectedItems).length<=0){
-      Alert.alert("注意","カテゴリーと詳細どちらも入力してください")
-    }else{
+    };
+    console.log(
+      "報告内容:",
+      data.onsen_name,
+      data_id,
+      selectedItems,
+      reportDetails
+    );
+    console.log(Object.keys(selectedItems).length);
+    if (reportDetails.length <= 0 || Object.keys(selectedItems).length <= 0) {
+      Alert.alert("注意", "カテゴリーと詳細どちらも入力してください");
+    } else {
       Alert.alert(
         "確認", // アラートのタイトル
         "送信してもよろしいですか？", // メッセージ
@@ -58,15 +93,15 @@ const Reportdetail_Frame = ({navigation,route}) => {
           {
             text: "キャンセル",
             onPress: () => console.log("キャンセルされました"),
-            style: "cancel"
+            style: "cancel",
           },
-          { 
-            text: "送信する", 
+          {
+            text: "送信する",
             onPress: () => {
               additems();
               navigation.goBack(); // 保存後に前の画面に戻る
-            }
-          }
+            },
+          },
         ],
         { cancelable: false }
       );
@@ -74,6 +109,10 @@ const Reportdetail_Frame = ({navigation,route}) => {
 
     // ここに報告を送信する処理を追加
   };
+
+  useEffect(() => {
+    console.log(businessHours);
+  }, [businessHours]);
 
   return (
     <ScrollView style={styles.container}>
@@ -91,15 +130,70 @@ const Reportdetail_Frame = ({navigation,route}) => {
           </View>
         </TouchableOpacity>
       ))}
-      <Text style={styles.inputLabel}>詳細:</Text>
-      <TextInput
-        style={styles.input}
-        multiline
-        placeholder={`詳細を入力してください
-例：泥パックがなくなっていた。〇〇温泉は閉店した。`}
-        value={reportDetails}
-        onChangeText={setReportDetails}
-      />
+
+      {selectedItems["営業時間"] && (
+        <View>
+          {Object.keys(businessHours).map((day) => (
+            <View key={day} style={styles.businessHoursContainer}>
+              <Text style={styles.dayLabel}>
+                {GlobalData.dayOfWeekName[day]}曜日
+              </Text>
+              <TextInput
+                style={styles.timeInput}
+                placeholder={String(businessHours[day].open)}
+                value={String(businessHours[day].open)}
+                keyboardType="numeric" // 数字キーボードを表示
+                maxLength={4} // 最大4桁に制限
+                onChangeText={(value) => {
+                  // 数字のみを許可し、4桁を超えないようにする
+                  if (/^\d{0,4}$/.test(value)) {
+                    // 2400を超える場合は2359にする
+                    const intValue = parseInt(value, 10);
+                    if (intValue >= 2400) {
+                      handleBusinessHoursChange(day, "open", "2359");
+                    } else {
+                      handleBusinessHoursChange(day, "open", value);
+                    }
+                  }
+                }}
+              />
+              <TextInput
+                style={styles.timeInput}
+                placeholder={String(businessHours[day].close)}
+                value={String(businessHours[day].close)}
+                keyboardType="numeric" // 数字キーボードを表示
+                maxLength={4} // 最大4桁に制限
+                onChangeText={(value) => {
+                  // 数字のみを許可し、4桁を超えないようにする
+                  if (/^\d{0,4}$/.test(value)) {
+                    // 2400を超える場合は2359にする
+                    const intValue = parseInt(value, 10);
+                    if (intValue >= 2400) {
+                      handleBusinessHoursChange(day, "close", "2359");
+                    } else {
+                      handleBusinessHoursChange(day, "close", value);
+                    }
+                  }
+                }}
+              />
+            </View>
+          ))}
+        </View>
+      )}
+
+      {!selectedItems["営業時間"] && (
+        <>
+          <Text style={styles.inputLabel}>詳細:</Text>
+          <TextInput
+            style={styles.input}
+            multiline
+            placeholder={`詳細を入力してください
+    例：泥パックがなくなっていた。〇〇温泉は閉店した。`}
+            value={reportDetails}
+            onChangeText={setReportDetails}
+          />
+        </>
+      )}
       <TouchableOpacity style={styles.button} onPress={submitReport}>
         <Text style={styles.buttonText}>報告を送信</Text>
       </TouchableOpacity>
@@ -113,20 +207,20 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   //温泉名のスタイル
-  onsenNameLabel:{
+  onsenNameLabel: {
     fontSize: 16,
-    marginBottom:15,
-    fontWeight:"500",
+    marginBottom: 15,
+    fontWeight: "500",
   },
   //温泉名のスタイル
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
   checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   checkboxLabel: {
@@ -138,14 +232,14 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 3,
     borderWidth: 1,
-    borderColor: 'black',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "black",
+    justifyContent: "center",
+    alignItems: "center",
   },
   checked: {
     width: 14,
     height: 14,
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
   },
   inputLabel: {
     fontSize: 16,
@@ -153,20 +247,20 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     padding: 10,
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     marginBottom: 20,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     padding: 15,
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
   },
 });
