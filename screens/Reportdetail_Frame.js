@@ -8,10 +8,12 @@ import {
   ScrollView,
   Alert,
   Switch,
+  PixelRatio,
 } from "react-native";
 import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import { GlobalData } from "../GlobalData";
+import symbolicateStackTrace from "react-native/Libraries/Core/Devtools/symbolicateStackTrace";
 
 const db = getFirestore(app);
 
@@ -23,17 +25,19 @@ const Reportdetail_Frame = ({ navigation, route }) => {
   const [isBusinessHoursChecked, setIsBusinessHoursChecked] = useState(false);
   const [businessHours, setBusinessHours] = useState(data.periods);
   // 時間と分を分けたステートを作成
-  const [localHours, setLocalHours] = useState(
-    Object.keys(businessHours).reduce((acc, day) => {
-      acc[day] = {
-        openHH: String(businessHours[day].open).padStart(4, "0").slice(0, 2),
-        openMM: String(businessHours[day].open).padStart(4, "0").slice(2, 4),
-        closeHH: String(businessHours[day].close).padStart(4, "0").slice(0, 2),
-        closeMM: String(businessHours[day].close).padStart(4, "0").slice(2, 4),
-      };
-      return acc;
-    }, {})
-  );
+  const defaultPeriods = Object.keys(data.periods).reduce((acc, day) => {
+    acc[day] = {
+      openHH: String(data.periods[day].open).padStart(4, "0").slice(0, 2),
+      openMM: String(data.periods[day].open).padStart(4, "0").slice(2, 4),
+      closeHH: String(data.periods[day].close).padStart(4, "0").slice(0, 2),
+      closeMM: String(data.periods[day].close).padStart(4, "0").slice(2, 4),
+    };
+    return acc;
+  }, {});
+  console.log("==========================");
+  console.log(defaultPeriods);
+  console.log("==========================");
+  const [localHours, setLocalHours] = useState(defaultPeriods);
 
   const items = [
     "施設設備",
@@ -147,164 +151,303 @@ const Reportdetail_Frame = ({ navigation, route }) => {
         <View>
           {Object.keys(businessHours).map((day) => (
             <View key={day} style={styles.businessHoursContainer}>
-              <Text style={styles.dayLabel}>
-                {GlobalData.dayOfWeekName[day]}曜日
-              </Text>
-
-              {/* 開始時刻 */}
-              <View style={styles.timeWrapper}>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="HH"
-                  value={localHours[day].openHH} // 時間（HH）の部分のみ表示
-                  keyboardType="numeric"
-                  maxLength={2} // 時間は最大2桁
-                  onChangeText={(value) => {
-                    if (value === "") {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], openHH: "" },
-                      }));
-                    } else if (
-                      /^\d{0,2}$/.test(value) &&
-                      parseInt(value, 10) < 24
-                    ) {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], openHH: value },
-                      }));
-                    }
-                  }}
-                  onBlur={() => {
-                    const hours = localHours[day].openHH.padStart(2, "0");
-                    const minutes = localHours[day].openMM.padStart(2, "0");
-                    handleBusinessHoursChange(day, "open", hours + minutes);
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: {
-                        ...prev[day],
-                        openHH: hours,
-                        openMM: minutes,
-                      },
-                    }));
-                  }}
-                />
-                <Text style={styles.colon}>:</Text>
-                <TextInput
-                  style={styles.minuteInput}
-                  placeholder="MM"
-                  value={localHours[day].openMM} // 分（MM）の部分のみ表示
-                  keyboardType="numeric"
-                  maxLength={2} // 分は最大2桁
-                  onChangeText={(value) => {
-                    // 入力中はそのまま反映
-                    if (value === "") {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], openMM: "" },
-                      }));
-                    } else if (
-                      /^\d{0,2}$/.test(value) &&
-                      parseInt(value, 10) < 60
-                    ) {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], openMM: value },
-                      }));
-                    }
-                  }}
-                  onBlur={() => {
-                    const hours = localHours[day].openHH.padStart(2, "0");
-                    const minutes = localHours[day].openMM.padStart(2, "0");
-                    handleBusinessHoursChange(day, "open", hours + minutes);
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: { ...prev[day], openHH: hours },
-                    }));
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: { ...prev[day], openMM: minutes },
-                    }));
-                  }}
-                />
+              <View style={styles.dayLabel}>
+                <Text style={styles.dayLabelText}>
+                  {GlobalData.dayOfWeekName[day]}曜日
+                </Text>
               </View>
 
-              {/* 終了時刻 */}
-              <View style={styles.timeWrapper}>
-                <TextInput
-                  style={styles.hourInput}
-                  placeholder="HH"
-                  value={localHours[day].closeHH} // 時間（HH）の部分のみ表示
-                  keyboardType="numeric"
-                  maxLength={2} // 時間は最大2桁
-                  onChangeText={(value) => {
-                    if (value === "") {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], closeHH: "" },
-                      }));
-                    } else if (
-                      /^\d{0,2}$/.test(value) &&
-                      parseInt(value, 10) < 24
-                    ) {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], closeHH: value },
-                      }));
-                    }
-                  }}
-                  onBlur={() => {
-                    const hours = localHours[day].closeHH.padStart(2, "0");
-                    const minutes = localHours[day].closeMM.padStart(2, "0");
-                    handleBusinessHoursChange(day, "close", hours + minutes);
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: {
-                        ...prev[day],
-                        closeHH: hours,
-                        closeMM: minutes,
-                      },
-                    }));
-                  }}
-                />
-                <Text style={styles.colon}>:</Text>
-                <TextInput
-                  style={styles.minuteInput}
-                  placeholder="MM"
-                  value={localHours[day].closeMM} // 分（MM）の部分のみ表示
-                  keyboardType="numeric"
-                  maxLength={2} // 分は最大2桁
-                  onChangeText={(value) => {
-                    // 入力中はそのまま反映
-                    if (value === "") {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], closeMM: "" },
-                      }));
-                    } else if (
-                      /^\d{0,2}$/.test(value) &&
-                      parseInt(value, 10) < 60
-                    ) {
-                      setLocalHours((prev) => ({
-                        ...prev,
-                        [day]: { ...prev[day], closeMM: value },
-                      }));
-                    }
-                  }}
-                  onBlur={() => {
-                    const hours = localHours[day].closeHH.padStart(2, "0");
-                    const minutes = localHours[day].closeMM.padStart(2, "0");
-                    handleBusinessHoursChange(day, "open", hours + minutes);
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: { ...prev[day], closeHH: hours },
-                    }));
-                    setLocalHours((prev) => ({
-                      ...prev,
-                      [day]: { ...prev[day], closeMM: minutes },
-                    }));
-                  }}
-                />
+              <View style={styles.flexDirectionColumn}>
+                {data.periods[day].open !== null &&
+                  data.periods[day].close !== null &&
+                  (String(businessHours[day].open).padStart(4, "0") !==
+                    defaultPeriods[day].openHH + defaultPeriods[day].openMM ||
+                    String(businessHours[day].close).padStart(4, "0") !==
+                      defaultPeriods[day].closeHH +
+                        defaultPeriods[day].closeMM) && (
+                    <View style={styles.flexDirectionRow}>
+                      <View style={styles.positionCenter}>
+                        <Text
+                          style={[
+                            styles.defaulthour,
+                            styles.textDecorationLineThrough,
+                          ]}
+                        >
+                          {defaultPeriods[day].openHH}
+                        </Text>
+                      </View>
+                      <Text style={styles.colon}>:</Text>
+                      <View style={styles.positionCenter}>
+                        <Text
+                          style={[
+                            styles.defaulthour,
+                            styles.textDecorationLineThrough,
+                          ]}
+                        >
+                          {defaultPeriods[day].openMM}
+                        </Text>
+                      </View>
+                      <View style={styles.defaultTimeOf}>
+                        <Text style={styles.timeOfText}>{`〜`}</Text>
+                      </View>
+                      <View style={styles.positionCenter}>
+                        <Text
+                          style={[
+                            styles.defaulthour,
+                            styles.textDecorationLineThrough,
+                          ]}
+                        >
+                          {defaultPeriods[day].closeHH}
+                        </Text>
+                      </View>
+                      <Text style={styles.colon}>:</Text>
+                      <View style={styles.positionCenter}>
+                        <Text
+                          style={[
+                            styles.defaulthour,
+                            styles.textDecorationLineThrough,
+                          ]}
+                        >
+                          {defaultPeriods[day].closeMM}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                {(businessHours[day].open !== null ||
+                  businessHours[day].close !== null) && (
+                  <View style={styles.flexDirectionRow}>
+                    {/* 開始時刻 */}
+                    <View style={styles.timeWrapper}>
+                      <TextInput
+                        style={styles.hourInput}
+                        placeholder="HH"
+                        value={localHours[day].openHH} // 時間（HH）の部分のみ表示
+                        keyboardType="numeric"
+                        maxLength={2} // 時間は最大2桁
+                        onChangeText={(value) => {
+                          if (value === "") {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], openHH: "" },
+                            }));
+                          } else if (
+                            /^\d{0,2}$/.test(value) &&
+                            parseInt(value, 10) < 24
+                          ) {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], openHH: value },
+                            }));
+                          }
+                        }}
+                        onBlur={() => {
+                          const hours = localHours[day].openHH.padStart(2, "0");
+                          const minutes = localHours[day].openMM.padStart(
+                            2,
+                            "0"
+                          );
+                          handleBusinessHoursChange(
+                            day,
+                            "open",
+                            parseInt(hours + minutes),
+                            10
+                          );
+                          setLocalHours((prev) => ({
+                            ...prev,
+                            [day]: {
+                              ...prev[day],
+                              openHH: hours,
+                              openMM: minutes,
+                            },
+                          }));
+                        }}
+                      />
+                      <Text style={styles.colon}>:</Text>
+                      <TextInput
+                        style={styles.minuteInput}
+                        placeholder="MM"
+                        value={localHours[day].openMM} // 分（MM）の部分のみ表示
+                        keyboardType="numeric"
+                        maxLength={2} // 分は最大2桁
+                        onChangeText={(value) => {
+                          // 入力中はそのまま反映
+                          if (value === "") {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], openMM: "" },
+                            }));
+                          } else if (
+                            /^\d{0,2}$/.test(value) &&
+                            parseInt(value, 10) < 60
+                          ) {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], openMM: value },
+                            }));
+                          }
+                        }}
+                        onBlur={() => {
+                          const hours = localHours[day].openHH.padStart(2, "0");
+                          const minutes = localHours[day].openMM.padStart(
+                            2,
+                            "0"
+                          );
+                          handleBusinessHoursChange(
+                            day,
+                            "open",
+                            parseInt(hours + minutes, 10)
+                          );
+                          setLocalHours((prev) => ({
+                            ...prev,
+                            [day]: {
+                              ...prev[day],
+                              openHH: hours,
+                              openMM: minutes,
+                            },
+                          }));
+                        }}
+                      />
+                    </View>
+                    <View style={[styles.timeOf, styles.positionCenter]}>
+                      <Text style={styles.timeOfText}>{`〜`}</Text>
+                    </View>
+
+                    {/* 終了時刻 */}
+                    <View style={styles.timeWrapper}>
+                      <TextInput
+                        style={styles.hourInput}
+                        placeholder="HH"
+                        value={localHours[day].closeHH} // 時間（HH）の部分のみ表示
+                        keyboardType="numeric"
+                        maxLength={2} // 時間は最大2桁
+                        onChangeText={(value) => {
+                          if (value === "") {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], closeHH: "" },
+                            }));
+                          } else if (
+                            /^\d{0,2}$/.test(value) &&
+                            parseInt(value, 10) < 24
+                          ) {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], closeHH: value },
+                            }));
+                          }
+                        }}
+                        onBlur={() => {
+                          const hours = localHours[day].closeHH.padStart(
+                            2,
+                            "0"
+                          );
+                          const minutes = localHours[day].closeMM.padStart(
+                            2,
+                            "0"
+                          );
+                          handleBusinessHoursChange(
+                            day,
+                            "close",
+                            parseInt(hours + minutes, 10)
+                          );
+                          setLocalHours((prev) => ({
+                            ...prev,
+                            [day]: {
+                              ...prev[day],
+                              closeHH: hours,
+                              closeMM: minutes,
+                            },
+                          }));
+                        }}
+                      />
+                      <Text style={styles.colon}>:</Text>
+                      <TextInput
+                        style={styles.minuteInput}
+                        placeholder="MM"
+                        value={localHours[day].closeMM} // 分（MM）の部分のみ表示
+                        keyboardType="numeric"
+                        maxLength={2} // 分は最大2桁
+                        onChangeText={(value) => {
+                          // 入力中はそのまま反映
+                          if (value === "") {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], closeMM: "" },
+                            }));
+                          } else if (
+                            /^\d{0,2}$/.test(value) &&
+                            parseInt(value, 10) < 60
+                          ) {
+                            setLocalHours((prev) => ({
+                              ...prev,
+                              [day]: { ...prev[day], closeMM: value },
+                            }));
+                          }
+                        }}
+                        onBlur={() => {
+                          const hours = localHours[day].closeHH.padStart(
+                            2,
+                            "0"
+                          );
+                          const minutes = localHours[day].closeMM.padStart(
+                            2,
+                            "0"
+                          );
+                          handleBusinessHoursChange(
+                            day,
+                            "close",
+                            parseInt(hours + minutes, 10)
+                          );
+                          setLocalHours((prev) => ({
+                            ...prev,
+                            [day]: {
+                              ...prev[day],
+                              closeHH: hours,
+                              closeMM: minutes,
+                            },
+                          }));
+                        }}
+                      />
+                    </View>
+                  </View>
+                )}
+
+                <View style={styles.flexDirectionRow}>
+                  <View style={[styles.positionCenter]}>
+                    <View style={[styles.checkbox]}>
+                      {businessHours[day].open === 0 &&
+                        businessHours[day].close === 0 && (
+                          <View style={styles.checked} />
+                        )}
+                    </View>
+                  </View>
+                  <View style={[styles.fullHoursOpen, styles.positionCenter]}>
+                    <Text
+                      style={[styles.fullHoursOpenText, styles.normalFontSize]}
+                    >
+                      24時間営業
+                    </Text>
+                  </View>
+                  <View style={[styles.positionCenter]}>
+                    <View style={[styles.checkbox]}>
+                      {businessHours[day].open === null &&
+                        businessHours[day].close === null && (
+                          <View style={styles.checked} />
+                        )}
+                    </View>
+                  </View>
+                  <View style={[styles.positionCenter]}>
+                    <Text
+                      style={[
+                        styles.fullHoursOpenText,
+                        styles.normalFontSize,
+                        styles.positionCenter,
+                      ]}
+                    >
+                      営業終了
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
           ))}
@@ -338,13 +481,13 @@ const styles = StyleSheet.create({
   },
   //温泉名のスタイル
   onsenNameLabel: {
-    fontSize: 16,
+    fontSize: 16 / PixelRatio.getFontScale(),
     marginBottom: 15,
     fontWeight: "500",
   },
   //温泉名のスタイル
   title: {
-    fontSize: 20,
+    fontSize: 20 / PixelRatio.getFontScale(),
     fontWeight: "bold",
     marginBottom: 20,
   },
@@ -355,7 +498,7 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 16 / PixelRatio.getFontScale(),
   },
   checkbox: {
     width: 20,
@@ -372,7 +515,7 @@ const styles = StyleSheet.create({
     backgroundColor: "blue",
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 16 / PixelRatio.getFontScale(),
     marginTop: 20,
   },
   input: {
@@ -391,20 +534,34 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 16 / PixelRatio.getFontScale(),
   },
   businessHoursContainer: {
-    flexDirection: "column",
-    padding: 10,
+    flexDirection: "row",
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
-    marginVertical: 10,
+    // marginVertical: 10,
+
+    // borderWidth: 1,
   },
   dayLabel: {
-    fontSize: 18,
+    height: 40,
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 24,
+  },
+  dayLabelText: {
+    fontSize: 16 / PixelRatio.getFontScale(),
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 10,
+  },
+  flexDirectionColumn: {
+    flexDirection: "column",
+  },
+  flexDirectionRow: {
+    flexDirection: "row",
   },
   timeWrapper: {
     flexDirection: "row",
@@ -412,14 +569,36 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     marginBottom: 10,
   },
+  positionCenter: {
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  timeOf: {
+    height: 40,
+    paddingHorizontal: 4,
+  },
+  defaultTimeOf: {
+    height: 20,
+    paddingHorizontal: 4,
+  },
+  timeOfText: {
+    fontSize: 16 / PixelRatio.getFontScale(),
+  },
   hourInput: {
     width: 50,
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 16 / PixelRatio.getFontScale(),
     borderRadius: 4,
+  },
+  defaulthour: {
+    width: 50,
+    height: 20,
+    textAlign: "center",
+    fontSize: 16 / PixelRatio.getFontScale(),
   },
   minuteInput: {
     width: 50,
@@ -427,14 +606,25 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderWidth: 1,
     textAlign: "center",
-    fontSize: 18,
+    fontSize: 16 / PixelRatio.getFontScale(),
     borderRadius: 4,
   },
   colon: {
-    fontSize: 18,
+    fontSize: 16 / PixelRatio.getFontScale(),
     fontWeight: "bold",
     paddingHorizontal: 5,
   },
+
+  textDecorationLineThrough: {
+    textDecorationLine: "line-through",
+  },
+
+  // 24h営業、営業終了のチェックボックス
+  fullHoursOpen: {
+    height: 40,
+  },
+  normalFontSize: { fontSize: 16 / PixelRatio.getFontScale() },
+  fullHoursOpenText: {},
 });
 
 export default Reportdetail_Frame;
