@@ -18,10 +18,17 @@ import {
   Modal,
 } from "react-native";
 import { Image } from "expo-image";
-import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
+import {
+  FontFamily,
+  Color,
+  FontSize,
+  Border,
+  GlobalStyles,
+} from "../GlobalStyles";
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
 import LinkButton from "../components/LinkButton";
+import DefaultButton from "../components/defaultButton";
 import OperatingHours from "../components/OperatingHours";
 import FacilityCard from "../components/FacilityContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -136,11 +143,12 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       data_id: data_id,
     });
   };
-  const handleReportPress = () => {
+  const handleReportPress = (category) => {
     // 編集ボタンが押されたときの処理
     navigation.navigate("Reportdetail_Frame", {
       data: contents_data,
       data_id: data_id,
+      category: category === "営業時間" ? category : null,
     });
     console.log(`報告ボタンが押されました。${data_id}`);
   };
@@ -191,7 +199,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     <View style={styles.view}>
       <ScrollView style={styles.parent}>
         <View>
-          <View style={[styles.view1, styles.textPosition]}>
+          <View style={[styles.view1, GlobalStyles.positionLeft]}>
             <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
           </View>
           <FavoriteButton id={data_id} />
@@ -235,7 +243,10 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
               {contents_data.kyuzitunedan}円
             </Text>
           </View>
-          <OperatingHours contents_data={contents_data} />
+          <OperatingHours
+            contents_data={contents_data}
+            onPress={handleReportPress}
+          />
           <View style={styles.view5}>
             <Text
               onPress={() => copyToClipboard(contents_data.place, "住所")}
@@ -261,7 +272,16 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <View style={styles.view6}>
             <AttractiveSpace miryokuText={contents_data.feature} />
           </View>
-          <FacilityCard />
+          <FlatList
+            data={onsen_detail_data}
+            renderItem={({ item }) => <FacilityCard title={item.title} />}
+            keyExtractor={(item) => item.id}
+            numColumns={1} // 3列で表示
+            // style={styles.flatlist}
+            // contentContainerStyle={styles.flatlistContent}
+            scrollEnabled={false}
+          />
+
           <View style={styles.view7}>
             <FlatList
               data={onsen_detail_data}
@@ -279,28 +299,8 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <TouchableOpacity style={styles.button} onPress={handleReportPress}>
-            <Text style={styles.buttonText}>情報の修正を依頼する</Text>
-          </TouchableOpacity>
+          <DefaultButton onPress={handleReportPress} label="情報の修正を提案" />
         </View>
-        {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <TouchableOpacity style={styles.button} onPress={handleEditPress}>
-          <Text style={styles.buttonText}>編集する</Text>
-        </TouchableOpacity>
-      </View> */}
-
-        {/* <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginBottom:50 }}>
-        <TouchableOpacity
-          onPress={() => {
-            // const location = ; // 表示したい場所の住所
-            const url = `${contents_data.url}`;
-            console.log(url)
-            Linking.openURL(url);
-          }}
-        >
-          <Text style={styles.urlText}>引用元サイト</Text>
-        </TouchableOpacity>
-      </View> */}
 
         {contents_data.url && (
           <View style={{ marginBottom: 50, marginHorizontal: 20 }}>
@@ -358,22 +358,11 @@ const styles = StyleSheet.create({
   },
   //引用注意書きのスタイル終了
   textTypo1: {
-    alignItems: "center",
-    display: "flex",
-    textAlign: "left",
     fontFamily: FontFamily.interMedium,
     fontSize: 20 / PixelRatio.getFontScale(),
-    fontWeight: "500",
-    // lineHeight: 22,
-    letterSpacing: 0,
+    fontWeight: "600",
+    letterSpacing: 4,
     color: Color.labelColorLightPrimary,
-
-    width: 344,
-    left: 0,
-    height: 32,
-
-    // borderColor:"red",
-    // borderWidth:1,
   },
   childLayout: {
     width: 144,
@@ -385,13 +374,10 @@ const styles = StyleSheet.create({
   view1: {
     height: 32,
     top: 0,
-    width: 330,
     left: 7,
-    overflow: "hidden",
-    marginVertical: 4,
-
-    // borderColor:"red",
-    // borderWidth:2,
+    marginTop: 8,
+    marginBottom: 2,
+    // marginLeft: 7,
   },
   item: {
     left: 144,
@@ -534,26 +520,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  //編集するボタンのスタイル
-  button: {
-    width: 200,
-    backgroundColor: "#007BFF", // 青色の背景
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    marginBottom: 50,
-  },
-  buttonText: {
-    color: "white", // 白色のテキスト
-    fontSize: 16 / PixelRatio.getFontScale(),
-    fontWeight: "bold",
-  },
+  // //編集するボタンのスタイル
+  // button: {
+  //   width: 200,
+  //   backgroundColor: "#007BFF", // 青色の背景
+  //   padding: 10,
+  //   borderRadius: 5,
+  //   alignItems: "center",
+  //   justifyContent: "center",
+  //   shadowColor: "#000",
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3.84,
+  //   elevation: 5,
+  //   marginBottom: 50,
+  // },
+  // buttonText: {
+  //   color: "white", // 白色のテキスト
+  //   fontSize: 16 / PixelRatio.getFontScale(),
+  //   fontWeight: "bold",
+  // },
   //編集するボタンのスタイル終了
 
   //引用元のスタイル

@@ -1,3 +1,5 @@
+import { StyleSheet } from "react-native";
+
 /* fonts */
 export const FontFamily = {
   interMedium: "Inter-Medium",
@@ -35,3 +37,21 @@ export const Border = {
   br_3xs: 10,
   br_12xs: 1,
 };
+
+export const GlobalStyles = StyleSheet.create({
+  positionCenter: {
+    textAlign: "center",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  positionLeft: {
+    textAlign: "left",
+    alignItems: "left",
+    justifyContent: "center",
+  },
+  positionRight: {
+    textAlign: "right",
+    alignItems: "right",
+    justifyContent: "center",
+  },
+});

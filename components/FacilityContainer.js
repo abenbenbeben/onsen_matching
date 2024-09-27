@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
-const FacilityCard = () => {
-  const reviews = [
-    "このサウナは本当に最高,また行きたい。",
-    "ロウリュウいいね。",
-  ];
-  const title = "サウナ";
+const FacilityCard = ({ reviews, title }) => {
+  if (!reviews) {
+    reviews = ["このサウナは本当に最高,また行きたい。", "ロウリュウいいね。"];
+  }
+  if (!title) {
+    title = "サウナ";
+  }
   return (
     <View style={styles.cardContainer}>
       <Image

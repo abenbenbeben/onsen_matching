@@ -4,17 +4,16 @@ import { Ionicons } from "@expo/vector-icons"; // 矢印アイコン用のライ
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 import { GlobalData } from "../GlobalData";
 
-const OperatingHours = ({ contents_data }) => {
+const OperatingHours = ({ contents_data, onPress }) => {
   let salesFlag;
   const dayOfWeekName = GlobalData.dayOfWeekName;
   const [isOpen, setIsOpen] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
   const handlePress = () => {
-    setIsClicked(!isClicked);
+    onPress("営業時間");
   };
 
   //時間変換する関数
@@ -152,14 +151,7 @@ const OperatingHours = ({ contents_data }) => {
                 )}
               </View>
               <TouchableOpacity onPress={handlePress} style={styles.button}>
-                <Text
-                  style={[
-                    styles.buttonText,
-                    isClicked && styles.clickedButtonText,
-                  ]}
-                >
-                  新しい営業時間を提案
-                </Text>
+                <Text style={[styles.buttonText]}>新しい営業時間を提案</Text>
               </TouchableOpacity>
             </View>
           </>
@@ -227,7 +219,7 @@ const styles = {
     // テキストの初期スタイル
     fontSize: 17 / PixelRatio.getFontScale(),
     fontWeight: 500,
-    color: "blue",
+    color: Color.colorRoyalblue,
   },
 };
 
