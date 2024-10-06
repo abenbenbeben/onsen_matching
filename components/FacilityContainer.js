@@ -1,26 +1,67 @@
-import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { IconButton } from "react-native-paper";
 
-const FacilityCard = ({ reviews, title }) => {
+const FacilityCard = ({ reviews, title, data, imagePath }) => {
+  const [expanded, setExpanded] = useState(false); // 表示を拡大するかどうかの状態
+
   if (!reviews) {
-    reviews = ["このサウナは本当に最高,また行きたい。", "ロウリュウいいね。"];
+    reviews = [];
   }
   if (!title) {
     title = "サウナ";
   }
+
+  // タッチした際に表示するレビューの数を決定
+  const displayedReviews = expanded ? reviews : reviews.slice(0, 2);
+
   return (
     <View style={styles.cardContainer}>
-      <Image
-        source={{ uri: "https://example.com/sauna.jpg" }}
-        style={styles.image}
-      />
+      <Image source={{ uri: imagePath }} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
-        {reviews.slice(0, 3).map((review, index) => (
-          <Text key={index} style={styles.review}>
-            {review}
-          </Text>
+
+        {reviews.length === 0 && (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <IconButton
+              icon={"alert"}
+              iconColor={"#666"}
+              selected="true"
+              size={19}
+              style={{ margin: 0 }}
+            />
+            <Text style={{ color: "#666" }}>施設情報を確認してください</Text>
+          </View>
+        )}
+
+        {displayedReviews.map((review, index) => (
+          <View
+            key={index}
+            style={[
+              styles.reviewContainer,
+              index === displayedReviews.length - 1 && { borderBottomWidth: 0 },
+            ]}
+          >
+            <Text style={styles.review}>{review}</Text>
+          </View>
         ))}
+
+        {/* 口コミが3つ以上の場合にタッチで展開 */}
+        {reviews.length > 2 && (
+          <TouchableOpacity
+            onPress={() => setExpanded(!expanded)}
+            style={styles.expandButton}
+          >
+            <Text style={styles.expandText}>
+              {expanded ? "閉じる" : "さらに表示"}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -51,6 +92,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
   },
+  reviewContainer: {
+    borderBottomWidth: 1,
+    borderColor: "#dcdcdc",
+    marginVertical: 4,
+  },
   title: {
     fontSize: 18,
     fontWeight: "600",
@@ -62,6 +108,13 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: 18,
     marginBottom: 4,
+  },
+  expandButton: {
+    marginTop: 8,
+  },
+  expandText: {
+    color: "#1E90FF",
+    fontSize: 14,
   },
 });
 

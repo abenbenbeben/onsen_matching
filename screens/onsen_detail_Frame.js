@@ -28,7 +28,7 @@ import {
 import FavoriteButton from "../components/FavoriteButton";
 import AttractiveSpace from "../components/attractive_space";
 import LinkButton from "../components/LinkButton";
-import DefaultButton from "../components/defaultButton";
+import DefaultButton from "../components/DefaultButton";
 import OperatingHours from "../components/OperatingHours";
 import FacilityCard from "../components/FacilityContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -53,10 +53,12 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
   console.log("match_array" + match_array);
   const [contents_data, setcontents_data] = useState();
   const [onsen_detail_data, setonsen_detail_data] = useState();
+  const [facility_card_data, setfacility_card_data] = useState();
   const [imageData, setImageData] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [cardArrayWithImages, setCardArrayWithImages] = useState([]);
   let onsen_data = "";
   let salesFlag;
 
@@ -76,6 +78,9 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       const querySnapshot = await getDoc(doc(db, "onsen_data", data_id));
       const querySnapshot_detail = await getDocs(
         collection(db, "onsen_detail_data")
+      );
+      const querySnapshot_matching_screen = await getDocs(
+        collection(db, "matching_screen")
       );
       onsen_data = querySnapshot.data();
       const imageData = await Promise.all(
@@ -99,6 +104,54 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           return "○";
         }
       }
+
+      const matchingFacilityCardArray = querySnapshot_detail.docs.reduce(
+        (acc, doc) => {
+          const data = doc.data();
+          if (
+            data.data !== "furosyurui" &&
+            data.data !== "ganbansyurui" &&
+            onsen_data[data.data] >= 0.5
+          ) {
+            acc.push({
+              id: doc.id,
+              title: data.title,
+              data: data.data,
+              reviewsArray: onsen_data["reviews"][data.data] || [],
+              imagePath: async () => {
+                for (const querySnapshot_matching_screen_doc of querySnapshot_matching_screen.docs) {
+                  const querySnapshot_matching_screen_data =
+                    querySnapshot_matching_screen_doc.data();
+                  if (
+                    querySnapshot_matching_screen_data.data &&
+                    querySnapshot_matching_screen_data.data[0] === data.data
+                  ) {
+                    return await fetchURL(
+                      querySnapshot_matching_screen_data.afterimage
+                    );
+                  }
+                }
+              },
+              // その他のデータフィールドを追加
+            });
+          }
+          return acc;
+        },
+        []
+      );
+      const cardArrayWithImages = await Promise.all(
+        matchingFacilityCardArray.map(async (card) => {
+          const imageUrl = await card.imagePath(); // 非同期で画像URLを取得
+          return {
+            ...card,
+            imageUrl,
+          };
+        })
+      );
+
+      console.log("cardArrayWithImages============");
+      console.log(cardArrayWithImages);
+      setCardArrayWithImages(cardArrayWithImages); // ステートに保存
 
       const matchingDataArray = querySnapshot_detail.docs.map((doc) => {
         const data = doc.data();
@@ -273,8 +326,14 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
             <AttractiveSpace miryokuText={contents_data.feature} />
           </View>
           <FlatList
-            data={onsen_detail_data}
-            renderItem={({ item }) => <FacilityCard title={item.title} />}
+            data={cardArrayWithImages}
+            renderItem={({ item }) => (
+              <FacilityCard
+                title={item.title}
+                reviews={item.reviewsArray}
+                imagePath={item.imageUrl}
+              />
+            )}
             keyExtractor={(item) => item.id}
             numColumns={1} // 3列で表示
             // style={styles.flatlist}

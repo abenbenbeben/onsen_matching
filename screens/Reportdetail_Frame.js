@@ -14,7 +14,7 @@ import { collection, addDoc, getFirestore } from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import { GlobalData } from "../GlobalData";
 import { GlobalStyles } from "../GlobalStyles";
-import DefaultButton from "../components/defaultButton";
+import DefaultButton from "../components/DefaultButton";
 import symbolicateStackTrace from "react-native/Libraries/Core/Devtools/symbolicateStackTrace";
 
 const db = getFirestore(app);
