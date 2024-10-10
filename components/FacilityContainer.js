@@ -1,9 +1,34 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+} from "react-native";
 import { IconButton } from "react-native-paper";
 
-const FacilityCard = ({ reviews, title, data, imagePath }) => {
-  const [expanded, setExpanded] = useState(false); // 表示を拡大するかどうかの状態
+// Android の場合、レイアウトアニメーションの許可が必要
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const FacilityCard = ({
+  reviews,
+  title,
+  data,
+  imagePath,
+  moyorieki,
+  zikan,
+  kyori,
+}) => {
+  const [expanded, setExpanded] = useState(false);
 
   if (!reviews) {
     reviews = [];
@@ -12,8 +37,14 @@ const FacilityCard = ({ reviews, title, data, imagePath }) => {
     title = "サウナ";
   }
 
-  // タッチした際に表示するレビューの数を決定
+  // レビューを表示する数を制御
   const displayedReviews = expanded ? reviews : reviews.slice(0, 2);
+
+  // 展開/閉じるを行う関数
+  const toggleExpand = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // アニメーション設定
+    setExpanded(!expanded);
+  };
 
   return (
     <View style={styles.cardContainer}>
@@ -21,13 +52,8 @@ const FacilityCard = ({ reviews, title, data, imagePath }) => {
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
 
-        {reviews.length === 0 && (
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
+        {reviews.length === 0 && data !== "ekitika" && (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
             <IconButton
               icon={"alert"}
               iconColor={"#666"}
@@ -37,6 +63,56 @@ const FacilityCard = ({ reviews, title, data, imagePath }) => {
             />
             <Text style={{ color: "#666" }}>施設情報を確認してください</Text>
           </View>
+        )}
+        {reviews.length === 0 && data === "ekitika" && (
+          <>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ color: "#666", fontSize: 40 }}>{zikan}0</Text>
+                <Text style={{ color: "#666" }}>{`徒歩\n分`}</Text>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginHorizontal: 10,
+                }}
+              >
+                <Text style={{ color: "#666", fontSize: 40 }}>{kyori}</Text>
+                <Text style={{ color: "#666" }}>{`距離\nkm`}</Text>
+              </View>
+              {moyorieki.length <= 4 && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={{ color: "#666", fontSize: 20 }}>
+                    {moyorieki}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {moyorieki.length > 4 && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  marginVertical: 4,
+                }}
+              >
+                <Text style={{ color: "#666", fontSize: 20 }}>{moyorieki}</Text>
+              </View>
+            )}
+          </>
         )}
 
         {displayedReviews.map((review, index) => (
@@ -53,10 +129,7 @@ const FacilityCard = ({ reviews, title, data, imagePath }) => {
 
         {/* 口コミが3つ以上の場合にタッチで展開 */}
         {reviews.length > 2 && (
-          <TouchableOpacity
-            onPress={() => setExpanded(!expanded)}
-            style={styles.expandButton}
-          >
+          <TouchableOpacity onPress={toggleExpand} style={styles.expandButton}>
             <Text style={styles.expandText}>
               {expanded ? "閉じる" : "さらに表示"}
             </Text>

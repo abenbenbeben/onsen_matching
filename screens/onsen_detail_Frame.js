@@ -77,7 +77,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     try {
       const querySnapshot = await getDoc(doc(db, "onsen_data", data_id));
       const querySnapshot_detail = await getDocs(
-        collection(db, "onsen_detail_data")
+        collection(db, "onsen_detail_data_v2")
       );
       const querySnapshot_matching_screen = await getDocs(
         collection(db, "matching_screen")
@@ -109,9 +109,10 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
         (acc, doc) => {
           const data = doc.data();
           if (
-            data.data !== "furosyurui" &&
-            data.data !== "ganbansyurui" &&
-            onsen_data[data.data] >= 0.5
+            (data.data !== "furosyurui" &&
+              data.data !== "ganbansyurui" &&
+              onsen_data[data.data] >= 0.5) ||
+            data.data === "ekitika"
           ) {
             acc.push({
               id: doc.id,
@@ -132,6 +133,9 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
                   }
                 }
               },
+              moyorieki: onsen_data["ekitika"]["moyorieki"] || null,
+              zikan: onsen_data["ekitika"]["zikan"] || null,
+              kyori: onsen_data["ekitika"]["kyori"] || null,
               // その他のデータフィールドを追加
             });
           }
@@ -332,6 +336,10 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
                 title={item.title}
                 reviews={item.reviewsArray}
                 imagePath={item.imageUrl}
+                data={item.data}
+                moyorieki={item.moyorieki}
+                zikan={item.zikan}
+                kyori={item.kyori}
               />
             )}
             keyExtractor={(item) => item.id}

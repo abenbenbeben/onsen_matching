@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, PixelRatio } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  PixelRatio,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // 矢印アイコン用のライブラリ
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 import { GlobalData } from "../GlobalData";
+
+// Android の場合、レイアウトアニメーションの許可が必要
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const OperatingHours = ({ contents_data, onPress }) => {
   let salesFlag;
@@ -10,6 +26,7 @@ const OperatingHours = ({ contents_data, onPress }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // アニメーション設定
     setIsOpen(!isOpen);
   };
   const handlePress = () => {
