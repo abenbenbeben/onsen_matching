@@ -10,6 +10,7 @@ import {
   FlatList,
   ActivityIndicator,
   PixelRatio,
+  TouchableOpacity,
 } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
@@ -141,6 +142,7 @@ const FavoriteFrame = () => {
       heijitunedan={item.heijitunedan}
       kyuzitunedan={item.kyuzitunedan}
       images={item.image}
+      data={item}
       // isfavorite = {favoriteDataArray.includes(item.id)}
     />
   );
@@ -157,15 +159,15 @@ const FavoriteFrame = () => {
 
   return (
     <View style={styles.view}>
+      <View style={styles.favoriteTextContainer}>
+        <Text style={styles.favoriteText}>お気に入り</Text>
+      </View>
       <ScrollView
         style={styles.wrapper}
         showsVerticalScrollIndicator={true}
         showsHorizontalScrollIndicator={true}
         contentContainerStyle={styles.frameScrollViewContent}
       >
-        <View style={styles.km}>
-          <Text style={styles.text}>お気に入り</Text>
-        </View>
         <FlatList
           data={favoriteData}
           renderItem={({ item }) => renderCard(item)}
@@ -174,6 +176,22 @@ const FavoriteFrame = () => {
           contentContainerStyle={styles.flatlistContent}
           scrollEnabled={false}
         />
+        {/* 画面下部に再マッチングボタンを追加 */}
+
+        <TouchableOpacity
+          style={styles.PanelContainer}
+          onPress={() =>
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Matching_Frame" }],
+            })
+          }
+        >
+          <Image
+            source={require("../assets/FavoriteScreenPanel.png")}
+            style={{ width: 342, height: 121, borderRadius: 20 }}
+          />
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -206,26 +224,17 @@ const styles = StyleSheet.create({
     width: 59,
     position: "absolute",
   },
-  text: {
-    // top: 2,
-    fontSize: 17 / PixelRatio.getFontScale(),
-    textAlign: "left",
-    // height: 29,
-    // alignItems: "center",
-    // display: "flex",
+  favoriteText: {
+    fontSize: 20 / PixelRatio.getFontScale(),
     color: Color.labelColorLightPrimary,
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
-    // lineHeight: 22,
     letterSpacing: 0,
-    left: 0,
-    width: 92,
-    position: "absolute",
   },
-  km: {
-    height: 32,
-    width: 343,
-    overflow: "hidden",
+  favoriteTextContainer: {
+    marginTop: 6,
+    marginBottom: 4,
+    marginLeft: 7,
     justifyContent: "center",
   },
   view1: {
@@ -233,15 +242,25 @@ const styles = StyleSheet.create({
     height: 629,
   },
   wrapper: {
-    // position: "absolute",
-    backgroundColor: Color.colorWhitesmoke_200,
     width: "100%",
   },
   view: {
-    backgroundColor: Color.labelColorDarkPrimary,
+    backgroundColor: Color.colorWhitesmoke_200,
     height: "100%",
     // overflow: "hidden",
     width: "100%",
+  },
+
+  // 再マッチングしよう！のスタイル
+  PanelContainer: {
+    marginTop: 50,
+    width: "80%",
+    alignItems: "center",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
 });
 

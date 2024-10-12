@@ -27,6 +27,7 @@ const FacilityCard = ({
   moyorieki,
   zikan,
   kyori,
+  isHighlight,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -47,7 +48,12 @@ const FacilityCard = ({
   };
 
   return (
-    <View style={styles.cardContainer}>
+    <View
+      style={[
+        styles.cardContainer,
+        isHighlight && styles.highlightContainer, // フラグがONならハイライト
+      ]}
+    >
       <Image source={{ uri: imagePath }} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
@@ -74,7 +80,7 @@ const FacilityCard = ({
               }}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={{ color: "#666", fontSize: 40 }}>{zikan}0</Text>
+                <Text style={{ color: "#666", fontSize: 40 }}>{zikan}</Text>
                 <Text style={{ color: "#666" }}>{`徒歩\n分`}</Text>
               </View>
               <View
@@ -154,6 +160,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  highlightContainer: {
+    backgroundColor: "#f0f8ff", // アクア系の柔らかい色
+    borderColor: "#007bff", // 明るい青のボーダー
+    borderWidth: 2, // ボーダーを少し太く
+    shadowColor: "#007bff", // 影の色も青系にして光沢を追加
+    shadowOpacity: 0.3, // 影の強調
   },
   image: {
     width: 80,

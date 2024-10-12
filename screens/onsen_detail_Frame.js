@@ -49,8 +49,7 @@ const storage = getStorage(app);
 
 const Onsen_detail_Frame = ({ navigation, route }) => {
   const data_id = route.params.data;
-  const match_array = route.params.match_array;
-  console.log("match_array" + match_array);
+  const match_array = route.params.match_array || [];
   const [contents_data, setcontents_data] = useState();
   const [onsen_detail_data, setonsen_detail_data] = useState();
   const [facility_card_data, setfacility_card_data] = useState();
@@ -143,8 +142,21 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
         },
         []
       );
+      // 優先キーワードに基づいてmatchingFacilityCardArrayをソート
+      const sortedMatchingFacilityCardArray = matchingFacilityCardArray.sort(
+        (a, b) => {
+          const aHasPriority = match_array.includes(a.data);
+          const bHasPriority = match_array.includes(b.data);
+
+          if (aHasPriority === bHasPriority) {
+            return 0;
+          }
+          return aHasPriority ? -1 : 1;
+        }
+      );
+
       const cardArrayWithImages = await Promise.all(
-        matchingFacilityCardArray.map(async (card) => {
+        sortedMatchingFacilityCardArray.map(async (card) => {
           const imageUrl = await card.imagePath(); // 非同期で画像URLを取得
           return {
             ...card,
@@ -153,8 +165,6 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
         })
       );
 
-      console.log("cardArrayWithImages============");
-      console.log(cardArrayWithImages);
       setCardArrayWithImages(cardArrayWithImages); // ステートに保存
 
       const matchingDataArray = querySnapshot_detail.docs.map((doc) => {
@@ -306,7 +316,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           />
           <View style={styles.view5}>
             <Text
-              onPress={() => copyToClipboard(contents_data.place, "住所")}
+              // onPress={() => copyToClipboard(contents_data.place, "住所")}
               style={styles.text3}
             >
               住所：{contents_data.place}
@@ -340,6 +350,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
                 moyorieki={item.moyorieki}
                 zikan={item.zikan}
                 kyori={item.kyori}
+                isHighlight={match_array.includes(item.data)}
               />
             )}
             keyExtractor={(item) => item.id}
@@ -384,9 +395,8 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   flatlist: {
-    padding: 3,
-    borderColor: "#ffa07a",
-    borderWidth: 1,
+    padding: 0,
+    borderRadius: 5,
     left: 7,
     marginVertical: 4,
   },
@@ -396,23 +406,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.9)",
     justifyContent: "center",
     alignItems: "center",
-
-    borderWidth: 1,
-    borderColor: "blue",
+    width: "100%",
   },
   closeButton: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    width: "100%",
   },
   fullImage: {
-    // width: "90%",
-    width: 500,
+    width: "100%",
     height: "90%",
     resizeMode: "contain",
-
-    borderWidth: 1,
-    borderColor: "white",
   },
   //引用注意書きのスタイル
   inyou: {

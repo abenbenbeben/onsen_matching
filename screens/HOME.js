@@ -30,6 +30,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as Linking from "expo-linking";
+import { IconButton } from "react-native-paper";
+import FilterOptions from "../components/FilterOption";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -42,6 +44,9 @@ const HOME = ({ navigation, route }) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   const [loadingMessage, setLoadingMessage] = useState(""); //ローディング中の文字を管理
+  const [filter1, setFilter1] = useState(false);
+  const [filter2, setFilter2] = useState(false);
+  const [filter3, setFilter3] = useState(false);
 
   //firestorageの内のパスをURLに変換する関数
   const fetchURL = async (imagepath) => {
@@ -464,6 +469,8 @@ const HOME = ({ navigation, route }) => {
       kyuzitunedan={item.kyujitunedan}
       images={item.images}
       isfavorite={favoriteDataArray.includes(item.id)}
+      data={item}
+      match_array={match_array}
     />
   );
 
@@ -504,10 +511,23 @@ const HOME = ({ navigation, route }) => {
 
   return (
     <View style={styles.home}>
+      <View style={[{ zIndex: 10 }]}>
+        <FilterOptions
+          filter1={filter1}
+          filter2={filter2}
+          filter3={filter3}
+          setFilter1={setFilter1}
+          setFilter2={setFilter2}
+          setFilter3={setFilter3}
+        />
+      </View>
       <ScrollView>
         {within5Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>5km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>5</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within5Km}
@@ -518,11 +538,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within10Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>10km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>10</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within10Km}
@@ -533,11 +556,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within15Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>15km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>15</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within15Km}
@@ -548,11 +574,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within20Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>20km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>20</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within20Km}
@@ -563,11 +592,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within25Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>25km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>25</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within25Km}
@@ -578,11 +610,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within30Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>30km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>30</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within30Km}
@@ -593,11 +628,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within35Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>35km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>35</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within35Km}
@@ -608,11 +646,14 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within40Km.length > 0 && (
-          <>
-            <Text style={styles.kmLayout}>40km圏内</Text>
+          <View style={[{ marginVertical: 10 }]}>
+            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
+              <Text style={styles.kmLayoutNumber}>40</Text>
+              <Text style={styles.kmLayout}>km圏内</Text>
+            </View>
             <View>
               <FlatList
                 data={within40Km}
@@ -623,14 +664,16 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </>
+          </View>
         )}
         {within5Km.length === 0 &&
           within10Km.length === 0 &&
           within15Km.length === 0 &&
           within20Km.length === 0 &&
           within25Km.length === 0 &&
-          within30Km.length === 0 && (
+          within30Km.length === 0 &&
+          within35Km.length === 0 &&
+          within40Km.length === 0 && (
             <View style={styles.container}>
               {/* ... 他のコンテンツ ... */}
               <Text style={styles.title}>{`マッチ度の高いスーパー銭湯は
@@ -657,22 +700,33 @@ const HOME = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  kmLayout: {
+  kmLayoutContainer: {
     height: 32,
     width: 92,
     left: 8,
+    justifyContent: "center",
+    alignContent: "center",
+    alignItems: "center",
+  },
+  kmLayout: {
     color: Color.labelColorLightPrimary,
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
     // lineHeight: 22,
     letterSpacing: 0,
     fontSize: 17 / PixelRatio.getFontScale(),
-    alignContent: "center",
-    alignItems: "center",
-    justifyContent: "center",
+  },
+  kmLayoutNumber: {
+    height: 32,
+    color: Color.labelColorLightPrimary,
+    fontFamily: FontFamily.interMedium,
+    fontWeight: "500",
+    // lineHeight: 22,
+    letterSpacing: 0,
+    fontSize: 24 / PixelRatio.getFontScale(),
   },
   home: {
-    backgroundColor: Color.labelColorDarkPrimary,
+    backgroundColor: "#ececec",
     height: "100%",
     overflow: "hidden",
     width: "100%",
