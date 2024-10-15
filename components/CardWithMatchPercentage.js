@@ -14,6 +14,8 @@ const CardWithMatchPercentage = ({
   isfavorite,
   data,
   match_array = [],
+  distance,
+  filter,
 }) => {
   const buttonColor = isfavorite ? "#FFC800" : "#FFF";
   const buttonIcon = isfavorite ? "star" : "star-outline";
@@ -51,10 +53,34 @@ const CardWithMatchPercentage = ({
       <Image style={styles.image} contentFit="cover" source={images} />
       <View style={styles.textContainer}>
         <Text style={styles.onsenName}>{onsenName}</Text>
-        {matchPercentage && (
+        {matchPercentage && filter === 1 && (
           <View style={[styles.matchContainer, styles.flexDirectionRow]}>
             <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
             <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+          </View>
+        )}
+        {matchPercentage && filter === 2 && (
+          <View style={[styles.flexDirectionRow]}>
+            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+              <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
+              <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+            </View>
+            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+              <Text style={[styles.matchTextRatio]}>{distance}</Text>
+              <Text style={styles.matchText}>{`距離\nkm`}</Text>
+            </View>
+          </View>
+        )}
+        {matchPercentage && filter === 3 && (
+          <View style={[styles.flexDirectionRow]}>
+            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+              <Text style={[styles.matchTextRatio]}>{distance}</Text>
+              <Text style={styles.matchText}>{`距離\nkm`}</Text>
+            </View>
+            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+              <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
+              <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+            </View>
           </View>
         )}
         <Text style={styles.priceText}>
@@ -138,6 +164,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     alignItems: "center",
     marginVertical: 2,
+    marginRight: 8,
   },
   matchTextRatio: {
     color: Color.colorRed,

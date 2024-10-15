@@ -4,15 +4,12 @@ import { IconButton } from "react-native-paper";
 import { FontSize, Color, FontFamily } from "../GlobalStyles";
 import { useEffect, useState } from "react";
 
-const FilterOptions = ({
-  filter1,
-  filter2,
-  filter3,
-  setFilter1,
-  setFilter2,
-  setFilter3,
-}) => {
+const FilterOptions = ({ filter, setFilter }) => {
   const [showFilters, setShowFilters] = useState(false);
+  const handlePress = (value) => {
+    setShowFilters(false);
+    setFilter(value);
+  };
   return (
     <View>
       <View style={[styles.filterButtonContainer]}>
@@ -27,24 +24,27 @@ const FilterOptions = ({
       {showFilters && (
         <View style={styles.filtersContainer}>
           <TouchableOpacity
-            style={[styles.filterOption, filter1 && styles.selectedFilter]}
-            onPress={() => setFilter1(!filter1)}
+            style={[styles.filterOption, filter === 1 && styles.selectedFilter]}
+            onPress={() => handlePress(1)}
           >
-            <Text style={styles.filterText}>フィルター 1</Text>
+            <Text style={styles.filterText}>距離＆マッチ度順</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.filterOption, filter2 && styles.selectedFilter]}
-            onPress={() => setFilter2(!filter2)}
+            style={[styles.filterOption, filter === 2 && styles.selectedFilter]}
+            onPress={() => handlePress(2)}
           >
-            <Text style={styles.filterText}>フィルター 2</Text>
+            <Text style={styles.filterText}>マッチ度順</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.filter3Option, filter3 && styles.selectedFilter]}
-            onPress={() => setFilter3(!filter3)}
+            style={[
+              styles.filter3Option,
+              filter === 3 && styles.selectedFilter,
+            ]}
+            onPress={() => handlePress(3)}
           >
-            <Text style={styles.filterText}>フィルター 3</Text>
+            <Text style={styles.filterText}>距離順</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 4,
     zIndex: 10,
+    // backgroundColor: Color.colorGray,
   },
   filterButton: { margin: 0 },
   filtersContainer: {
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     width: 200,
     // height: 300,
     marginTop: 10,
-    backgroundColor: Color.colorGoogleBlack,
+    backgroundColor: Color.colorDarkGray,
     padding: 10,
     borderRadius: 5,
   },
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   selectedFilter: {
-    backgroundColor: "#ddd",
+    backgroundColor: Color.colorDarkGrayLight,
   },
   filterText: {
     fontSize: 16,

@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   PixelRatio,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
@@ -111,6 +112,29 @@ const FavoriteFrame = () => {
     }
   };
 
+  const handlePress = () => {
+    Alert.alert(
+      "確認", // アラートのタイトル
+      "マッチングをやり直しますか？", // メッセージ
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "やり直す",
+          onPress: () => {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Matching_Frame" }],
+            });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   //お気に入り配列を取得
   useEffect(() => {
     fetchFavoriteData();
@@ -180,12 +204,7 @@ const FavoriteFrame = () => {
 
         <TouchableOpacity
           style={styles.PanelContainer}
-          onPress={() =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Matching_Frame" }],
-            })
-          }
+          onPress={() => handlePress()}
         >
           <Image
             source={require("../assets/FavoriteScreenPanel.png")}

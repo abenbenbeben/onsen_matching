@@ -44,9 +44,7 @@ const HOME = ({ navigation, route }) => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   const [loadingMessage, setLoadingMessage] = useState(""); //ローディング中の文字を管理
-  const [filter1, setFilter1] = useState(false);
-  const [filter2, setFilter2] = useState(false);
-  const [filter3, setFilter3] = useState(false);
+  const [filter, setFilter] = useState(1);
 
   //firestorageの内のパスをURLに変換する関数
   const fetchURL = async (imagepath) => {
@@ -471,33 +469,144 @@ const HOME = ({ navigation, route }) => {
       isfavorite={favoriteDataArray.includes(item.id)}
       data={item}
       match_array={match_array}
+      distance={item.distance}
+      filter={filter}
     />
   );
 
-  const within5Km = matchingItems.filter(
-    (item) => item.distance <= 5 && item.score > 50
-  );
-  const within10Km = matchingItems.filter(
-    (item) => item.distance > 5 && item.distance <= 10 && item.score > 50
-  );
-  const within15Km = matchingItems.filter(
-    (item) => item.distance > 10 && item.distance <= 15 && item.score > 50
-  );
-  const within20Km = matchingItems.filter(
-    (item) => item.distance > 15 && item.distance <= 20 && item.score > 50
-  );
-  const within25Km = matchingItems.filter(
-    (item) => item.distance > 20 && item.distance <= 25 && item.score > 50
-  );
-  const within30Km = matchingItems.filter(
-    (item) => item.distance > 25 && item.distance <= 30 && item.score > 50
-  );
-  const within35Km = matchingItems.filter(
-    (item) => item.distance > 30 && item.distance <= 35 && item.score > 50
-  );
-  const within40Km = matchingItems.filter(
-    (item) => item.distance > 35 && item.distance <= 40 && item.score > 50
-  );
+  let withinFirst = [];
+  let withinSecond = [];
+  let withinThird = [];
+  let withinFourth = [];
+  let withinFifth = [];
+  let withinSixth = [];
+  let withinSeventh = [];
+  let withinEighth = [];
+  let distanceArray = [];
+  if (filter === 1) {
+    withinFirst = matchingItems
+      .filter((item) => item.distance <= 5 && item.score > 50)
+      .sort((a, b) => b.score - a.score);
+    withinSecond = matchingItems
+      .filter(
+        (item) => item.distance > 5 && item.distance <= 10 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinThird = matchingItems
+      .filter(
+        (item) => item.distance > 10 && item.distance <= 15 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinFourth = matchingItems
+      .filter(
+        (item) => item.distance > 15 && item.distance <= 20 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinFifth = matchingItems
+      .filter(
+        (item) => item.distance > 20 && item.distance <= 25 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinSixth = matchingItems
+      .filter(
+        (item) => item.distance > 25 && item.distance <= 30 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinSeventh = matchingItems
+      .filter(
+        (item) => item.distance > 30 && item.distance <= 35 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    withinEighth = matchingItems
+      .filter(
+        (item) => item.distance > 35 && item.distance <= 40 && item.score > 50
+      )
+      .sort((a, b) => b.score - a.score);
+    distanceArray = [
+      { data: withinFirst, number: 5, unit: "km圏内" },
+      { data: withinSecond, number: 10, unit: "km圏内" },
+      { data: withinThird, number: 15, unit: "km圏内" },
+      { data: withinFourth, number: 20, unit: "km圏内" },
+      { data: withinFifth, number: 25, unit: "km圏内" },
+      { data: withinSixth, number: 30, unit: "km圏内" },
+      { data: withinSeventh, number: 35, unit: "km圏内" },
+      { data: withinEighth, number: 40, unit: "km圏内" },
+    ].filter((item) => item.data && item.data.length > 0);
+  } else if (filter === 2) {
+    withinFirst = matchingItems
+      .filter((item) => item.score >= 100 && item.distance <= 40)
+      .sort((a, b) => b.score - a.score);
+    withinSecond = matchingItems
+      .filter(
+        (item) => item.score >= 80 && item.score < 100 && item.distance <= 40
+      )
+      .sort((a, b) => b.score - a.score);
+    withinThird = matchingItems
+      .filter(
+        (item) => item.score >= 60 && item.score < 80 && item.distance <= 40
+      )
+      .sort((a, b) => b.score - a.score);
+    withinFourth = matchingItems
+      .filter(
+        (item) => item.score >= 40 && item.score < 60 && item.distance <= 40
+      )
+      .sort((a, b) => b.score - a.score);
+    distanceArray = [
+      { data: withinFirst, number: 100, unit: "%" },
+      { data: withinSecond, number: 80, unit: "%以上" },
+      { data: withinThird, number: 60, unit: "%以上" },
+      { data: withinFourth, number: 40, unit: "%以上" },
+    ].filter((item) => item.data && item.data.length > 0);
+  } else if (filter === 3) {
+    withinFirst = matchingItems
+      .filter((item) => item.distance <= 5 && item.score > 50)
+      .sort((a, b) => a.distance - b.distance);
+    withinSecond = matchingItems
+      .filter(
+        (item) => item.distance > 5 && item.distance <= 10 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinThird = matchingItems
+      .filter(
+        (item) => item.distance > 10 && item.distance <= 15 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinFourth = matchingItems
+      .filter(
+        (item) => item.distance > 15 && item.distance <= 20 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinFifth = matchingItems
+      .filter(
+        (item) => item.distance > 20 && item.distance <= 25 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinSixth = matchingItems
+      .filter(
+        (item) => item.distance > 25 && item.distance <= 30 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinSeventh = matchingItems
+      .filter(
+        (item) => item.distance > 30 && item.distance <= 35 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    withinEighth = matchingItems
+      .filter(
+        (item) => item.distance > 35 && item.distance <= 40 && item.score > 50
+      )
+      .sort((a, b) => a.distance - b.distance);
+    distanceArray = [
+      { data: withinFirst, number: 5, unit: "km圏内" },
+      { data: withinSecond, number: 10, unit: "km圏内" },
+      { data: withinThird, number: 15, unit: "km圏内" },
+      { data: withinFourth, number: 20, unit: "km圏内" },
+      { data: withinFifth, number: 25, unit: "km圏内" },
+      { data: withinSixth, number: 30, unit: "km圏内" },
+      { data: withinSeventh, number: 35, unit: "km圏内" },
+      { data: withinEighth, number: 40, unit: "km圏内" },
+    ].filter((item) => item.data && item.data.length > 0);
+  }
 
   if (loading) {
     // ローディング中の表示
@@ -512,25 +621,20 @@ const HOME = ({ navigation, route }) => {
   return (
     <View style={styles.home}>
       <View style={[{ zIndex: 10 }]}>
-        <FilterOptions
-          filter1={filter1}
-          filter2={filter2}
-          filter3={filter3}
-          setFilter1={setFilter1}
-          setFilter2={setFilter2}
-          setFilter3={setFilter3}
-        />
+        <FilterOptions filter={filter} setFilter={setFilter} />
       </View>
       <ScrollView>
-        {within5Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>5</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
+        {distanceArray.map(({ data, number, unit }) =>
+          data.length > 0 ? (
+            <View key={number} style={{ marginVertical: 10 }}>
+              <View
+                style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}
+              >
+                <Text style={styles.kmLayoutNumber}>{number}</Text>
+                <Text style={styles.kmLayout}>{unit}</Text>
+              </View>
               <FlatList
-                data={within5Km}
+                data={data}
                 renderItem={({ item }) => renderCard(item)}
                 keyExtractor={(item) => item.onsenName}
                 style={styles.flatlist}
@@ -538,150 +642,24 @@ const HOME = ({ navigation, route }) => {
                 scrollEnabled={false}
               />
             </View>
-          </View>
+          ) : null
         )}
-        {within10Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>10</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within10Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within15Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>15</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within15Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within20Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>20</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within20Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within25Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>25</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within25Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within30Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>30</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within30Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within35Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>35</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within35Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within40Km.length > 0 && (
-          <View style={[{ marginVertical: 10 }]}>
-            <View style={[{ flexDirection: "row" }, styles.kmLayoutContainer]}>
-              <Text style={styles.kmLayoutNumber}>40</Text>
-              <Text style={styles.kmLayout}>km圏内</Text>
-            </View>
-            <View>
-              <FlatList
-                data={within40Km}
-                renderItem={({ item }) => renderCard(item)}
-                keyExtractor={(item) => item.onsenName}
-                style={styles.flatlist}
-                contentContainerStyle={styles.flatlistContent}
-                scrollEnabled={false}
-              />
-            </View>
-          </View>
-        )}
-        {within5Km.length === 0 &&
-          within10Km.length === 0 &&
-          within15Km.length === 0 &&
-          within20Km.length === 0 &&
-          within25Km.length === 0 &&
-          within30Km.length === 0 &&
-          within35Km.length === 0 &&
-          within40Km.length === 0 && (
+
+        {withinFirst.length === 0 &&
+          withinSecond.length === 0 &&
+          withinThird.length === 0 &&
+          withinFourth.length === 0 &&
+          withinFifth.length === 0 &&
+          withinSixth.length === 0 &&
+          withinSeventh.length === 0 &&
+          withinEighth.length === 0 && (
             <View style={styles.container}>
-              {/* ... 他のコンテンツ ... */}
               <Text style={styles.title}>{`マッチ度の高いスーパー銭湯は
-見つかりませんでした。`}</Text>
+      見つかりませんでした。`}</Text>
               <Text style={styles.content}>
                 {`以下Googleフォームから
-追加してほしい地域をおしえてください。
-優先して追加します。`}
+      追加してほしい地域をおしえてください。
+      優先して追加します。`}
               </Text>
               <TouchableOpacity
                 onPress={() =>

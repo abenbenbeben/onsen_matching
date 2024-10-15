@@ -31,6 +31,8 @@ export const Color = {
   colorRoyalblue: "#3a6ae5",
   colorAzureBlue: "#4285F4",
   colorGray: "rgba(0, 0, 0, 0.1)",
+  colorDarkGray: "#555",
+  colorDarkGrayLight: "#999",
   colorGoogleBlack: "#202124",
 };
 /* border radiuses */
