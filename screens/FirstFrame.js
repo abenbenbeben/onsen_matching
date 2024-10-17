@@ -13,7 +13,9 @@ import {
   Linking,
   AppState,
   PixelRatio,
+  ImageBackground,
 } from "react-native";
+import Video from "react-native-video";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { FontSize, FontFamily, Color } from "../GlobalStyles";
@@ -86,57 +88,6 @@ const FirstFrame = () => {
     }
   };
 
-  const additems = async () => {
-    try {
-      const docRef = await updateDoc(
-        doc(db, "global_match_data", "z9eDm6HDqFRpf3fO9nkd"),
-        {
-          kiyaku: `アプリ「スーパー銭湯マッチング」の利用規約
-
-
-この利用規約（以下、「本規約」といいます）は、アプリ「スーパー銭湯マッチング」（以下、「アプリ」といいます）の利用に関する条件を定めるものです。アプリをダウンロードし、ご利用いただく前に、本規約をよくお読みいただき、内容を理解した上でご利用ください。アプリを利用することで、本規約に同意したものとみなします。
-
-第1条 利用規約の適用
-1.1 本規約は、アプリの利用に関する一切の事項に適用されます。本規約は、アプリの提供者（以下、「提供者」といいます）とアプリの利用者（以下、「利用者」といいます）との間の契約です。
-
-第2条 利用者の権利と義務
-2.1 利用者は、アプリを提供者が定める方法に従い、使用する権利を有します。
-2.2 利用者は、本アプリを以下のように利用しないことを確約します。
-(a) 法律に反する目的での利用
-(b) アプリ内のコンテンツの不正使用、複製、転送、販売、再配布、または変更
-(c) アプリ内の情報の改ざん、ハッキング、不正アクセス、または不正使用
-(d) 他の利用者に対する嫌がらせ、脅迫、またはプライバシーの侵害
-(e) アプリの正常な運用に損害を与える行為
-(f) その他、提供者が不適切と判断する行為
-2.3 利用者は、アプリ内の情報やコンテンツを信頼する際には自己責任で行動する必要があります。アプリ内の温泉データは最新でない場合があり、その正確性や完全性について提供者は一切の保証をしないことを理解してください。
-
-第3条 サービスの提供と変更
-3.1 提供者は、アプリの提供や機能の変更、一時停止、または終了について、提供者の裁量で行います。提供者は、利用者に通知することなく、いつでもアプリの提供や機能を変更または終了する権利を有します。
-
-第4条 利用者情報の取り扱い
-4.1 提供者は、利用者のプライバシーに配慮し、利用者情報の取り扱いについてはプライバシーポリシーに従います。
-
-第5条 免責事項
-5.1 提供者は、アプリの利用によって生じたいかなる損害についても一切の責任を負いません。
-5.2 提供者は、アプリ内の情報やコンテンツの正確性、完全性、信頼性についていかなる保証も提供しません。アプリ内の温泉データは最新でない場合があり、その情報に依存する前に必ず確認を行うようお願いします。
-
-第6条 本規約の変更
-6.1 提供者は、本規約を変更する権利を有し、変更が行われた場合は、利用者に通知することなく効力を発生させます。利用者は、変更後の規約に同意しない場合、アプリの利用を中止する義務があります。
-
-第7条 準拠法と管轄裁判所
-7.1 本規約は、[提供者の所在地]の法律に基づいて解釈され、適用されます。
-7.2 本規約に関する一切の紛争については、[提供者の所在地]の裁判所を専属の管轄裁判所とします。
-
-本利用規約は、2023年11月1日に制定され、効力を発揮します。
-`,
-        }
-      );
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  };
-
   const fetch_global_data = async () => {
     let data = {};
     const querySnapshot_global = await getDocs(
@@ -190,67 +141,83 @@ const FirstFrame = () => {
   }, [appState]);
 
   return (
-    <View style={styles.view}>
-      <View style={styles.grid} />
-      <Text style={[styles.text, styles.textPosition]}>{`あなたの求めている
-スーパー銭湯
-を探しましょう`}</Text>
-      <View style={styles.container}>
-        {sentence.pre_title && sentence.pre_content && (
-          <>
-            <View style={styles.box}>
-              <Text style={styles.title}>{sentence.pre_title}</Text>
-              <Text style={styles.content}>{sentence.pre_content}</Text>
-            </View>
-          </>
-        )}
-      </View>
-      <Pressable
-        style={styles.vectorParent}
-        start_match="さっそく探す"
-        onPress={() =>
-          navigation.reset({
-            index: 0,
-            routes: [{ name: "Matching_Frame" }],
-          })
-        }
+    <>
+      <ImageBackground
+        source={require("../assets/FirstBackImage.jpg")} // 背景画像を指定
+        style={styles.background} // 背景のスタイル
       >
-        <Image
-          style={[styles.frameChild, styles.childPosition]}
-          contentFit="cover"
-          source={require("../assets/rectangle-1.png")}
-        />
-        <Text style={[styles.text1, styles.textPosition2]}>さっそく探す</Text>
-      </Pressable>
-      <StatusBar style={styles.childPosition} barStyle="default" />
+        <View style={styles.view}>
+          <Text style={[styles.text, styles.textPosition]}>{`スーパー銭湯
+を探しましょう`}</Text>
+          {sentence.pre_title && sentence.pre_content && (
+            <View style={styles.container}>
+              <View style={styles.box}>
+                <Text style={styles.title}>{sentence.pre_title}</Text>
+                <Text style={styles.content}>{sentence.pre_content}</Text>
+              </View>
+            </View>
+          )}
+          <Pressable
+            style={styles.vectorParent}
+            start_match="さっそく探す"
+            onPress={() =>
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Matching_Frame" }],
+              })
+            }
+          >
+            <Image
+              style={[styles.frameChild, styles.childPosition]}
+              contentFit="cover"
+              source={require("../assets/rectangle-1.png")}
+            />
+            <Text style={[styles.text1, styles.textPosition2]}>
+              さっそく探す
+            </Text>
+          </Pressable>
+          <StatusBar style={styles.childPosition} barStyle="default" />
 
-      {/* 利用規約の同意モーダル */}
-      <Modal visible={showTermsModal} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.termsContainer}>
-            <Text style={styles.title}>利用規約</Text>
-            <ScrollView>
-              <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
-            </ScrollView>
-            <Pressable
-              onPress={handleAgreeTerms}
-              style={({ pressed }) => [
-                styles.button,
-                pressed ? styles.buttonPressed : null,
-                !sentence.kiyakudata ? styles.buttonDisabled : null,
-              ]}
-              disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
-            >
-              <Text style={styles.buttonText}>同意</Text>
-            </Pressable>
-          </View>
+          {/* 利用規約の同意モーダル */}
+          <Modal
+            visible={showTermsModal}
+            animationType="slide"
+            transparent={true}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.termsContainer}>
+                <Text style={styles.title}>利用規約</Text>
+                <ScrollView>
+                  <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
+                </ScrollView>
+                <Pressable
+                  onPress={handleAgreeTerms}
+                  style={({ pressed }) => [
+                    styles.button,
+                    pressed ? styles.buttonPressed : null,
+                    !sentence.kiyakudata ? styles.buttonDisabled : null,
+                  ]}
+                  disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
+                >
+                  <Text style={styles.buttonText}>同意</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
         </View>
-      </Modal>
-    </View>
+      </ImageBackground>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   //モーダルのスタイル
   modalContainer: {
     flex: 1,
@@ -294,7 +261,7 @@ const styles = StyleSheet.create({
 
   textPosition: {
     textAlign: "center",
-    lineHeight: 29,
+    lineHeight: 40,
     letterSpacing: 0,
     left: "50%",
     position: "absolute",
@@ -312,22 +279,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     overflow: "hidden",
   },
-  grid: {
-    top: 44,
-    right: 7,
-    bottom: 34,
-    left: 8,
-    position: "absolute",
-    overflow: "hidden",
-  },
   text: {
     marginLeft: -143.5,
-    top: 190,
-    fontSize: 24 / PixelRatio.getFontScale(),
-    fontFamily: FontFamily.interRegular,
-    color: Color.labelColorLightPrimary,
+    top: 230,
+    fontWeight: "500",
+    fontSize: 30 / PixelRatio.getFontScale(),
+    color: Color.labelColorDarkPrimary,
+    lineHeight: 5,
     width: 286,
     height: 100,
+    textShadowColor: "rgba(0, 0, 0, 0.75)", // 影の色（黒に近いグレー）
+    textShadowOffset: { width: 2, height: 2 }, // 影の位置（横方向・縦方向のオフセット）
+    textShadowRadius: 20, // 影のぼかし半径
   },
   frameChild: {
     right: 0,
@@ -358,7 +321,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   view: {
-    backgroundColor: Color.labelColorDarkPrimary,
+    // backgroundColor: Color.labelColorDarkPrimary,
     flex: 1,
     width: "100%",
     height: 800,
@@ -367,14 +330,22 @@ const styles = StyleSheet.create({
 
   //メッセージボックス
   container: {
-    // flex: 1,
-    justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
+    padding: 20,
+    marginTop: 100,
+    marginBottom: 16,
+    marginVertical: 20,
+    marginHorizontal: 20,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
   },
   box: {
     alignItems: "center",
-    marginVertical: 20, // 斜線との間隔
   },
   title: {
     fontSize: 20 / PixelRatio.getFontScale(),
