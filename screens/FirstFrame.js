@@ -113,7 +113,7 @@ const FirstFrame = () => {
         setShowTermsModal(true);
       }
     }
-    //resetAsyncStorage();
+    // resetAsyncStorage();
     checkAgreement();
     fetch_global_data();
     // additems();

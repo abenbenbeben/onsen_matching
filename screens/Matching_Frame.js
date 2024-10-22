@@ -75,7 +75,9 @@ const Matching_Frame = ({ navigation }) => {
       } else {
         console.log("firebaseを読み込んだ！！");
         // キャッシュが存在しない場合は、データを取得し、キャッシュに保存する。
-        const querySnapshot = await getDocs(collection(db, "matching_screen"));
+        const querySnapshot = await getDocs(
+          collection(db, "matching_screen_v2")
+        );
         const querySnapshot_purpose = await getDocs(
           collection(db, "matching_screen_purpose")
         );

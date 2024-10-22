@@ -29,6 +29,7 @@ import { app } from "../firebaseconfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
+import { GlobalData } from "../GlobalData";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -72,7 +73,7 @@ const FavoriteFrame = () => {
       // 新しいお気に入りデータをFirestoreから取得
       const newFavoritesData = [];
       for (const id of newFavoriteIds) {
-        const docSnap = await getDoc(doc(db, "onsen_data", id));
+        const docSnap = await getDoc(doc(db, GlobalData.firebaseOnsenData, id));
         if (docSnap.exists()) {
           const data = docSnap.data();
           data.id = docSnap.id;

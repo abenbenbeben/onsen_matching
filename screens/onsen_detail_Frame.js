@@ -43,6 +43,7 @@ import {
 import { app } from "../firebaseconfig";
 import OnsenDetailBlock from "../components/OnsenDetailBlock";
 import { useFocusEffect } from "@react-navigation/native";
+import { GlobalData } from "../GlobalData";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -74,12 +75,14 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
 
   const fetch_matchingdata = async () => {
     try {
-      const querySnapshot = await getDoc(doc(db, "onsen_data", data_id));
+      const querySnapshot = await getDoc(
+        doc(db, GlobalData.firebaseOnsenData, data_id)
+      );
       const querySnapshot_detail = await getDocs(
         collection(db, "onsen_detail_data_v2")
       );
       const querySnapshot_matching_screen = await getDocs(
-        collection(db, "matching_screen")
+        collection(db, "matching_screen_v2")
       );
       onsen_data = querySnapshot.data();
       const imageData = await Promise.all(

@@ -20,11 +20,11 @@ if (
 }
 
 const FacilityCard = ({
-  reviews,
+  reviews = [],
   title,
   data,
   imagePath,
-  moyorieki,
+  moyorieki = "",
   zikan,
   kyori,
   isHighlight,
@@ -36,6 +36,9 @@ const FacilityCard = ({
   }
   if (!title) {
     title = "サウナ";
+  }
+  if (!moyorieki) {
+    moyorieki = "";
   }
 
   // レビューを表示する数を制御
@@ -70,7 +73,19 @@ const FacilityCard = ({
             <Text style={{ color: "#666" }}>施設情報を確認してください</Text>
           </View>
         )}
-        {reviews.length === 0 && data === "ekitika" && (
+        {reviews.length === 0 && data === "ekitika" && moyorieki === "" && (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <IconButton
+              icon={"alert"}
+              iconColor={"#666"}
+              selected="true"
+              size={19}
+              style={{ margin: 0 }}
+            />
+            <Text style={{ color: "#666" }}>最寄駅から少し離れています</Text>
+          </View>
+        )}
+        {reviews.length === 0 && data === "ekitika" && moyorieki !== "" && (
           <>
             <View
               style={{

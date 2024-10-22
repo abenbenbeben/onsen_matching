@@ -32,6 +32,7 @@ import * as Location from "expo-location";
 import * as Linking from "expo-linking";
 import { IconButton } from "react-native-paper";
 import FilterOptions from "../components/FilterOption";
+import { GlobalData } from "../GlobalData";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -241,7 +242,9 @@ const HOME = ({ navigation, route }) => {
         )) || !lastUpdatedTimestamp;
       if (!matchingDataArray_origin || shouldFetchFromFirebase) {
         console.log("HOME画面：firebaseを読み込んだ");
-        querySnapshot = await getDocs(collection(db, "onsen_data"));
+        querySnapshot = await getDocs(
+          collection(db, GlobalData.firebaseOnsenData)
+        );
         matchingDataArray_origin = await Promise.all(
           querySnapshot.docs.map(async (doc) => {
             let data = doc.data();
@@ -365,51 +368,54 @@ const HOME = ({ navigation, route }) => {
 
   const additems = async () => {
     try {
-      const docRef = await addDoc(collection(db, "onsen_data"), {
-        onsen_name: "サウナリウム高円寺",
-        feature: `屋上に整いスペースがあり、気持ちよく整える。外気浴にはポンチョに着替える。`,
-        zikan_heijitu_start: 800,
-        zikan_heijitu_end: 2400,
-        zikan_kyujitu_start: 800,
-        zikan_kyujitu_end: 2400,
-        sauna: 1,
-        rouryu: 1,
-        siosauna: 0,
-        doro: 0,
-        mizuburo: 1,
-        tennen: 0,
-        sensitu: "なし",
-        sensituyosa: 0,
-        tansan: 0,
-        furosyurui: 5,
-        manga: 1,
-        wifi: 1,
-        tyusyazyo: 0,
-        heijitunedan: 2180,
-        kyuzitunedan: 2480,
-        heikinnedan: 2330,
-        ganban: 1,
-        ganbansyurui: 6,
-        senzai: 0,
-        facewash: 1,
-        komiguai: 0.7,
-        wadai: 0,
-        kodomo: 0,
-        ekitika: 1,
-        url: "https://www.nagomino-yu.com/",
-        latitude: 35.7050720020267,
-        longitude: 139.61832245755133,
-        place: "東京都杉並区上荻１丁目１０−１０",
-        images: [
-          "onsen_images/nagominoyu1.jpeg",
-          "onsen_images/nagominoyu2.jpeg",
-          "onsen_images/nagominoyu3.jpeg",
-          "onsen_images/nagominoyu4.jpeg",
-          "onsen_images/nagominoyu5.jpeg",
-          "onsen_images/nagominoyu6.jpeg",
-          "onsen_images/nagominoyu7.jpeg",
-        ],
-      });
+      const docRef = await addDoc(
+        collection(db, GlobalData.firebaseOnsenData),
+        {
+          onsen_name: "サウナリウム高円寺",
+          feature: `屋上に整いスペースがあり、気持ちよく整える。外気浴にはポンチョに着替える。`,
+          zikan_heijitu_start: 800,
+          zikan_heijitu_end: 2400,
+          zikan_kyujitu_start: 800,
+          zikan_kyujitu_end: 2400,
+          sauna: 1,
+          rouryu: 1,
+          siosauna: 0,
+          doro: 0,
+          mizuburo: 1,
+          tennen: 0,
+          sensitu: "なし",
+          sensituyosa: 0,
+          tansan: 0,
+          furosyurui: 5,
+          manga: 1,
+          wifi: 1,
+          tyusyazyo: 0,
+          heijitunedan: 2180,
+          kyuzitunedan: 2480,
+          heikinnedan: 2330,
+          ganban: 1,
+          ganbansyurui: 6,
+          senzai: 0,
+          facewash: 1,
+          komiguai: 0.7,
+          wadai: 0,
+          kodomo: 0,
+          ekitika: 1,
+          url: "https://www.nagomino-yu.com/",
+          latitude: 35.7050720020267,
+          longitude: 139.61832245755133,
+          place: "東京都杉並区上荻１丁目１０−１０",
+          images: [
+            "onsen_images/nagominoyu1.jpeg",
+            "onsen_images/nagominoyu2.jpeg",
+            "onsen_images/nagominoyu3.jpeg",
+            "onsen_images/nagominoyu4.jpeg",
+            "onsen_images/nagominoyu5.jpeg",
+            "onsen_images/nagominoyu6.jpeg",
+            "onsen_images/nagominoyu7.jpeg",
+          ],
+        }
+      );
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
