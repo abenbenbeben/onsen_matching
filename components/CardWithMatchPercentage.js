@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View, Text, PixelRatio } from "react-native";
 import { IconButton } from "react-native-paper";
 import { Image } from "expo-image";
 import { FontSize, FontFamily, Color, Border } from "../GlobalStyles";
+import { GlobalData } from "../GlobalData";
 
 const CardWithMatchPercentage = ({
   onsenName,
@@ -19,20 +20,7 @@ const CardWithMatchPercentage = ({
 }) => {
   const buttonColor = isfavorite ? "#FFC800" : "#FFF";
   const buttonIcon = isfavorite ? "star" : "star-outline";
-  const tagNameList = {
-    doro: "泥パック",
-    ekitika: "駅近",
-    facewash: "フェイスウォッシュ",
-    ganban: "岩盤浴",
-    manga: "漫画",
-    mizuburo: "水風呂",
-    rouryu: "ロウリュウ",
-    sauna: "サウナ",
-    siosauna: "塩サウナ",
-    tansan: "炭酸泉",
-    tennen: "天然",
-    wifi: "wifi",
-  };
+  const tagNameList = GlobalData.tagNameList;
   // タグをフィルタリングして取得
   let filteredTags;
   if (data) {
@@ -127,7 +115,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   backgroundFrame: {
     position: "absolute",
@@ -152,7 +141,7 @@ const styles = StyleSheet.create({
     // justifyContent: "space-between",
   },
   onsenName: {
-    fontSize: 16 / PixelRatio.getFontScale(),
+    fontSize: FontSize.body,
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorLightPrimary,
   },
@@ -176,7 +165,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     color: Color.labelColorLightPrimary,
-    fontSize: 12 / PixelRatio.getFontScale(),
+    fontSize: FontSize.bod,
   },
   flexDirectionColumn: {
     flexDirection: "column",

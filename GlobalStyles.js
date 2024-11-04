@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, PixelRatio } from "react-native";
 
 /* fonts */
 export const FontFamily = {
@@ -8,6 +8,12 @@ export const FontFamily = {
 };
 /* font sizes */
 export const FontSize = {
+  title: 30 / PixelRatio.getFontScale(),
+  subTitle: 26 / PixelRatio.getFontScale(),
+  body: 20 / PixelRatio.getFontScale(),
+  bodySub: 16 / PixelRatio.getFontScale(),
+  caption: 12 / PixelRatio.getFontScale(),
+
   size_5xl: 24,
   size_2xs: 11,
   size_xl: 20,
@@ -34,6 +40,7 @@ export const Color = {
   colorDarkGray: "#555",
   colorDarkGrayLight: "#999",
   colorGoogleBlack: "#202124",
+  colorGrayText: "#666", // 暗めのグレーテキスト
 };
 /* border radiuses */
 export const Border = {

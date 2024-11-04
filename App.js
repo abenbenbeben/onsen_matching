@@ -17,6 +17,7 @@ import { View, Text, Pressable, TouchableOpacity, Button } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router/tabs";
+import { DataProvider } from "./DataContext.js";
 
 const App = () => {
   const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
@@ -32,64 +33,61 @@ const App = () => {
   const Tab = createBottomTabNavigator();
 
   return (
-    <NavigationContainer>
-      {hideSplashScreen ? (
-        <Stack.Navigator
-          initialRouteName="FirstFrame"
-          screenOptions={{
-            headerStyle: { backgroundColor: "#3A6AE5" },
-            headerTitleStyle: { color: "#ffffff" },
-            headerTitle: "スーパー銭湯マッチング",
-            headerTintColor: "white",
-            headerBackTitle: "Back",
-            animation: "slide_from_right",
-          }}
-        >
-          <Stack.Screen
-            name="FirstFrame"
-            component={FirstFrame}
-            options={{
-              headerShown: false,
-              href: null,
-              tabBarIcon: ({ color }) => (
-                <MaterialCommunityIcons name="home" color={color} size={26} />
-              ),
+    <DataProvider>
+      <NavigationContainer>
+        {hideSplashScreen ? (
+          <Stack.Navigator
+            initialRouteName="FirstFrame"
+            screenOptions={{
+              headerStyle: { backgroundColor: "#3A6AE5" },
+              headerTitleStyle: { color: "#ffffff" },
+              headerTitle: "スーパー銭湯マッチング",
+              headerTintColor: "white",
+              headerBackTitle: "Back",
+              animation: "slide_from_right",
             }}
-          />
-          <Stack.Screen
-            name="Matching_Frame"
-            component={Matching_Frame}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Root"
-            component={HomeTabs}
-            // options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Onsen_detail_Frame"
-            component={onsen_detail_Frame}
-            // options={{ headerBackVisible: false }}
-          />
-          <Stack.Screen
-            name="Editdetail_Frame"
-            component={Editdetail_Frame}
-            // options={{ headerBackVisible: false }}
-          />
-          <Stack.Screen
-            name="Reportdetail_Frame"
-            component={Reportdetail_Frame}
-            // options={{ headerBackVisible: false }}
-          />
-        </Stack.Navigator>
-      ) : null}
-    </NavigationContainer>
+          >
+            <Stack.Screen
+              name="FirstFrame"
+              component={FirstFrame}
+              options={{
+                headerShown: false,
+                href: null,
+                tabBarIcon: ({ color }) => (
+                  <MaterialCommunityIcons name="home" color={color} size={26} />
+                ),
+              }}
+            />
+            <Stack.Screen
+              name="Matching_Frame"
+              component={Matching_Frame}
+              options={{ headerTitle: "スーパー銭湯マッチング" }}
+            />
+            <Stack.Screen name="Root" component={HomeTabs} />
+            <Stack.Screen
+              name="Onsen_detail_Frame"
+              component={onsen_detail_Frame}
+              // options={{ headerBackVisible: false }}
+            />
+            <Stack.Screen
+              name="Editdetail_Frame"
+              component={Editdetail_Frame}
+              // options={{ headerBackVisible: false }}
+            />
+            <Stack.Screen
+              name="Reportdetail_Frame"
+              component={Reportdetail_Frame}
+              // options={{ headerBackVisible: false }}
+            />
+          </Stack.Navigator>
+        ) : null}
+      </NavigationContainer>
+    </DataProvider>
   );
 };
 
-function HomeTabs() {
+function HomeTabs({ route, navigation }) {
   const Tab = createBottomTabNavigator();
-
   return (
     <Tab.Navigator initialRouteName="HOME">
       <Tab.Screen

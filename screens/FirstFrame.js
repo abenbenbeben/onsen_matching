@@ -18,7 +18,7 @@ import {
 import Video from "react-native-video";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import { FontSize, FontFamily, Color } from "../GlobalStyles";
+import { FontSize, FontFamily, Color, GlobalStyles } from "../GlobalStyles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   collection,
@@ -32,7 +32,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { app } from "../firebaseconfig";
-
 import Constants from "expo-constants";
 import * as Application from "expo-application";
 import { useFocusEffect } from "@react-navigation/native";
@@ -146,6 +145,7 @@ const FirstFrame = () => {
         source={require("../assets/FirstBackImage.jpg")} // 背景画像を指定
         style={styles.background} // 背景のスタイル
       >
+        <View style={styles.overlay} />
         <View style={styles.view}>
           <Text style={[styles.text, styles.textPosition]}>{`スーパー銭湯
 を探しましょう`}</Text>
@@ -158,7 +158,7 @@ const FirstFrame = () => {
             </View>
           )}
           <Pressable
-            style={styles.vectorParent}
+            style={[styles.vectorParent, GlobalStyles.positionCenter]}
             start_match="さっそく探す"
             onPress={() =>
               navigation.reset({
@@ -167,14 +167,9 @@ const FirstFrame = () => {
               })
             }
           >
-            <Image
-              style={[styles.frameChild, styles.childPosition]}
-              contentFit="cover"
-              source={require("../assets/rectangle-1.png")}
-            />
-            <Text style={[styles.text1, styles.textPosition2]}>
-              さっそく探す
-            </Text>
+            <View>
+              <Text style={[styles.text1]}>さっそく探す</Text>
+            </View>
           </Pressable>
           <StatusBar style={styles.childPosition} barStyle="default" />
 
@@ -186,7 +181,9 @@ const FirstFrame = () => {
           >
             <View style={styles.modalContainer}>
               <View style={styles.termsContainer}>
-                <Text style={styles.title}>利用規約</Text>
+                <Text style={[styles.termsTitle, GlobalStyles.positionCenter]}>
+                  利用規約
+                </Text>
                 <ScrollView>
                   <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
                 </ScrollView>
@@ -225,11 +222,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  title: {
-    fontSize: 20 / PixelRatio.getFontScale(),
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
   termsContainer: {
     maxHeight: "60%",
     width: "80%",
@@ -239,7 +231,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   termsText: {
-    fontSize: 16 / PixelRatio.getFontScale(),
+    fontSize: FontSize.bodySub,
   },
   button: {
     backgroundColor: "blue",
@@ -266,13 +258,6 @@ const styles = StyleSheet.create({
     left: "50%",
     position: "absolute",
   },
-  textPosition2: {
-    textAlign: "center",
-    lineHeight: 55,
-    letterSpacing: 0,
-    left: "50%",
-    position: "absolute",
-  },
   childPosition: {
     left: 0,
     top: 0,
@@ -283,7 +268,7 @@ const styles = StyleSheet.create({
     marginLeft: -143.5,
     top: 230,
     fontWeight: "500",
-    fontSize: 30 / PixelRatio.getFontScale(),
+    fontSize: FontSize.title,
     color: Color.labelColorDarkPrimary,
     lineHeight: 5,
     width: 286,
@@ -294,22 +279,21 @@ const styles = StyleSheet.create({
   },
   frameChild: {
     right: 0,
-    bottom: -1,
+    bottom: 0,
     borderRadius: 8,
     maxWidth: "100%",
     maxHeight: "100%",
   },
   text1: {
-    marginLeft: -132,
-    fontSize: 36 / PixelRatio.getFontScale(),
+    fontSize: FontSize.title,
     fontWeight: "500",
-    fontFamily: FontFamily.interMedium,
+    // fontFamily: FontFamily.interMedium,
     color: Color.labelColorDarkPrimary,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: 265,
-    height: 63,
+    textAlign: "center",
+    // position: "absolute",
   },
   vectorParent: {
     marginLeft: -170.5,
@@ -319,6 +303,9 @@ const styles = StyleSheet.create({
     left: "50%",
     position: "absolute",
     overflow: "hidden",
+    backgroundColor: Color.colorAzureBlue,
+
+    borderRadius: 10,
   },
   view: {
     // backgroundColor: Color.labelColorDarkPrimary,
@@ -327,12 +314,17 @@ const styles = StyleSheet.create({
     height: 800,
     overflow: "hidden",
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+  },
 
   //メッセージボックス
   container: {
     alignItems: "center",
     backgroundColor: "#fff",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     marginTop: 100,
     marginBottom: 16,
     marginVertical: 20,
@@ -348,12 +340,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 20 / PixelRatio.getFontScale(),
+    fontSize: FontSize.body,
     fontWeight: "100",
   },
   content: {
-    fontSize: 14 / PixelRatio.getFontScale(),
+    fontSize: FontSize.bodySub,
     fontWeight: "100",
+  },
+  termsTitle: {
+    fontSize: FontSize.body,
+    fontWeight: "500",
+    paddingVertical: 10,
   },
 });
 

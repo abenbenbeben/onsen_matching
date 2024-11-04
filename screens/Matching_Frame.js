@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Image } from "expo-image";
 import {
   StyleSheet,
@@ -18,22 +18,24 @@ import MatchingButtonContainer from "../components/MatchingButtonContainer";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import FormContainer3 from "../components/FormContainer3";
 import { Border, FontSize, FontFamily, Color } from "../GlobalStyles";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import { collection, addDoc, getFirestore, getDocs } from "firebase/firestore";
+import { DataContext } from "../DataContext";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
 
 const Matching_Frame = ({ navigation }) => {
+  const { setData } = useContext(DataContext);
   const [selectedButtons, setSelectedButtons] = useState([]);
   const [selecteddata, setSelecteddata] = useState([]);
   const [selectedButtons_purpose, setSelectedButtons_purpose] = useState([]);
   const [selecteddata_purpose, setSelecteddata_purpose] = useState([]);
-  const [matchingItems, setMatchingItems] = useState([]);
+  const [selecteddata_purposeData, setSelecteddata_purposeData] = useState([]);
+  const [matchingItemsFeature, setMatchingItemsFeature] = useState([]);
   const [matchingItemsPurpose, setMatchingItemsPurpose] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
   const [activeTab, setActiveTab] = useState(1); // タブの状態を管理例えば、1と2のタブがあると仮定
@@ -69,7 +71,7 @@ const Matching_Frame = ({ navigation }) => {
         // キャッシュが存在する場合は、キャッシュからデータを読み込む
         const matchingDataArray = JSON.parse(cachedData);
         const matchingDataArray_purpose = JSON.parse(cachedData_purpose);
-        setMatchingItems(matchingDataArray);
+        setMatchingItemsFeature(matchingDataArray);
         setMatchingItemsPurpose(matchingDataArray_purpose);
         setLoading(false); // データ読み込みが完了したらローディング状態を解除
       } else {
@@ -79,7 +81,7 @@ const Matching_Frame = ({ navigation }) => {
           collection(db, "matching_screen_v2")
         );
         const querySnapshot_purpose = await getDocs(
-          collection(db, "matching_screen_purpose")
+          collection(db, "matching_screen_purpose_v2")
         );
         const processData = async (doc) => {
           const data = doc.data();
@@ -95,6 +97,7 @@ const Matching_Frame = ({ navigation }) => {
             beforeImage,
             afterImage,
             data: data.data,
+            data_purpose: data.data_purpose ? data.data_purpose : "",
             // その他のデータフィールドを追加
           };
         };
@@ -119,7 +122,7 @@ const Matching_Frame = ({ navigation }) => {
         );
 
         setMatchingItemsPurpose(matchingDataArray_purpose);
-        setMatchingItems(matchingDataArray);
+        setMatchingItemsFeature(matchingDataArray);
         setLoading(false); // データ読み込みが完了したらローディング状態を解除
       }
     } catch (e) {
@@ -163,28 +166,10 @@ const Matching_Frame = ({ navigation }) => {
     console.log(dataUpdated);
     return dataUpdated;
   };
-  const additems = async () => {
-    try {
-      const docRef = await addDoc(collection(db, "matching_screen_purpose"), {
-        afterimage: "matching_images/kondenai.png",
-        beforeimage: "matching_images/kondenai_dark.png",
-        data: ["komiguai", "manga", "wifi"],
-        sentence: "コスパが良い",
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
-  };
 
   useEffect(() => {
-    // fetch_matchingdata関数を呼び出す
     fetch_matchingdata();
-    //additems();
   }, []);
-
-  // Create a reference with an initial file path and name
-  //'matching_images/go_onsen.png'
 
   const handleButtonToggle = (buttonIndex, buttondata) => {
     if (selectedButtons.includes(buttonIndex)) {
@@ -199,11 +184,15 @@ const Matching_Frame = ({ navigation }) => {
       setSelecteddata([...selecteddata, buttondata]);
     } else {
       // 2つ以上のボタンが選択された場合、アラートを表示
-      Alert.alert("注意", "4つ以上のボタンを選択できません。");
+      Alert.alert("注意", "特徴は4つ以上選択できません");
     }
   };
 
-  const handleButtonToggle_purpose = (buttonIndex, buttondata) => {
+  const handleButtonToggle_purpose = (
+    buttonIndex,
+    buttondata,
+    pre_selecteddata_purposeData
+  ) => {
     if (selectedButtons_purpose.includes(buttonIndex)) {
       // すでに選択されている場合、選択を解除
       setSelectedButtons_purpose(
@@ -212,14 +201,17 @@ const Matching_Frame = ({ navigation }) => {
       setSelecteddata_purpose(
         selecteddata_purpose.filter((index) => index !== buttondata)
       );
+      setSelecteddata_purposeData([]);
     } else if (selectedButtons_purpose.length < 1) {
       // 2つ以上選択されていない場合、選択を許可
       setSelectedButtons_purpose([...selectedButtons_purpose, buttonIndex]);
       setSelecteddata_purpose([...selecteddata_purpose, buttondata]);
+      setSelecteddata_purposeData([pre_selecteddata_purposeData]);
     } else {
       // 2つ以上のボタンが選択された場合、アラートを表示
-      Alert.alert("注意", "1つ以上のボタンを選択できません。");
+      Alert.alert("注意", "目的は1つ以上選択できません");
     }
+    console.log(selecteddata_purposeData);
   };
 
   if (loading) {
@@ -235,10 +227,8 @@ const Matching_Frame = ({ navigation }) => {
   return (
     <View style={styles.view}>
       <View style={styles.frameParent}>
-        <View style={[styles.wrapper, styles.textLayout]}>
-          <Text
-            style={[styles.text, styles.textPosition]}
-          >{`あなたがスーパー銭湯に求める
+        <View style={[styles.wrapper]}>
+          <Text style={[styles.ExplainationText]}>{`あなたがスーパー銭湯に求める
 ことを選んでください`}</Text>
         </View>
 
@@ -281,7 +271,7 @@ const Matching_Frame = ({ navigation }) => {
         {activeTab === 1 && (
           <>
             <FlatList
-              data={matchingItems}
+              data={matchingItemsFeature}
               numColumns={2} // 2列で表示
               keyExtractor={(item) => item.id}
               style={styles.flatlist}
@@ -297,12 +287,6 @@ const Matching_Frame = ({ navigation }) => {
                   width={156}
                 />
               )}
-            />
-            <FormContainer3
-              navigation={navigation}
-              selectednum={selectedButtons.length}
-              data={selecteddata}
-              maxnum={4}
             />
           </>
         )}
@@ -320,7 +304,11 @@ const Matching_Frame = ({ navigation }) => {
                   beforeImage={item.beforeImage}
                   afterImage={item.afterImage}
                   onToggle={() =>
-                    handleButtonToggle_purpose(item.id, item.data)
+                    handleButtonToggle_purpose(
+                      item.id,
+                      item.data,
+                      item.data_purpose
+                    )
                   }
                   selected={selectedButtons_purpose.includes(item.id)}
                   height={132}
@@ -328,14 +316,21 @@ const Matching_Frame = ({ navigation }) => {
                 />
               )}
             />
-            <FormContainer3
-              navigation={navigation}
-              selectednum={selectedButtons_purpose.length}
-              data={selecteddata_purpose}
-              maxnum={1}
-            />
           </>
         )}
+        <FormContainer3
+          navigation={navigation}
+          selectednum={selectedButtons.length}
+          data_feature={selecteddata}
+          data_purpose={selecteddata_purpose}
+          selectedButtons_feature={selectedButtons}
+          selectedButtons_purpose={selectedButtons_purpose}
+          selectedButtons_purposeName={selecteddata_purposeData}
+          matchingItemsFeature={matchingItemsFeature}
+          matchingItemsPurpose={matchingItemsPurpose}
+          maxnum={4}
+          containerHeight={100}
+        />
       </View>
     </View>
   );
@@ -350,19 +345,22 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 100,
   },
+  wrapper: {
+    marginVertical: 8,
+  },
+  ExplainationText: {
+    fontSize: FontSize.body,
+    letterSpacing: 0,
+    // lineHeight: 22,
+    fontWeight: "400",
+    color: Color.labelColorLightPrimary,
+    textAlign: "center",
+    // width: 360,
+  },
   scrollview: {
     width: "96%",
     height: "100%",
     borderWidth: 4,
-  },
-  textLayout: {
-    height: 75,
-    width: 360,
-  },
-  textPosition: {
-    top: 0,
-    left: 0,
-    position: "absolute",
   },
   parent: {
     width: "96%",
@@ -377,28 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 8,
   },
-  text: {
-    fontSize: 22 / PixelRatio.getFontScale(),
-    letterSpacing: 0,
-    // lineHeight: 22,
-    fontWeight: "500",
-    fontFamily: FontFamily.interMedium,
-    color: Color.labelColorLightPrimary,
-    textAlign: "center",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: 75,
-    width: 360,
-    // borderWidth:1,
-    // borderColor:"red",
-  },
-  wrapper: {
-    top: 6,
-    left: 0,
-    // position: "absolute",
-    overflow: "hidden",
-  },
+
   frameParent: {
     top: 0,
     // left: 10,
@@ -408,9 +385,6 @@ const styles = StyleSheet.create({
     // position: "absolute",
     overflow: "hidden",
     alignItems: "center",
-
-    // borderWidth:3,
-    // borderColor:"blue",
   },
   view: {
     backgroundColor: Color.labelColorDarkPrimary,
@@ -420,8 +394,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     textAlign: "center",
     alignItems: "center",
-    // borderWidth:2,
-    // borderColor:"red",
   },
 
   //タブのスタイル
@@ -429,7 +401,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     padding: 10,
-    // backgroundColor: '#f8f8f8', // 薄いグレーの背景色
   },
   tabButton: {
     borderBottomWidth: 2,
@@ -439,8 +410,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   tabButtonText: {
-    color: "#666", // 暗めのグレーテキスト
-    fontSize: 16 / PixelRatio.getFontScale(),
+    color: Color.colorGrayText,
+    fontSize: FontSize.body,
   },
   tabButtonActive: {
     //borderBottomColor: '#007BFF', // アクティブなタブの境界線は青色

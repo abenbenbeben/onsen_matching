@@ -343,8 +343,8 @@ const HOME = ({ navigation, route }) => {
   // コンポーネントがマウントされた後にお気に入りデータを読み込む
   const fetchFavoriteData = async () => {
     const storedData = await AsyncStorage.getItem("favoriteArray");
-    if (JSON.parse(storedData).length >= 1) {
-      const parsedData = JSON.parse(storedData);
+    const parsedData = storedData ? JSON.parse(storedData) : [];
+    if (parsedData.length >= 1) {
       if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
         setFavoriteDataArray(parsedData);
       }
@@ -689,25 +689,25 @@ const styles = StyleSheet.create({
     width: 92,
     left: 8,
     justifyContent: "center",
-    alignContent: "center",
-    alignItems: "center",
+    alignItems: "flex-end",
   },
   kmLayout: {
     color: Color.labelColorLightPrimary,
     fontFamily: FontFamily.interMedium,
-    fontWeight: "500",
-    // lineHeight: 22,
-    letterSpacing: 0,
-    fontSize: 17 / PixelRatio.getFontScale(),
+    fontWeight: "200",
+    lineHeight: 26,
+    letterSpacing: 1,
+    fontSize: FontSize.bodySub,
   },
   kmLayoutNumber: {
-    height: 32,
+    // height: 32,
     color: Color.labelColorLightPrimary,
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
-    // lineHeight: 22,
+    lineHeight: 32,
     letterSpacing: 0,
-    fontSize: 24 / PixelRatio.getFontScale(),
+    marginHorizontal: 2,
+    fontSize: FontSize.subTitle,
   },
   home: {
     backgroundColor: "#ececec",

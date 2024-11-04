@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { IconButton } from "react-native-paper";
+import { Color } from "../GlobalStyles";
 
 // Android の場合、レイアウトアニメーションの許可が必要
 if (
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   },
   review: {
     fontSize: 14,
-    color: "#666",
+    color: Color.colorGrayText,
     lineHeight: 18,
     marginBottom: 4,
   },
