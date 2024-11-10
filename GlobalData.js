@@ -4,7 +4,7 @@ export const GlobalData = {
   firebaseOnsenData: "onsen_data_v2",
   tagNameList: {
     doro: "泥パック",
-    ekitika: "駅近",
+    ekitika_zikan: "駅近",
     facewash: "フェイスウォッシュ",
     ganban: "岩盤浴",
     manga: "漫画",

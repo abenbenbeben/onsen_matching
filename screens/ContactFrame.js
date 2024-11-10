@@ -7,6 +7,7 @@ import {
   Linking,
   ScrollView,
 } from "react-native";
+import HeaderScreen from "../components/HeaderScreen";
 
 const ContactScreen = () => {
   const openGoogleForm = () => {
@@ -22,31 +23,34 @@ const ContactScreen = () => {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        {/* 開発に至った経緯 */}
-        <Text style={styles.subtitle}>開発に至った経緯</Text>
-        <Text style={styles.content}>
-          私はスーパー銭湯が大好きです。サウナで汗を流して水風呂入って整って、この時間をとても愛してます。でもそれはお気に入りの銭湯でした味わえませんでした。
-          でも、そんなことないはずです。どこに行ったとしてもあなたのお気に入りの銭湯、もしかしたらさらにいい銭湯に出会えるかもしれません。
-          「どこに行ってもお気に入りのスーパー銭湯を見つけたい」そんな思いで開発をしています。
-        </Text>
-        <Text style={styles.subtitle}>開発者について</Text>
-        <Text style={styles.content}>
-          {`こんにちは、個人開発していますあべべです。
+    <>
+      <HeaderScreen headerText="ヘルプ" />
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
+          {/* 開発に至った経緯 */}
+          <Text style={styles.subtitle}>開発に至った経緯</Text>
+          <Text style={styles.content}>
+            私はスーパー銭湯が大好きです。サウナで汗を流して水風呂入って整って、この時間をとても愛してます。でもそれはお気に入りの銭湯でした味わえませんでした。
+            でも、そんなことないはずです。どこに行ったとしてもあなたのお気に入りの銭湯、もしかしたらさらにいい銭湯に出会えるかもしれません。
+            「どこに行ってもお気に入りのスーパー銭湯を見つけたい」そんな思いで開発をしています。
+          </Text>
+          <Text style={styles.subtitle}>開発者について</Text>
+          <Text style={styles.content}>
+            {`こんにちは、個人開発していますあべべです。
           個人開発なため、1人で開発してます。ただ1人で開発するのは、気楽ではありますが孤独でもあります。そこで１つお願いがあります。こんな機能があればいいな、この機能とってもいいよ、のような声を送ってもらいたいです。
           あなたと一緒にこのアプリを良くしていきたいと思ってます。お便り待っています。`}
-        </Text>
+          </Text>
 
-        <Text style={styles.subtitle}>開発者に連絡</Text>
-        <Text style={styles.content}>
-          ご意見やご質問があれば、以下のボタンからGoogleフォームを通してお知らせください。
-        </Text>
-        <TouchableOpacity style={styles.button} onPress={openGoogleForm}>
-          <Text style={styles.buttonText}>Googleフォームを開く</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          <Text style={styles.subtitle}>開発者に連絡</Text>
+          <Text style={styles.content}>
+            ご意見やご質問があれば、以下のボタンからGoogleフォームを通してお知らせください。
+          </Text>
+          <TouchableOpacity style={styles.button} onPress={openGoogleForm}>
+            <Text style={styles.buttonText}>Googleフォームを開く</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </>
   );
 };
 

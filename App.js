@@ -18,6 +18,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router/tabs";
 import { DataProvider } from "./DataContext.js";
+import { Color } from "./GlobalStyles.js";
 
 const App = () => {
   const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
@@ -39,7 +40,7 @@ const App = () => {
           <Stack.Navigator
             initialRouteName="FirstFrame"
             screenOptions={{
-              headerStyle: { backgroundColor: "#3A6AE5" },
+              headerStyle: { backgroundColor: Color.colorMain },
               headerTitleStyle: { color: "#ffffff" },
               headerTitle: "スーパー銭湯マッチング",
               headerTintColor: "white",
@@ -61,9 +62,15 @@ const App = () => {
             <Stack.Screen
               name="Matching_Frame"
               component={Matching_Frame}
-              options={{ headerTitle: "スーパー銭湯マッチング" }}
+              options={{
+                headerTitle: "スーパー銭湯マッチング",
+              }}
             />
-            <Stack.Screen name="Root" component={HomeTabs} />
+            <Stack.Screen
+              name="Root"
+              component={HomeTabs}
+              options={{ headerShown: false }}
+            />
             <Stack.Screen
               name="Onsen_detail_Frame"
               component={onsen_detail_Frame}
@@ -91,7 +98,7 @@ function HomeTabs({ route, navigation }) {
   return (
     <Tab.Navigator initialRouteName="HOME">
       <Tab.Screen
-        name="マッチング"
+        name="探す"
         component={ModalFrame}
         options={{
           headerShown: false,

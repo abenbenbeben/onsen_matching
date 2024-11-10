@@ -15,10 +15,11 @@ import {
   PixelRatio,
 } from "react-native";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
+import FormContainer3 from "../components/FormContainer3";
+import HeaderScreen from "../components/HeaderScreen";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "../firebaseconfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FormContainer3 from "../components/FormContainer3";
 import { Border, FontSize, FontFamily, Color } from "../GlobalStyles";
 import firebase from "firebase/app";
 import "firebase/firestore";

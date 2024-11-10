@@ -127,7 +127,8 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
                     querySnapshot_matching_screen_doc.data();
                   if (
                     querySnapshot_matching_screen_data.data &&
-                    querySnapshot_matching_screen_data.data[0] === data.data
+                    querySnapshot_matching_screen_data.data[0] ===
+                      (data.data === "ekitika" ? "ekitika_zikan" : data.data)
                   ) {
                     return await fetchURL(
                       querySnapshot_matching_screen_data.afterimage

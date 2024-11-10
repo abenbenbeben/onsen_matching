@@ -15,7 +15,9 @@ import { FontSize, FontFamily, Color } from "../GlobalStyles";
 import DefaultButton from "../components/DefaultButton";
 import FormContainer3 from "../components/FormContainer3";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
+import HeaderScreen from "../components/HeaderScreen";
 import { DataContext } from "../DataContext";
+import { Header } from "@react-navigation/elements";
 
 const ModalFrame = ({ route }) => {
   const navigation = useNavigation();
@@ -54,7 +56,7 @@ const ModalFrame = ({ route }) => {
       setSelecteddata_feature([...selecteddata_feature, buttondata]);
     } else {
       // 2つ以上のボタンが選択された場合、アラートを表示
-      Alert.alert("注意", "4つ以上のボタンを選択できません。");
+      Alert.alert("注意", "特徴は4つ以上選択できません");
     }
   };
 
@@ -85,111 +87,116 @@ const ModalFrame = ({ route }) => {
   };
 
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <>
-        <View style={[styles.wrapper]}>
-          <Text style={[styles.ExplainationText]}>{`条件を変更して探す`}</Text>
-        </View>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              activeTab === 1 ? styles.tabButtonActive : null,
-            ]}
-            onPress={() => setActiveTab(1)}
-          >
+    <>
+      <HeaderScreen headerText="条件を変更して探す" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <>
+          <View style={[styles.wrapper]}>
             <Text
+              style={[styles.ExplainationText]}
+            >{`条件を変更して探す`}</Text>
+          </View>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
               style={[
-                styles.tabButtonText,
-                activeTab === 1 ? styles.tabButtonTextActive : null,
+                styles.tabButton,
+                activeTab === 1 ? styles.tabButtonActive : null,
               ]}
+              onPress={() => setActiveTab(1)}
             >
-              特徴から
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.tabButtonText,
+                  activeTab === 1 ? styles.tabButtonTextActive : null,
+                ]}
+              >
+                特徴から
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              activeTab === 2 ? styles.tabButtonActive : null,
-            ]}
-            onPress={() => setActiveTab(2)}
-          >
-            <Text
+            <TouchableOpacity
               style={[
-                styles.tabButtonText,
-                activeTab === 2 ? styles.tabButtonTextActive : null,
+                styles.tabButton,
+                activeTab === 2 ? styles.tabButtonActive : null,
               ]}
+              onPress={() => setActiveTab(2)}
             >
-              目的から
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {activeTab === 1 && (
-          <>
-            <FlatList
-              data={matchingItemsFeature}
-              numColumns={2} // 2列で表示
-              keyExtractor={(item) => item.id}
-              style={styles.flatlist}
-              contentContainerStyle={styles.flatlistContent}
-              renderItem={({ item }) => (
-                <MatchingButtonContainer
-                  value={item.sentence}
-                  beforeImage={item.beforeImage}
-                  afterImage={item.afterImage}
-                  onToggle={() => handleButtonToggle(item.id, item.data)}
-                  selected={selectedButtons.includes(item.id)}
-                  height={88}
-                  width={156}
-                />
-              )}
-            />
-          </>
-        )}
-        {activeTab === 2 && (
-          <>
-            <FlatList
-              data={matchingItemsPurpose}
-              numColumns={1} // 2列で表示
-              keyExtractor={(item) => item.id}
-              style={styles.flatlist}
-              contentContainerStyle={styles.flatlistContent}
-              renderItem={({ item }) => (
-                <MatchingButtonContainer
-                  value={item.sentence}
-                  beforeImage={item.beforeImage}
-                  afterImage={item.afterImage}
-                  onToggle={() =>
-                    handleButtonToggle_purpose(
-                      item.id,
-                      item.data,
-                      item.data_purpose
-                    )
-                  }
-                  selected={selectedButtons_purpose.includes(item.id)}
-                  height={132}
-                  width={328}
-                />
-              )}
-            />
-          </>
-        )}
-        <FormContainer3
-          navigation={navigation}
-          selectednum={selectedButtons.length}
-          data_feature={selecteddata_feature}
-          data_purpose={selecteddata_purpose}
-          selectedButtons_feature={selectedButtons}
-          selectedButtons_purpose={selectedButtons_purpose}
-          selectedButtons_purposeName={selecteddata_purposeData}
-          matchingItemsFeature={matchingItemsFeature}
-          matchingItemsPurpose={matchingItemsPurpose}
-          maxnum={4}
-          containerHeight={72}
-        />
-      </>
-    </View>
+              <Text
+                style={[
+                  styles.tabButtonText,
+                  activeTab === 2 ? styles.tabButtonTextActive : null,
+                ]}
+              >
+                目的から
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {activeTab === 1 && (
+            <>
+              <FlatList
+                data={matchingItemsFeature}
+                numColumns={2} // 2列で表示
+                keyExtractor={(item) => item.id}
+                style={styles.flatlist}
+                contentContainerStyle={styles.flatlistContent}
+                renderItem={({ item }) => (
+                  <MatchingButtonContainer
+                    value={item.sentence}
+                    beforeImage={item.beforeImage}
+                    afterImage={item.afterImage}
+                    onToggle={() => handleButtonToggle(item.id, item.data)}
+                    selected={selectedButtons.includes(item.id)}
+                    height={88}
+                    width={156}
+                  />
+                )}
+              />
+            </>
+          )}
+          {activeTab === 2 && (
+            <>
+              <FlatList
+                data={matchingItemsPurpose}
+                numColumns={1} // 2列で表示
+                keyExtractor={(item) => item.id}
+                style={styles.flatlist}
+                contentContainerStyle={styles.flatlistContent}
+                renderItem={({ item }) => (
+                  <MatchingButtonContainer
+                    value={item.sentence}
+                    beforeImage={item.beforeImage}
+                    afterImage={item.afterImage}
+                    onToggle={() =>
+                      handleButtonToggle_purpose(
+                        item.id,
+                        item.data,
+                        item.data_purpose
+                      )
+                    }
+                    selected={selectedButtons_purpose.includes(item.id)}
+                    height={132}
+                    width={328}
+                  />
+                )}
+              />
+            </>
+          )}
+          <FormContainer3
+            navigation={navigation}
+            selectednum={selectedButtons.length}
+            data_feature={selecteddata_feature}
+            data_purpose={selecteddata_purpose}
+            selectedButtons_feature={selectedButtons}
+            selectedButtons_purpose={selectedButtons_purpose}
+            selectedButtons_purposeName={selecteddata_purposeData}
+            matchingItemsFeature={matchingItemsFeature}
+            matchingItemsPurpose={matchingItemsPurpose}
+            maxnum={4}
+            containerHeight={72}
+          />
+        </>
+      </View>
+    </>
   );
 };
 const styles = StyleSheet.create({

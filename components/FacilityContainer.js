@@ -20,6 +20,8 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const ekitika = "ekitika";
+
 const FacilityCard = ({
   reviews = [],
   title,
@@ -62,7 +64,7 @@ const FacilityCard = ({
       <View style={styles.textContainer}>
         <Text style={styles.title}>{title}</Text>
 
-        {reviews.length === 0 && data !== "ekitika" && (
+        {reviews.length === 0 && data !== ekitika && (
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <IconButton
               icon={"alert"}
@@ -74,7 +76,7 @@ const FacilityCard = ({
             <Text style={{ color: "#666" }}>施設情報を確認してください</Text>
           </View>
         )}
-        {reviews.length === 0 && data === "ekitika" && moyorieki === "" && (
+        {reviews.length === 0 && data === ekitika && moyorieki === "" && (
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <IconButton
               icon={"alert"}
@@ -86,7 +88,7 @@ const FacilityCard = ({
             <Text style={{ color: "#666" }}>最寄駅から少し離れています</Text>
           </View>
         )}
-        {reviews.length === 0 && data === "ekitika" && moyorieki !== "" && (
+        {reviews.length === 0 && data === ekitika && moyorieki !== "" && (
           <>
             <View
               style={{

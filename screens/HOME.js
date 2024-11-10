@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import {
   collection,
@@ -23,15 +23,18 @@ import {
   TouchableOpacity,
   Alert,
   PixelRatio,
+  Animated,
 } from "react-native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
-import { FontSize, Color, FontFamily } from "../GlobalStyles";
+import FilterOptions from "../components/FilterOption";
+import HeaderScreen from "../components/HeaderScreen";
+import HomeSubHeader from "../components/HomeSubHeader";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import * as Linking from "expo-linking";
 import { IconButton } from "react-native-paper";
-import FilterOptions from "../components/FilterOption";
+import { FontSize, Color, FontFamily } from "../GlobalStyles";
 import { GlobalData } from "../GlobalData";
 
 const db = getFirestore(app);
@@ -129,7 +132,7 @@ const HOME = ({ navigation, route }) => {
     };
 
     try {
-      setLoadingMessage("現在地取得中...");
+      setLoadingMessage("現在地取得中");
       let point2 = null;
       const cachedLocation = await AsyncStorage.getItem("currentLocation");
       const cachedLocationTimestamp = await AsyncStorage.getItem(
@@ -210,18 +213,18 @@ const HOME = ({ navigation, route }) => {
       //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
       //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
-      setLoadingMessage("マッチング中...");
-      let furosyurui_max = "";
-      let nedan_min = "";
-      let ganbansyurui_max = "";
+      setLoadingMessage("マッチング中");
+      // let furosyurui_max = "";
+      let nedan_min;
+      // let ganbansyurui_max = "";
       let matchingDataResultTimestamp = null;
       const querySnapshot_global = await getDocs(
         collection(db, "global_match_data")
       );
       querySnapshot_global.forEach((doc) => {
-        furosyurui_max = doc.data().furosyurui_max;
-        nedan_min = doc.data().nedan_min;
-        ganbansyurui_max = doc.data().ganbansyurui_max;
+        // furosyurui_max = doc.data().furosyurui_max;
+        // nedan_min = doc.data().nedan_min;
+        // ganbansyurui_max = doc.data().ganbansyurui_max;
         matchingDataResultTimestamp = doc.data().matchingDataResultTimestamp;
       });
       let querySnapshot = null;
@@ -261,16 +264,15 @@ const HOME = ({ navigation, route }) => {
         );
       }
 
+      nedan_min = Math.min(
+        ...matchingDataArray_origin.map(
+          (item) => (item.heijitunedan + item.kyujitunedan) / 2
+        )
+      );
       // processField 関数を定義して、必要なデータ処理を行う
       function processField(field, fieldData) {
-        if (field === "furosyurui") {
-          return parseFloat((fieldData / furosyurui_max).toFixed(2)); // furosyuruiの場合に処理を実行
-        } else if (field === "heikinnedan") {
+        if (field === "heikinnedan") {
           return parseFloat((nedan_min / fieldData).toFixed(2)); // heikinnedanの場合に処理を実行
-        } else if (field === "ganbansyurui") {
-          return parseFloat((fieldData / ganbansyurui_max).toFixed(2)); // ganbansyuruiの場合に処理を実行
-        } else if (field === "komiguai") {
-          return 1 - fieldData; // komiguaiの場合に処理を実行
         } else {
           return fieldData; // それ以外の場合は処理を行わず、元のデータを返す
         }
@@ -299,14 +301,23 @@ const HOME = ({ navigation, route }) => {
 
       matchingDataArray = await Promise.all(
         matchingDataArray_origin.map(async (item) => {
-          if (
-            item.zikan_heijitu_start < 800 ||
-            item.zikan_kyujitu_start < 800 ||
-            item.zikan_heijitu_end > 3000 ||
-            item.zikan_kyujitu_end > 3000
-          ) {
+          const now = new Date();
+          let dayOfWeek = now.getDay();
+          const period = item.periods.filter(
+            (dayinfo) => dayinfo.day === dayOfWeek
+          )[0];
+          // データの追加
+          if (period.open < 800 || period.close > 3000) {
             item.asaeigyo = 1;
           }
+          item.heikinnedan = (item.heijitunedan + item.kyujitunedan) / 2;
+          if (item.ekitika.zikan <= 10) {
+            item.ekitika_zikan = 1;
+          } else {
+            item.ekitika_zikan = 0;
+          }
+
+          // データの追加終了
           item.scoreData = match_array.map((field) => {
             // データを加工してから scoreData に追加
             return processField(field, item[field]);
@@ -364,6 +375,32 @@ const HOME = ({ navigation, route }) => {
       ],
       { cancelable: false }
     );
+  };
+
+  //スクロールした時のヘッダーの高さ処理
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const previousScrollY = useRef(0); // 前のスクロール位置を保持
+
+  // ヘッダーの高さを設定するアニメーション値
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 50], // スクロールの範囲
+    outputRange: [80, 35], // 高さの範囲
+    extrapolate: "clamp",
+  });
+
+  const handleScroll = (event) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    const isScrollingDown = currentScrollY > previousScrollY.current;
+
+    // 下スクロール中に縮小、上スクロール時に高さを戻す
+    if (!isScrollingDown) {
+      scrollY.setValue(0); // 上スクロール時に元の高さに戻す
+    } else if (isScrollingDown) {
+      scrollY.setValue(currentScrollY); // 下スクロール時に縮小
+    }
+
+    // 前回のスクロール位置を更新
+    previousScrollY.current = currentScrollY;
   };
 
   const additems = async () => {
@@ -489,6 +526,9 @@ const HOME = ({ navigation, route }) => {
   let withinSeventh = [];
   let withinEighth = [];
   let distanceArray = [];
+  const matchingItemsLength = matchingItems.filter(
+    (item) => item.distance <= 40 && item.score > 50
+  ).length;
   if (filter === 1) {
     withinFirst = matchingItems
       .filter((item) => item.distance <= 5 && item.score > 50)
@@ -617,19 +657,31 @@ const HOME = ({ navigation, route }) => {
   if (loading) {
     // ローディング中の表示
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-        <Text>{loadingMessage}</Text>
-      </View>
+      <>
+        <HeaderScreen headerText={loadingMessage} headerHeight={headerHeight} />
+        <HomeSubHeader matchCount={matchingItemsLength} />
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size="large" />
+          <Text>{`${loadingMessage}...`}</Text>
+        </View>
+      </>
     );
   }
 
   return (
     <View style={styles.home}>
-      <View style={[{ zIndex: 10 }]}>
+      <HeaderScreen headerText="マッチング結果" headerHeight={headerHeight} />
+      <HomeSubHeader matchCount={matchingItemsLength} sortTextFlag={true} />
+      {/* <View style={[{ zIndex: 10 }]}>
         <FilterOptions filter={filter} setFilter={setFilter} />
-      </View>
-      <ScrollView>
+      </View> */}
+      <ScrollView
+        contentContainerStyle={{ paddingTop: 0 }}
+        onScroll={handleScroll}
+        scrollEventThrottle={16} // スクロールのスムーズさを調整
+      >
         {distanceArray.map(({ data, number, unit }) =>
           data.length > 0 ? (
             <View key={number} style={{ marginVertical: 10 }}>
@@ -700,7 +752,6 @@ const styles = StyleSheet.create({
     fontSize: FontSize.bodySub,
   },
   kmLayoutNumber: {
-    // height: 32,
     color: Color.labelColorLightPrimary,
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",

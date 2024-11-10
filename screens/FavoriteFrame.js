@@ -29,6 +29,7 @@ import { app } from "../firebaseconfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
+import HeaderScreen from "../components/HeaderScreen";
 import { GlobalData } from "../GlobalData";
 
 const db = getFirestore(app);
@@ -184,6 +185,7 @@ const FavoriteFrame = () => {
 
   return (
     <View style={styles.view}>
+      <HeaderScreen headerText="お気に入り" />
       <View style={styles.favoriteTextContainer}>
         <Text style={styles.favoriteText}>お気に入り</Text>
       </View>
