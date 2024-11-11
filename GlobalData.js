@@ -24,4 +24,9 @@ export const GlobalData = {
     hadasitu: "肌質を改善したい",
     cospa: "コスパがいい",
   },
+  filterOption: [
+    { text: "距離＆マッチ度順", data: 1 },
+    { text: "マッチ度順", data: 2 },
+    { text: "距離順", data: 3 },
+  ],
 };

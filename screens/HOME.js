@@ -594,14 +594,14 @@ const HOME = ({ navigation, route }) => {
       .sort((a, b) => b.score - a.score);
     withinFourth = matchingItems
       .filter(
-        (item) => item.score >= 40 && item.score < 60 && item.distance <= 40
+        (item) => item.score > 50 && item.score < 60 && item.distance <= 40
       )
       .sort((a, b) => b.score - a.score);
     distanceArray = [
       { data: withinFirst, number: 100, unit: "%" },
       { data: withinSecond, number: 80, unit: "%以上" },
       { data: withinThird, number: 60, unit: "%以上" },
-      { data: withinFourth, number: 40, unit: "%以上" },
+      { data: withinFourth, number: 50, unit: "%以上" },
     ].filter((item) => item.data && item.data.length > 0);
   } else if (filter === 3) {
     withinFirst = matchingItems
@@ -673,7 +673,12 @@ const HOME = ({ navigation, route }) => {
   return (
     <View style={styles.home}>
       <HeaderScreen headerText="マッチング結果" headerHeight={headerHeight} />
-      <HomeSubHeader matchCount={matchingItemsLength} sortTextFlag={true} />
+      <HomeSubHeader
+        matchCount={matchingItemsLength}
+        sortTextFlag={true}
+        filter={filter}
+        setFilter={setFilter}
+      />
       {/* <View style={[{ zIndex: 10 }]}>
         <FilterOptions filter={filter} setFilter={setFilter} />
       </View> */}
