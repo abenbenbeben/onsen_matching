@@ -34,6 +34,22 @@ const FormContainer3 = ({
   // 1次元配列に変換して結合
   const mergedArray = [...data_feature.flat(), ...data_purpose.flat()];
   const uniqueArray = [...new Set(mergedArray)];
+  const idMergedArray = [
+    ...data_feature.flat(),
+    ...selectedButtons_purposeName,
+  ];
+  const uniqueArrayWithId = idMergedArray.map((item) => {
+    const match_feature = matchingItemsFeature.find((feature) =>
+      feature.data.includes(item)
+    );
+    const match_purpose = matchingItemsPurpose.find((feature) =>
+      feature.data_purpose.includes(item)
+    );
+    return {
+      data: item,
+      id: match_feature ? match_feature.id : match_purpose.id,
+    };
+  });
   let purposeTags = selectedButtons_purposeName;
   const handleSaveButtonPress = () => {
     if (uniqueArray.length === 0) {
@@ -54,6 +70,7 @@ const FormContainer3 = ({
         screen: "HOME",
         params: {
           data: uniqueArray,
+          data_withId: uniqueArrayWithId,
           matchingItems: matchingItemsFeature,
         },
       });

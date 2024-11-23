@@ -62,9 +62,7 @@ const App = () => {
             <Stack.Screen
               name="Matching_Frame"
               component={Matching_Frame}
-              options={{
-                headerTitle: "スーパー銭湯マッチング",
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Root"

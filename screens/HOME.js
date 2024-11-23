@@ -42,7 +42,9 @@ const storage = getStorage(app);
 
 const HOME = ({ navigation, route }) => {
   const match_array = route.params.data.flat();
+  const match_array_with_id = route.params.data_withId;
   console.log(match_array);
+  console.log(match_array_with_id);
   const [matchingItems, setMatchingItems] = useState([]);
   const [favoriteDataArray, setFavoriteDataArray] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -675,6 +677,7 @@ const HOME = ({ navigation, route }) => {
       <HeaderScreen headerText="マッチング結果" headerHeight={headerHeight} />
       <HomeSubHeader
         matchCount={matchingItemsLength}
+        match_array_with_id={match_array_with_id}
         sortTextFlag={true}
         filter={filter}
         setFilter={setFilter}

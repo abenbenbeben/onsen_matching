@@ -1,36 +1,103 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Button } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Button,
+  TextInput,
+  Alert,
+} from "react-native";
 import { Color, FontSize, GlobalStyles } from "../GlobalStyles";
 import { IconButton } from "react-native-paper";
 import Modal from "react-native-modal";
 import { GlobalData } from "../GlobalData";
+import DefaultButton from "./DefaultButton";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeSubHeader = ({
   matchCount = 0,
   sortTextFlag = false,
   filter,
   setFilter,
+  match_array_with_id = [],
 }) => {
+  const maxLength = 10; //最大文字数
   const options = GlobalData.filterOption;
   const [isSortModalVisible, setSortModalVisible] = useState(false);
+  const [editConditionText, setEditConditionText] = useState("");
+  const [isSaveConditionModalVisible, setSaveConditionModalVisible] =
+    useState(false);
+  const [conditionData, setConditionData] = useState([]);
+  const [isExistConditionData, setIsExistConditionData] = useState(false);
+
+  let idArray = [];
+  if (match_array_with_id.length > 0) {
+    idArray = match_array_with_id.map((item) => item.id);
+  }
+
   const sortModal = (data) => {
     if (data !== filter) {
       setFilter(data);
     }
     setSortModalVisible(!isSortModalVisible);
   };
-  const controlModalVisible = () => {
+  const controlSortModalVisible = () => {
     setSortModalVisible(!isSortModalVisible);
   };
-  const saveModal = () => {
-    console.log("pressSaveModal");
+  const controlSaveConditionModal = () => {
+    setSaveConditionModalVisible(!isSaveConditionModalVisible);
   };
+  const closeSaveConditionModal = () => {
+    setSaveConditionModalVisible(false);
+  };
+  const fetchData = async () => {
+    // 既存のデータを取得
+    const storedData = await AsyncStorage.getItem("conditionData");
+    const parsedData = storedData ? JSON.parse(storedData) : [];
+    setConditionData(parsedData);
+
+    const exists = parsedData.some(
+      (condition) =>
+        JSON.stringify(condition.idArray) === JSON.stringify(idArray)
+    );
+    setIsExistConditionData(exists);
+  };
+  const handleSaveCondition = async () => {
+    const newCondition = { editConditionText, idArray };
+    try {
+      if (!isExistConditionData) {
+        // 存在しない場合、新しいデータを追加
+        conditionData.push(newCondition);
+        await AsyncStorage.setItem(
+          "conditionData",
+          JSON.stringify(conditionData)
+        );
+        fetchData();
+        Alert.alert("保存が完了しました");
+        console.log("新しいデータが保存されました:", newCondition);
+      } else {
+        Alert.alert("この条件は既に保存されています");
+        console.log(
+          "同じidArrayがすでに存在しています。保存されませんでした。"
+        );
+      }
+      closeSaveConditionModal();
+    } catch (error) {
+      Alert.alert("保存に失敗しました。", "再度保存してください");
+      console.error("データの保存中にエラーが発生しました:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // 非同期関数を呼び出す
+  }, []); // match_array_with_id を依存配列に追加
 
   return (
     <View style={[styles.wrapper]}>
       <Modal
         isVisible={isSortModalVisible}
-        onBackdropPress={controlModalVisible}
+        onBackdropPress={controlSortModalVisible}
         style={styles.bottomModal} // モーダルを下部に配置
       >
         <View style={styles.modalContent}>
@@ -55,19 +122,97 @@ const HomeSubHeader = ({
           {/* キャンセルボタン */}
           <TouchableOpacity
             style={styles.optionButton}
-            onPress={controlModalVisible}
+            onPress={controlSortModalVisible}
           >
             <Text style={[styles.optionCancelText]}>キャンセル</Text>
           </TouchableOpacity>
         </View>
       </Modal>
+
+      <Modal
+        isVisible={isSaveConditionModalVisible}
+        onBackdropPress={closeSaveConditionModal}
+        style={styles.centerModal} // モーダルを中央に配置
+      >
+        <View style={styles.saveModalContent}>
+          <TouchableOpacity
+            style={[styles.saveModalCancelButton, GlobalStyles.positionCenter]}
+            onPress={closeSaveConditionModal}
+          >
+            <IconButton
+              icon="window-close"
+              iconColor={Color.colorDarkGray}
+              selected="true"
+              size={26}
+              style={[
+                {
+                  marginLeft: -6,
+                  marginRight: 0,
+                  marginBottom: -8,
+                  marginTop: -8,
+                },
+              ]}
+            />
+          </TouchableOpacity>
+          <View style={styles.saveModalTitleContainer}>
+            <Text style={styles.saveModalTitle}>この検索条件を保存します</Text>
+          </View>
+
+          <View style={[styles.editConditionNameContainer]}>
+            <IconButton
+              icon="pencil"
+              iconColor={Color.colorDarkGray}
+              selected="true"
+              size={20}
+              style={[
+                {
+                  marginLeft: -6,
+                  marginRight: 0,
+                  marginBottom: -8,
+                  marginTop: -8,
+                },
+              ]}
+            />
+            <Text style={styles.editConditionNameTitle}>
+              検索条件に名前をつける
+            </Text>
+          </View>
+          <View style={styles.editConditionNameInputContainer}>
+            <View style={styles.editConditionNameInput}>
+              <TextInput
+                style={styles.textInput}
+                value={editConditionText}
+                onChangeText={(value) => setEditConditionText(value)}
+                placeholder="文字を入力してください"
+                maxLength={maxLength}
+              />
+            </View>
+            <Text style={styles.charCount}>
+              {editConditionText.length} / {maxLength}
+            </Text>
+          </View>
+          {/* <View style={styles.editConditionNameContainer}>
+            <Text style={styles.editConditionNameTitle}>
+              検索条件にアイコンを設定
+            </Text>
+          </View> */}
+          <View style={{ justifyContent: "center", alignItems: "center" }}>
+            <DefaultButton
+              label="保存"
+              onPress={handleSaveCondition}
+              isPressable={editConditionText.length === 0}
+            />
+          </View>
+        </View>
+      </Modal>
+
       <View style={[styles.matchText, GlobalStyles.positionCenter]}>
         <Text style={[styles.defaultText]}>マッチ数：{matchCount}</Text>
       </View>
       {sortTextFlag && (
         <View style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}>
           <TouchableOpacity
-            onPress={controlModalVisible} // ここに実行したい関数を設定
+            onPress={controlSortModalVisible} // ここに実行したい関数を設定
             style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}
           >
             <IconButton
@@ -91,11 +236,13 @@ const HomeSubHeader = ({
               ))}
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={saveModal}
+            onPress={controlSaveConditionModal}
+            disabled={isExistConditionData} // クリックを無効化する条件
             style={[
               styles.flexDirectionRow,
               GlobalStyles.positionCenter,
               styles.conditionSaveWrapper,
+              isExistConditionData && { opacity: 0.5 }, // 無効時のスタイル
             ]}
           >
             <IconButton
@@ -103,7 +250,6 @@ const HomeSubHeader = ({
               iconColor={Color.labelColorDarkPrimary}
               selected="true"
               size={20}
-              // onPress={fetchFavorite}
               style={[{ marginLeft: -6, marginRight: -6, marginVertical: -10 }]}
             />
             <Text style={[styles.defaultText, styles.conditionSave]}>
@@ -151,6 +297,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     margin: 0, // 画面下部にモーダルをぴったり配置
   },
+  centerModal: {
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 0,
+  },
   modalContent: {
     backgroundColor: Color.colorWhitesmoke_100,
     borderRadius: 15,
@@ -188,6 +339,63 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 16,
     color: "red",
+  },
+  // 条件保存モーダルのスタイル
+  saveModalCancelButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    zIndex: 10,
+  },
+  saveModalContent: {
+    backgroundColor: Color.colorWhitesmoke_100,
+    borderRadius: 8,
+    width: "90%",
+    // alignItems: "center",
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+  },
+
+  saveModalTitleContainer: {
+    paddingVertical: 20,
+    width: "100%",
+  },
+  saveModalTitle: {
+    marginVertical: 8,
+    fontSize: FontSize.body,
+  },
+  editConditionNameContainer: {
+    textAlign: "left",
+    flexDirection: "row",
+  },
+  editConditionNameTitle: {
+    fontSize: FontSize.bodySub,
+  },
+  editConditionNameInputContainer: {
+    marginVertical: 12,
+    width: "100%",
+  },
+  editConditionNameInput: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: "#fff",
+    // position: "relative",
+  },
+  textInput: {
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 5,
+  },
+  charCount: {
+    alignSelf: "flex-end",
+    marginVertical: 4,
+    fontSize: FontSize.caption,
+    color: "#888",
   },
 });
 

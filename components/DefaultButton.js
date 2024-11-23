@@ -2,10 +2,14 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, PixelRatio } from "react-native";
 
 export default function DefaultButton(props) {
-  const { label, onPress, style } = props;
+  const { label, onPress, style, isPressable = false } = props;
   return (
     <>
-      <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+      <TouchableOpacity
+        style={[styles.button, style, isPressable && { opacity: 0.5 }]}
+        onPress={onPress}
+        disabled={isPressable}
+      >
         <Text style={styles.buttonText}>{label}</Text>
       </TouchableOpacity>
     </>
@@ -25,7 +29,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginBottom: 50,
+    marginBottom: 20,
   },
   buttonText: {
     color: "white", // 白色のテキスト

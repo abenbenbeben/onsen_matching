@@ -25,6 +25,7 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import { collection, addDoc, getFirestore, getDocs } from "firebase/firestore";
 import { DataContext } from "../DataContext";
+import MatchingContainer from "../components/MatchingContainer";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -93,7 +94,8 @@ const Matching_Frame = ({ navigation }) => {
             afterImagePromise,
           ]);
           return {
-            id: doc.id,
+            fbid: doc.id,
+            id: data.id,
             sentence: data.sentence,
             beforeImage,
             afterImage,
@@ -172,49 +174,6 @@ const Matching_Frame = ({ navigation }) => {
     fetch_matchingdata();
   }, []);
 
-  const handleButtonToggle = (buttonIndex, buttondata) => {
-    if (selectedButtons.includes(buttonIndex)) {
-      // すでに選択されている場合、選択を解除
-      setSelectedButtons(
-        selectedButtons.filter((index) => index !== buttonIndex)
-      );
-      setSelecteddata(selecteddata.filter((index) => index !== buttondata));
-    } else if (selectedButtons.length < 4) {
-      // 2つ以上選択されていない場合、選択を許可
-      setSelectedButtons([...selectedButtons, buttonIndex]);
-      setSelecteddata([...selecteddata, buttondata]);
-    } else {
-      // 2つ以上のボタンが選択された場合、アラートを表示
-      Alert.alert("注意", "特徴は4つ以上選択できません");
-    }
-  };
-
-  const handleButtonToggle_purpose = (
-    buttonIndex,
-    buttondata,
-    pre_selecteddata_purposeData
-  ) => {
-    if (selectedButtons_purpose.includes(buttonIndex)) {
-      // すでに選択されている場合、選択を解除
-      setSelectedButtons_purpose(
-        selectedButtons_purpose.filter((index) => index !== buttonIndex)
-      );
-      setSelecteddata_purpose(
-        selecteddata_purpose.filter((index) => index !== buttondata)
-      );
-      setSelecteddata_purposeData([]);
-    } else if (selectedButtons_purpose.length < 1) {
-      // 2つ以上選択されていない場合、選択を許可
-      setSelectedButtons_purpose([...selectedButtons_purpose, buttonIndex]);
-      setSelecteddata_purpose([...selecteddata_purpose, buttondata]);
-      setSelecteddata_purposeData([pre_selecteddata_purposeData]);
-    } else {
-      // 2つ以上のボタンが選択された場合、アラートを表示
-      Alert.alert("注意", "目的は1つ以上選択できません");
-    }
-    console.log(selecteddata_purposeData);
-  };
-
   if (loading) {
     // ローディング中の表示
     return (
@@ -225,101 +184,26 @@ const Matching_Frame = ({ navigation }) => {
     );
   }
 
+  const transferData = {
+    selecteddata_feature: selecteddata,
+    selecteddata_purpose: selecteddata_purpose,
+    selectedButtons_feature: selectedButtons,
+    selectedButtons_purpose: selectedButtons_purpose,
+    selectedButtons_purposeName: selecteddata_purposeData,
+    matchingItemsFeature: matchingItemsFeature,
+    matchingItemsPurpose: matchingItemsPurpose,
+  };
+
   return (
     <View style={styles.view}>
-      <View style={styles.frameParent}>
-        <View style={[styles.wrapper]}>
-          <Text style={[styles.ExplainationText]}>{`あなたがスーパー銭湯に求める
-ことを選んでください`}</Text>
-        </View>
+      <HeaderScreen headerText="好みの条件を選ぶ" />
+      <MatchingContainer data={transferData} containerHeight={100} />
+    </View>
+  );
+};
 
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              activeTab === 1 ? styles.tabButtonActive : null,
-            ]}
-            onPress={() => setActiveTab(1)}
-          >
-            <Text
-              style={[
-                styles.tabButtonText,
-                activeTab === 1 ? styles.tabButtonTextActive : null,
-              ]}
-            >
-              特徴から
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.tabButton,
-              activeTab === 2 ? styles.tabButtonActive : null,
-            ]}
-            onPress={() => setActiveTab(2)}
-          >
-            <Text
-              style={[
-                styles.tabButtonText,
-                activeTab === 2 ? styles.tabButtonTextActive : null,
-              ]}
-            >
-              目的から
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {activeTab === 1 && (
-          <>
-            <FlatList
-              data={matchingItemsFeature}
-              numColumns={2} // 2列で表示
-              keyExtractor={(item) => item.id}
-              style={styles.flatlist}
-              contentContainerStyle={styles.flatlistContent}
-              renderItem={({ item }) => (
-                <MatchingButtonContainer
-                  value={item.sentence}
-                  beforeImage={item.beforeImage}
-                  afterImage={item.afterImage}
-                  onToggle={() => handleButtonToggle(item.id, item.data)}
-                  selected={selectedButtons.includes(item.id)}
-                  height={88}
-                  width={156}
-                />
-              )}
-            />
-          </>
-        )}
-        {activeTab === 2 && (
-          <>
-            <FlatList
-              data={matchingItemsPurpose}
-              numColumns={1} // 2列で表示
-              keyExtractor={(item) => item.id}
-              style={styles.flatlist}
-              contentContainerStyle={styles.flatlistContent}
-              renderItem={({ item }) => (
-                <MatchingButtonContainer
-                  value={item.sentence}
-                  beforeImage={item.beforeImage}
-                  afterImage={item.afterImage}
-                  onToggle={() =>
-                    handleButtonToggle_purpose(
-                      item.id,
-                      item.data,
-                      item.data_purpose
-                    )
-                  }
-                  selected={selectedButtons_purpose.includes(item.id)}
-                  height={132}
-                  width={328}
-                />
-              )}
-            />
-          </>
-        )}
-        <FormContainer3
+{
+  /* <FormContainer3
           navigation={navigation}
           selectednum={selectedButtons.length}
           data_feature={selecteddata}
@@ -331,102 +215,13 @@ const Matching_Frame = ({ navigation }) => {
           matchingItemsPurpose={matchingItemsPurpose}
           maxnum={4}
           containerHeight={100}
-        />
-      </View>
-    </View>
-  );
-};
+        /> */
+}
 
 const styles = StyleSheet.create({
-  flatlistContent: {
-    alignItems: "center",
-    paddingBottom: 10,
-  },
-  flatlist: {
-    width: "100%",
-    marginBottom: 100,
-  },
-  wrapper: {
-    marginVertical: 8,
-  },
-  ExplainationText: {
-    fontSize: FontSize.body,
-    letterSpacing: 0,
-    // lineHeight: 22,
-    fontWeight: "400",
-    color: Color.labelColorLightPrimary,
-    textAlign: "center",
-    // width: 360,
-  },
-  scrollview: {
-    width: "96%",
-    height: "100%",
-    borderWidth: 4,
-  },
-  parent: {
-    width: "96%",
-    height: "100%",
-    // right: 0,
-    height: 1000,
-    width: "100%",
-    alignItems: "center",
-  },
-  column: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginVertical: 8,
-  },
-
-  frameParent: {
-    top: 0,
-    // left: 10,
-    backgroundColor: Color.colorWhitesmoke_100,
-    height: "100%",
-    width: "100%",
-    // position: "absolute",
-    overflow: "hidden",
-    alignItems: "center",
-  },
   view: {
-    backgroundColor: Color.labelColorDarkPrimary,
     flex: 1,
-    width: "100%",
-    height: 799,
-    overflow: "hidden",
-    textAlign: "center",
-    alignItems: "center",
   },
-
-  //タブのスタイル
-  tabContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    padding: 10,
-  },
-  tabButton: {
-    borderBottomWidth: 2,
-    borderColor: "transparent", // 透明な境界線
-    paddingBottom: 8,
-    paddingHorizontal: 20,
-    marginHorizontal: 10,
-  },
-  tabButtonText: {
-    color: Color.colorGrayText,
-    fontSize: FontSize.body,
-  },
-  tabButtonActive: {
-    //borderBottomColor: '#007BFF', // アクティブなタブの境界線は青色
-    borderBottomWidth: 1,
-    paddingBottom: 6, // アクティブなタブは少し境界線に近づける
-    marginBottom: 2,
-
-    borderColor: "#007BFF",
-  },
-  tabButtonTextActive: {
-    color: "#007BFF", // アクティブなタブのテキストも青色
-    fontWeight: "bold",
-  },
-  //タブのスタイル終了
 });
 
 export default Matching_Frame;

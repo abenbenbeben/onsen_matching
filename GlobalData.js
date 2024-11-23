@@ -29,4 +29,7 @@ export const GlobalData = {
     { text: "マッチ度順", data: 2 },
     { text: "距離順", data: 3 },
   ],
+  AsyncStorageName: {
+    conditionData: "conditionData",
+  },
 };

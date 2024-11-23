@@ -5,7 +5,7 @@ import { Color, FontSize } from "../GlobalStyles";
 
 const HeaderScreen = ({
   headerText = "スーパー銭湯マッチング",
-  headerHeight = 80,
+  headerHeight = 90,
 }) => {
   return (
     <Animated.View style={[styles.wrapper, { height: headerHeight }]}>
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.bodySub,
     fontWeight: "500",
     color: Color.labelColorDarkPrimary,
-    marginBottom: 10, // 下から10の位置に配置
+    marginBottom: 14, // 下から10の位置に配置
   },
 });
 

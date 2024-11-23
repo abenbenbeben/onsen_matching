@@ -10,7 +10,7 @@ export const FontFamily = {
 export const FontSize = {
   title: 30 / PixelRatio.getFontScale(),
   subTitle: 26 / PixelRatio.getFontScale(),
-  body: 20 / PixelRatio.getFontScale(),
+  body: 18 / PixelRatio.getFontScale(),
   bodySub: 16 / PixelRatio.getFontScale(),
   caption: 12 / PixelRatio.getFontScale(),
 
