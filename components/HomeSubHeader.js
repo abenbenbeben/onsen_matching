@@ -14,6 +14,7 @@ import Modal from "react-native-modal";
 import { GlobalData } from "../GlobalData";
 import DefaultButton from "./DefaultButton";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import uuid from "react-native-uuid";
 
 const HomeSubHeader = ({
   matchCount = 0,
@@ -64,7 +65,7 @@ const HomeSubHeader = ({
     setIsExistConditionData(exists);
   };
   const handleSaveCondition = async () => {
-    const newCondition = { editConditionText, idArray };
+    const newCondition = { editConditionText, idArray, conditionId: uuid.v4() };
     try {
       if (!isExistConditionData) {
         // 存在しない場合、新しいデータを追加
@@ -73,7 +74,7 @@ const HomeSubHeader = ({
           "conditionData",
           JSON.stringify(conditionData)
         );
-        fetchData();
+        await fetchData();
         Alert.alert("保存が完了しました");
         console.log("新しいデータが保存されました:", newCondition);
       } else {

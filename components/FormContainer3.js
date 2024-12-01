@@ -24,7 +24,6 @@ const FormContainer3 = ({
   const dynamicStyles = styles(containerHeight);
   const tagNameList = GlobalData.tagNameList;
   const tagNameListPurpose = GlobalData.tagNameListPurpose;
-  //  const navigation = useNavigation();
 
   // タグをフィルタリングして取得
   let filteredTags;

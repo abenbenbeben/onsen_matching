@@ -13,12 +13,20 @@ import Editdetail_Frame from "./screens/Editdetail_Frame.js";
 import Reportdetail_Frame from "./screens/Reportdetail_Frame.js";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { View, Text, Pressable, TouchableOpacity, Button } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  TouchableOpacity,
+  Button,
+  useWindowDimensions,
+} from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router/tabs";
 import { DataProvider } from "./DataContext.js";
 import { Color } from "./GlobalStyles.js";
+import { TabView, SceneMap, ScrollPager, TabBar } from "react-native-tab-view";
 
 const App = () => {
   const [hideSplashScreen, setHideSplashScreen] = React.useState(true);
@@ -146,5 +154,47 @@ function HomeTabs({ route, navigation }) {
     </Tab.Navigator>
   );
 }
+
+// function TopTabView() {
+//   const [index, setIndex] = React.useState(0);
+//   const [routes] = React.useState([
+//     { key: "first", title: "通知" },
+//     { key: "second", title: "情報" },
+//   ]);
+
+//   const layout = useWindowDimensions();
+
+//   const initialLayout = { width: layout.width };
+
+//   // SceneMap の修正
+//   const renderScene = SceneMap({
+//     first: Matching_Frame,
+//     second: () => (
+//       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+//         <Text>テストフレーム</Text>
+//       </View>
+//     ),
+//   });
+
+//   // TabBar のカスタマイズ
+//   const renderTabBar = (props) => (
+//     <TabBar
+//       {...props}
+//       indicatorStyle={{ backgroundColor: "#e91e63" }}
+//       style={{ backgroundColor: "white" }}
+//       labelStyle={{ color: "black" }}
+//     />
+//   );
+
+//   return (
+//     <TabView
+//       navigationState={{ index, routes }}
+//       renderScene={renderScene}
+//       onIndexChange={setIndex}
+//       initialLayout={initialLayout}
+//       renderTabBar={renderTabBar}
+//     />
+//   );
+// }
 
 export default App;

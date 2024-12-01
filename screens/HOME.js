@@ -29,6 +29,8 @@ import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import FilterOptions from "../components/FilterOption";
 import HeaderScreen from "../components/HeaderScreen";
 import HomeSubHeader from "../components/HomeSubHeader";
+import { getCachedOrNewLocation } from "../components/getCurrentLocation ";
+import { fetchMatchingData } from "../components/fetchMatchingData";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
@@ -52,160 +54,13 @@ const HOME = ({ navigation, route }) => {
   const [loadingMessage, setLoadingMessage] = useState(""); //ローディング中の文字を管理
   const [filter, setFilter] = useState(1);
 
-  //firestorageの内のパスをURLに変換する関数
-  const fetchURL = async (imagepath) => {
-    try {
-      const pathReference = ref(storage, imagepath);
-      const url = await getDownloadURL(pathReference);
-      return url;
-    } catch (error) {
-      console.error("Error fetching URL: ", error);
-      return null;
-    }
-  };
-
   const fetch_matchingdata = async () => {
-    async function getCurrentLocation() {
-      const timeout = 5000;
-
-      try {
-        // 最初に現在の位置情報を取得を試みる
-        const currentPosition = await Promise.race([
-          Location.getCurrentPositionAsync(),
-          new Promise((_, reject) =>
-            setTimeout(
-              () =>
-                reject(
-                  new Error(
-                    `Error getting GPS location after ${timeout / 1000} s`
-                  )
-                ),
-              timeout
-            )
-          ),
-        ]);
-        return currentPosition;
-      } catch (error) {
-        // 現在の位置情報の取得に失敗した場合、最後に知られている位置情報を試みる
-        try {
-          const lastKnownPosition = await Location.getLastKnownPositionAsync();
-          if (lastKnownPosition) {
-            return lastKnownPosition;
-          } else {
-            throw new Error("No known last position");
-          }
-        } catch (lastError) {
-          // 最後に知られている位置情報の取得も失敗した場合、エラーを返す
-          throw new Error(`Unable to get location: ${lastError.message}`);
-        }
-      }
-    }
-    // データが更新されたかどうかを確認する関数
-    const isDataOutdated = async (
-      lastUpdatedTimestamp,
-      matchingDataTimestamp
-    ) => {
-      // ここでFirebaseのデータのタイムスタンプと比較して更新されたかを確認
-      // 更新された場合は true を返す
-      // 更新されていない場合は false を返す
-      console.log(
-        "matchingResultDataArrayLastUpdatedTimestamp",
-        matchingDataTimestamp,
-        lastUpdatedTimestamp
-      );
-      matchingDataTimestamp = matchingDataTimestamp || 1;
-      if (!lastUpdatedTimestamp) {
-        // タイムスタンプが存在しない場合、データが更新されたとみなす（初回起動時）
-        await AsyncStorage.setItem(
-          "matchingResultDataArrayLastUpdatedTimestamp",
-          JSON.stringify(matchingDataTimestamp)
-        );
-        return true;
-      }
-      const dataUpdated = matchingDataTimestamp > lastUpdatedTimestamp;
-      if (dataUpdated) {
-        await AsyncStorage.setItem(
-          "matchingResultDataArrayLastUpdatedTimestamp",
-          JSON.stringify(matchingDataTimestamp)
-        );
-      }
-      console.log(dataUpdated);
-      return dataUpdated;
-    };
-
     try {
       setLoadingMessage("現在地取得中");
       let point2 = null;
-      const cachedLocation = await AsyncStorage.getItem("currentLocation");
-      const cachedLocationTimestamp = await AsyncStorage.getItem(
-        "currentLocationTimestamp"
-      );
-      console.log(cachedLocation);
-      console.log(cachedLocationTimestamp);
-      if (cachedLocation && cachedLocationTimestamp) {
-        // キャッシュから位置情報とタイムスタンプを読み込む
-        point2 = JSON.parse(cachedLocation);
-        const cachedTimestamp = parseInt(cachedLocationTimestamp, 10);
-        const currentTimestamp = Date.now();
-
-        // 30分経過していない場合はキャッシュを使用
-        if (currentTimestamp - cachedTimestamp <= 30 * 60 * 1000) {
-          console.log("Using cached location.");
-        } else {
-          // キャッシュのタイムスタンプから30分以上経過した場合は新しい位置情報を取得
-          console.log("Fetching new location.");
-          const { status } = await Location.requestForegroundPermissionsAsync();
-
-          if (status === "granted") {
-            let location = await getCurrentLocation();
-            const { latitude, longitude } = location.coords;
-            point2 = { latitude, longitude };
-
-            // 新しい位置情報とタイムスタンプをキャッシュに保存
-            await AsyncStorage.setItem(
-              "currentLocation",
-              JSON.stringify(point2)
-            );
-            await AsyncStorage.setItem(
-              "currentLocationTimestamp",
-              currentTimestamp.toString()
-            );
-          } else {
-            console.error("Location permission denied.");
-          }
-        }
-      } else {
-        try {
-          console.log("No cached location. Fetching new location.");
-          // キャッシュが存在しない場合は新しい位置情報を取得
-          const { status } = await Location.requestForegroundPermissionsAsync();
-          console.log("status:", status);
-
-          if (status === "granted") {
-            let location = await getCurrentLocation();
-            console.log("location:", location);
-            const { latitude, longitude } = location.coords;
-            point2 = { latitude, longitude };
-            console.log(point2);
-
-            // 新しい位置情報とタイムスタンプをキャッシュに保存
-            const currentTimestamp = Date.now();
-            await AsyncStorage.setItem(
-              "currentLocation",
-              JSON.stringify(point2)
-            );
-            await AsyncStorage.setItem(
-              "currentLocationTimestamp",
-              currentTimestamp.toString()
-            );
-          } else {
-            console.error("Location permission denied.");
-            check_settings();
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
+      point2 = await getCachedOrNewLocation(async () => {
+        return await Location.getCurrentPositionAsync({});
+      });
       if (!point2) {
         check_settings();
         //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
@@ -216,137 +71,9 @@ const HOME = ({ navigation, route }) => {
       //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
       setLoadingMessage("マッチング中");
-      // let furosyurui_max = "";
-      let nedan_min;
-      // let ganbansyurui_max = "";
-      let matchingDataResultTimestamp = null;
-      const querySnapshot_global = await getDocs(
-        collection(db, "global_match_data")
-      );
-      querySnapshot_global.forEach((doc) => {
-        // furosyurui_max = doc.data().furosyurui_max;
-        // nedan_min = doc.data().nedan_min;
-        // ganbansyurui_max = doc.data().ganbansyurui_max;
-        matchingDataResultTimestamp = doc.data().matchingDataResultTimestamp;
-      });
-      let querySnapshot = null;
-      let matchingDataArray = null;
-      let matchingDataArray_origin = null;
-      let matchingDataArray_cache = await AsyncStorage.getItem(
-        "matchingResultDataArray"
-      );
-      matchingDataArray_origin = JSON.parse(matchingDataArray_cache);
-
-      let lastUpdatedTimestamp = await AsyncStorage.getItem(
-        "matchingResultDataArrayLastUpdatedTimestamp"
-      );
-      const shouldFetchFromFirebase =
-        (await isDataOutdated(
-          lastUpdatedTimestamp,
-          matchingDataResultTimestamp
-        )) || !lastUpdatedTimestamp;
-      if (!matchingDataArray_origin || shouldFetchFromFirebase) {
-        console.log("HOME画面：firebaseを読み込んだ");
-        querySnapshot = await getDocs(
-          collection(db, GlobalData.firebaseOnsenData)
-        );
-        matchingDataArray_origin = await Promise.all(
-          querySnapshot.docs.map(async (doc) => {
-            let data = doc.data();
-            data.id = doc.id;
-            data.onsenName = data.onsen_name;
-            data.heijitunedan = data.heijitunedan;
-            data.kyujitunedan = data.kyuzitunedan;
-            return data;
-          })
-        );
-        await AsyncStorage.setItem(
-          "matchingResultDataArray",
-          JSON.stringify(matchingDataArray_origin)
-        );
-      }
-
-      nedan_min = Math.min(
-        ...matchingDataArray_origin.map(
-          (item) => (item.heijitunedan + item.kyujitunedan) / 2
-        )
-      );
-      // processField 関数を定義して、必要なデータ処理を行う
-      function processField(field, fieldData) {
-        if (field === "heikinnedan") {
-          return parseFloat((nedan_min / fieldData).toFixed(2)); // heikinnedanの場合に処理を実行
-        } else {
-          return fieldData; // それ以外の場合は処理を行わず、元のデータを返す
-        }
-      }
-      // 2つの座標の緯度と経度をラジアンに変換するヘルパー関数
-      function toRadians(degrees) {
-        return degrees * (Math.PI / 180);
-      }
-      // ヒュベニの公式を使用して2つの座標間の距離を計算
-      function haversineDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // 地球の半径（単位: km）
-
-        const dLat = toRadians(lat2 - lat1);
-        const dLon = toRadians(lon2 - lon1);
-
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRadians(lat1)) *
-            Math.cos(toRadians(lat2)) *
-            Math.sin(dLon / 2) *
-            Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c;
-      }
-
-      matchingDataArray = await Promise.all(
-        matchingDataArray_origin.map(async (item) => {
-          const now = new Date();
-          let dayOfWeek = now.getDay();
-          const period = item.periods.filter(
-            (dayinfo) => dayinfo.day === dayOfWeek
-          )[0];
-          // データの追加
-          if (period.open < 800 || period.close > 3000) {
-            item.asaeigyo = 1;
-          }
-          item.heikinnedan = (item.heijitunedan + item.kyujitunedan) / 2;
-          if (item.ekitika.zikan <= 10) {
-            item.ekitika_zikan = 1;
-          } else {
-            item.ekitika_zikan = 0;
-          }
-
-          // データの追加終了
-          item.scoreData = match_array.map((field) => {
-            // データを加工してから scoreData に追加
-            return processField(field, item[field]);
-          });
-          //matchDataDict.scoreData配列の平均を計算
-          const average =
-            (item.scoreData.reduce((acc, value) => acc + value, 0) /
-              item.scoreData.length) *
-            100;
-          // 平均を matchDataDict.score に代入
-          item.score = Math.floor(average);
-          const point1 = { latitude: item.latitude, longitude: item.longitude };
-          const distanceInMeters = haversineDistance(
-            point1.latitude,
-            point1.longitude,
-            point2.latitude,
-            point2.longitude
-          );
-          item.distance = parseFloat(distanceInMeters.toFixed(1));
-          if (item.distance <= 40 && item.score > 50) {
-            item.images = await fetchURL(item.images[0]);
-          }
-          return item;
-        })
-      );
-
+      const matchingDataArray = await fetchMatchingData(point2, match_array);
       setMatchingItems(matchingDataArray);
+
       setLoading(false); // データ読み込みが完了したらローディング状態を解除
     } catch (e) {
       console.error("Error fetching data: ", e);
