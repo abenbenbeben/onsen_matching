@@ -7,7 +7,7 @@ export const GlobalData = {
     ekitika_zikan: "駅近",
     facewash: "フェイスウォッシュ",
     ganban: "岩盤浴",
-    manga: "漫画",
+    manga: "マンガ",
     mizuburo: "水風呂",
     rouryu: "ロウリュウ",
     sauna: "サウナ",

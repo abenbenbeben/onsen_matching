@@ -4,6 +4,7 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
   Dimensions,
   Alert,
   TouchableOpacity,
@@ -188,57 +189,75 @@ const MatchingContainer = ({ data, containerHeight }) => {
 
   const tabs = [
     {
-      key: "feature",
-      title: "特徴から",
+      key: "search",
+      title: "探す",
       content: (
-        <FlatList
-          data={matchingItemsFeature}
-          numColumns={2}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.flatlist}
-          contentContainerStyle={styles.flatlistContent}
-          renderItem={({ item }) => (
-            <MatchingButtonContainer
-              value={item.sentence}
-              beforeImage={item.beforeImage}
-              afterImage={item.afterImage}
-              onToggle={() => handleButtonToggle(item.id, item.data)}
-              selected={selectedButtons.includes(item.id)}
-              height={88}
-              width={156}
+        <>
+          <ScrollView style={{ marginBottom: containerHeight }}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>目的から</Text>
+            </View>
+            <FlatList
+              data={matchingItemsPurpose}
+              numColumns={1}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.flatlist}
+              contentContainerStyle={styles.flatlistContent}
+              renderItem={({ item }) => (
+                <MatchingButtonContainer
+                  value={item.sentence}
+                  beforeImage={item.beforeImage}
+                  afterImage={item.afterImage}
+                  onToggle={() =>
+                    handleButtonToggle_purpose(
+                      item.id,
+                      item.data,
+                      item.data_purpose
+                    )
+                  }
+                  selected={selectedButtons_purpose.includes(item.id)}
+                  height={132}
+                  width={328}
+                />
+              )}
             />
-          )}
-        />
-      ),
-    },
-    {
-      key: "purpose",
-      title: "目的から",
-      content: (
-        <FlatList
-          data={matchingItemsPurpose}
-          numColumns={1}
-          keyExtractor={(item) => item.id.toString()}
-          style={styles.flatlist}
-          contentContainerStyle={styles.flatlistContent}
-          renderItem={({ item }) => (
-            <MatchingButtonContainer
-              value={item.sentence}
-              beforeImage={item.beforeImage}
-              afterImage={item.afterImage}
-              onToggle={() =>
-                handleButtonToggle_purpose(
-                  item.id,
-                  item.data,
-                  item.data_purpose
-                )
-              }
-              selected={selectedButtons_purpose.includes(item.id)}
-              height={132}
-              width={328}
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>特徴から</Text>
+            </View>
+            <FlatList
+              data={matchingItemsFeature}
+              numColumns={2}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.flatlist}
+              contentContainerStyle={styles.flatlistContent}
+              renderItem={({ item }) => (
+                <MatchingButtonContainer
+                  value={item.sentence}
+                  beforeImage={item.beforeImage}
+                  afterImage={item.afterImage}
+                  onToggle={() => handleButtonToggle(item.id, item.data)}
+                  selected={selectedButtons.includes(item.id)}
+                  height={88}
+                  width={156}
+                />
+              )}
             />
-          )}
-        />
+          </ScrollView>
+          {/* フォーム */}
+          <FormContainer3
+            navigation={navigation}
+            selectednum={selectedButtons.length}
+            data_feature={selecteddata_feature}
+            data_purpose={selecteddata_purpose}
+            selectedButtons_feature={selectedButtons}
+            selectedButtons_purpose={selectedButtons_purpose}
+            selectedButtons_purposeName={selecteddata_purposeData}
+            matchingItemsFeature={matchingItemsFeature}
+            matchingItemsPurpose={matchingItemsPurpose}
+            maxnum={4}
+            containerHeight={containerHeight}
+          />
+        </>
       ),
     },
     {
@@ -309,41 +328,38 @@ const MatchingContainer = ({ data, containerHeight }) => {
           <View style={{ width: screenWidth }}>{item.content}</View>
         )}
       />
-
-      {/* フォーム */}
-      {(activeTab === 0 || activeTab === 1) && (
-        <FormContainer3
-          navigation={navigation}
-          selectednum={selectedButtons.length}
-          data_feature={selecteddata_feature}
-          data_purpose={selecteddata_purpose}
-          selectedButtons_feature={selectedButtons}
-          selectedButtons_purpose={selectedButtons_purpose}
-          selectedButtons_purposeName={selecteddata_purposeData}
-          matchingItemsFeature={matchingItemsFeature}
-          matchingItemsPurpose={matchingItemsPurpose}
-          maxnum={4}
-          containerHeight={containerHeight}
-        />
-      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: Color.colorWhitesmoke_100 },
   tabBar: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 10,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
   },
   tabButton: { padding: 10 },
   tabButtonText: { fontSize: 16, color: "#888" },
   activeTabButton: { borderBottomWidth: 2, borderBottomColor: "#007BFF" },
   activeTabButtonText: { color: "#007BFF", fontWeight: "bold" },
+  // タイトル
+  titleContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+  },
+  titleText: {
+    fontSize: FontSize.body,
+    fontWeight: "400",
+  },
+  // タイトル
+
   flatlistContent: { alignItems: "center", paddingBottom: 10 },
-  flatlist: { flex: 1, width: "100%" },
+  flatlist: {
+    flex: 1,
+    width: "100%",
+  },
 
   saveConditionCardContainer: {},
   listItem: {

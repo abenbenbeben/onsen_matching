@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useContext } from "react";
-import { StyleSheet, View, Text, Alert, PixelRatio } from "react-native";
+import { StyleSheet, View, Text, Alert, PixelRatio, Image } from "react-native";
 import { Color, FontFamily, FontSize } from "../GlobalStyles";
 import Button from "./Button";
 import { DataContext } from "../DataContext";
@@ -28,8 +28,20 @@ const FormContainer3 = ({
   // タグをフィルタリングして取得
   let filteredTags;
   if (data_feature) {
-    filteredTags = data_feature.flat();
+    filteredTags = data_feature.flat().map((item) => {
+      const match_feature_afterimage = matchingItemsFeature.find(
+        (feature) => feature.data[0] === item
+      );
+      return {
+        data: item,
+        afterimage: match_feature_afterimage
+          ? match_feature_afterimage.afterImage
+          : "",
+      };
+    });
   }
+  console.log(matchingItemsFeature);
+  console.log(filteredTags);
   // 1次元配列に変換して結合
   const mergedArray = [...data_feature.flat(), ...data_purpose.flat()];
   const uniqueArray = [...new Set(mergedArray)];
@@ -49,7 +61,17 @@ const FormContainer3 = ({
       id: match_feature ? match_feature.id : match_purpose.id,
     };
   });
-  let purposeTags = selectedButtons_purposeName;
+  let purposeTags = selectedButtons_purposeName.map((item) => {
+    const match_purpose_afterimage = matchingItemsPurpose.find(
+      (feature) => feature.data_purpose === item
+    );
+    return {
+      data: item,
+      afterimage: match_purpose_afterimage
+        ? match_purpose_afterimage.afterImage
+        : "",
+    };
+  });
   const handleSaveButtonPress = () => {
     if (uniqueArray.length === 0) {
       // selectednum が 0 の場合にアラートを表示
@@ -76,6 +98,11 @@ const FormContainer3 = ({
     }
   };
 
+  const containerHeight_filt =
+    filteredTags.length + purposeTags.length < 5
+      ? containerHeight
+      : containerHeight + 30;
+
   return (
     <View style={dynamicStyles.view}>
       <View style={dynamicStyles.view1}>
@@ -96,31 +123,36 @@ const FormContainer3 = ({
           {/* data_feature からのタグ表示 */}
           {filteredTags.map((tagKey) => (
             <View
-              key={tagKey}
+              key={tagKey.data}
               style={[dynamicStyles.tag, dynamicStyles.matchTag]}
             >
-              <Text style={[dynamicStyles.tagText, dynamicStyles.matchTag]}>
-                {tagNameList[tagKey]}
-              </Text>
+              <View style={dynamicStyles.tagContent}>
+                <Image
+                  source={{ uri: tagKey.afterimage }} // 画像パスを指定
+                  style={dynamicStyles.tagImage}
+                />
+                <Text style={[dynamicStyles.tagText, dynamicStyles.matchTag]}>
+                  {tagNameList[tagKey.data]}
+                </Text>
+              </View>
             </View>
           ))}
 
           {/* selecteddata_purposeData からのタグ表示 */}
           {purposeTags.map((tagKey) => (
             <View
-              key={tagKey}
-              style={[
-                dynamicStyles.tag,
-                dynamicStyles.purposeTag, // タグの背景色を変える
-              ]}
+              key={tagKey.data}
+              style={[dynamicStyles.tag, dynamicStyles.purposeTag]}
             >
-              <Text
-                style={[
-                  dynamicStyles.purposeTagText, // テキスト色を変える
-                ]}
-              >
-                {tagNameListPurpose[tagKey]}
-              </Text>
+              <View style={dynamicStyles.tagContent}>
+                <Image
+                  source={{ uri: tagKey.afterimage }} // 画像パスを指定
+                  style={dynamicStyles.tagImage}
+                />
+                <Text style={[dynamicStyles.purposeTagText]}>
+                  {tagNameListPurpose[tagKey.data]}
+                </Text>
+              </View>
             </View>
           ))}
         </View>
@@ -146,10 +178,10 @@ const styles = (containerHeight) =>
       justifyContent: "flex-start",
     },
     view1: {
-      marginTop: 8,
+      marginTop: 10,
       marginLeft: 16,
       width: 240,
-      height: 56,
+      height: 65,
       // overflow: "hidden",
       flexDirection: "row",
       alignItems: "center",
@@ -171,6 +203,7 @@ const styles = (containerHeight) =>
       textAlign: "center",
       color: Color.colorGrayText,
       fontSize: FontSize.bodySub,
+      marginBottom: 10,
     },
 
     // tag
@@ -178,11 +211,13 @@ const styles = (containerHeight) =>
       flexDirection: "row",
       flexWrap: "wrap",
       marginTop: 5,
+      paddingBottom: 8,
       justifyContent: "center",
     },
     tag: {
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingLeft: 1,
+      paddingRight: 4,
+      paddingVertical: 1,
       borderRadius: 4,
       marginRight: 5,
       marginBottom: 5,
@@ -203,6 +238,16 @@ const styles = (containerHeight) =>
     purposeTagText: {
       color: "#00695c", // tagText の色に近い色
       fontSize: FontSize.caption,
+    },
+    tagContent: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    tagImage: {
+      width: 20, // 小さい画像の幅
+      height: 20, // 小さい画像の高さ
+      marginRight: 5, // テキストとの間隔を設定
+      borderRadius: 4,
     },
   });
 

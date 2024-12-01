@@ -10,7 +10,7 @@ const ModalFrame = ({ route }) => {
   return (
     <>
       <HeaderScreen headerText="探す" />
-      <MatchingContainer data={data} containerHeight={72} />
+      <MatchingContainer data={data} containerHeight={80} />
     </>
   );
 };
