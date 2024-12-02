@@ -153,6 +153,15 @@ export const fetchMatchingData = async (
       }
       // データの追加終了
 
+      const point1 = { latitude: item.latitude, longitude: item.longitude };
+      const distanceInMeters = haversineDistance(
+        point1.latitude,
+        point1.longitude,
+        point2.latitude,
+        point2.longitude
+      );
+      item.distance = parseFloat(distanceInMeters.toFixed(1));
+
       if (match_array_array.length === 0) {
         item.scoreData = match_array.map((field) => {
           // データを加工してから scoreData に追加
@@ -165,15 +174,32 @@ export const fetchMatchingData = async (
           100;
         // 平均を matchDataDict.score に代入
         item.score = Math.floor(average);
-        const point1 = { latitude: item.latitude, longitude: item.longitude };
-        const distanceInMeters = haversineDistance(
-          point1.latitude,
-          point1.longitude,
-          point2.latitude,
-          point2.longitude
-        );
-        item.distance = parseFloat(distanceInMeters.toFixed(1));
+
         if (item.distance <= 40 && item.score > 50) {
+          item.images = await fetchURL(item.images[0]);
+        }
+      } else {
+        item.scoreData = match_array_array.map((match_array_array_unit) => {
+          const scoreData_matchArrrayArray =
+            match_array_array_unit.concatenatedData.map((field) => {
+              // データを加工してから scoreData に追加
+              return processField(field, item[field]);
+            });
+          const average =
+            (scoreData_matchArrrayArray.reduce((acc, value) => acc + value, 0) /
+              scoreData_matchArrrayArray.length) *
+            100;
+          // 平均を matchDataDict.score に代入
+          const score = Math.floor(average);
+          return {
+            score: score,
+            conditionId: match_array_array_unit.conditionId,
+          };
+        });
+        // 配列内の score を取得
+        const scores = item.scoreData.map((item) => item.score);
+        const maxScore = Math.max(...scores);
+        if (item.distance <= 40 && maxScore > 50) {
           item.images = await fetchURL(item.images[0]);
         }
       }

@@ -40,8 +40,6 @@ const FormContainer3 = ({
       };
     });
   }
-  console.log(matchingItemsFeature);
-  console.log(filteredTags);
   // 1次元配列に変換して結合
   const mergedArray = [...data_feature.flat(), ...data_purpose.flat()];
   const uniqueArray = [...new Set(mergedArray)];

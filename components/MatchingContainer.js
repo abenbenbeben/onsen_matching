@@ -18,6 +18,7 @@ import { GlobalData } from "../GlobalData";
 import * as Location from "expo-location";
 import { getCachedOrNewLocation } from "../components/getCurrentLocation ";
 import { fetchMatchingData } from "../components/fetchMatchingData";
+import { CardWithMatchPercentage } from "./CardWithMatchPercentage";
 
 const MatchingContainer = ({ data, containerHeight }) => {
   const navigation = useNavigation();
@@ -42,6 +43,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
   const [conditionData, setConditionData] = useState([]);
   const [saveConditionData, setSaveConditionData] = useState([]);
   const [matchingItems, setMatchingItems] = useState([]);
+  const [favoriteDataArray, setFavoriteDataArray] = useState([]);
   const flatListRef = useRef(null); // FlatListの参照
   const screenWidth = Dimensions.get("window").width;
   const [activeTab, setActiveTab] = useState(0); // 現在のタブ
@@ -105,7 +107,6 @@ const MatchingContainer = ({ data, containerHeight }) => {
     const storedData = await AsyncStorage.getItem("conditionData");
     const parsedDatas = storedData ? JSON.parse(storedData) : [];
     setConditionData(parsedDatas);
-    console.log(conditionData);
     const updatedData = parsedDatas.map((parsedData) => {
       // idArray を名前付きオブジェクトに変換
       const updatedIdArray = parsedData.idArray.map((id) => {
@@ -136,8 +137,6 @@ const MatchingContainer = ({ data, containerHeight }) => {
         idArray: updatedIdArray,
       };
     });
-
-    console.log(JSON.stringify(updatedData));
     setSaveConditionData(updatedData);
   };
   const fetch_matchingdata = async () => {
@@ -158,7 +157,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
       point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
       // setLoadingMessage("マッチング中");
       // 1次元配列に変換して結合
-      const mergedArrayArray = saveConditionData.map((item) => {
+      const match_array_array = saveConditionData.map((item) => {
         const concatenatedData = item.idArray.flatMap((idItem) => {
           // data が配列の場合はそのまま展開、文字列の場合は配列に変換
           return Array.isArray(idItem.data) ? idItem.data : [idItem.data];
@@ -169,10 +168,12 @@ const MatchingContainer = ({ data, containerHeight }) => {
           conditionId: item.conditionId, // conditionId
         };
       });
-      console.log(mergedArrayArray);
+      console.log("mergedArrayArray=========================");
+      console.log(match_array_array);
       const matchingDataArray = await fetchMatchingData(
         point2,
-        mergedArrayArray
+        [],
+        match_array_array
       );
       setMatchingItems(matchingDataArray);
 
@@ -181,11 +182,46 @@ const MatchingContainer = ({ data, containerHeight }) => {
       console.error("Error fetching data: ", e);
     }
   };
+  // コンポーネントがマウントされた後にお気に入りデータを読み込む
+  const fetchFavoriteData = async () => {
+    const storedData = await AsyncStorage.getItem("favoriteArray");
+    const parsedData = storedData ? JSON.parse(storedData) : [];
+    if (parsedData.length >= 1) {
+      if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
+        setFavoriteDataArray(parsedData);
+      }
+    } else {
+      setFavoriteDataArray([]);
+    }
+  };
 
   useEffect(() => {
+    fetchFavoriteData();
     fetchAsData();
     fetch_matchingdata();
   }, []);
+
+  const renderCard = (item) => (
+    <CardWithMatchPercentage
+      onsenName={item.onsenName}
+      matchPercentage={item.score}
+      viewTop={0}
+      onFramePressablePress={() =>
+        navigation.navigate("Onsen_detail_Frame", {
+          data: item.id,
+          match_array: match_array,
+        })
+      }
+      heijitunedan={item.heijitunedan}
+      kyuzitunedan={item.kyujitunedan}
+      images={item.images}
+      isfavorite={favoriteDataArray.includes(item.id)}
+      data={item}
+      match_array={match_array}
+      distance={item.distance}
+      filter={filter}
+    />
+  );
 
   const tabs = [
     {
@@ -271,7 +307,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
             <View style={styles.listItem}>
               <Text style={styles.saveConditionCardTitle}>
                 {item.editConditionText
-                  ? `${item.editConditionText}の周辺施設`
+                  ? `${item.editConditionText}の周辺施設${item.conditionId}`
                   : "未設定"}
                 {/* タイトルが空の場合は "未設定" を表示 */}
               </Text>
@@ -282,6 +318,30 @@ const MatchingContainer = ({ data, containerHeight }) => {
                   </View>
                 ))}
               </View>
+              <FlatList
+                data={matchingItems
+                  // 1. `conditionId` が一致し、`score` が50以上のデータを持つ項目を抽出
+                  .filter((matchingItemsUnit) =>
+                    matchingItemsUnit.scoreData.some(
+                      (scoreDataUnit) =>
+                        scoreDataUnit.conditionId === item.conditionId &&
+                        scoreDataUnit.score >= 50
+                    )
+                  )
+                  // 2. 距離でソート
+                  .sort((a, b) => a.distance - b.distance)
+                  // 3. 上位3件を取得
+                  .slice(0, 3)}
+                renderItem={({ renderitem }) => {
+                  renderCard(renderitem);
+                }}
+                //おそらくitemを使い回していることがダメ。
+
+                keyExtractor={(item) => item.onsenName}
+                // style={styles.flatlist}
+                // contentContainerStyle={styles.flatlistContent}
+                scrollEnabled={false}
+              />
             </View>
           )}
           contentContainerStyle={styles.saveConditionCardContainer}
