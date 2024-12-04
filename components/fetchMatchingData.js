@@ -179,6 +179,8 @@ export const fetchMatchingData = async (
           item.images = await fetchURL(item.images[0]);
         }
       } else {
+        console.log("match_array_array");
+        console.log(match_array_array);
         item.scoreData = match_array_array.map((match_array_array_unit) => {
           const scoreData_matchArrrayArray =
             match_array_array_unit.concatenatedData.map((field) => {
@@ -196,6 +198,7 @@ export const fetchMatchingData = async (
             conditionId: match_array_array_unit.conditionId,
           };
         });
+        console.log(item.scoreData);
         // 配列内の score を取得
         const scores = item.scoreData.map((item) => item.score);
         const maxScore = Math.max(...scores);

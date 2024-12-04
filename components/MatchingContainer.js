@@ -18,7 +18,7 @@ import { GlobalData } from "../GlobalData";
 import * as Location from "expo-location";
 import { getCachedOrNewLocation } from "../components/getCurrentLocation ";
 import { fetchMatchingData } from "../components/fetchMatchingData";
-import { CardWithMatchPercentage } from "./CardWithMatchPercentage";
+import CardWithMatchPercentage from "./CardWithMatchPercentage";
 
 const MatchingContainer = ({ data, containerHeight }) => {
   const navigation = useNavigation();
@@ -138,8 +138,10 @@ const MatchingContainer = ({ data, containerHeight }) => {
       };
     });
     setSaveConditionData(updatedData);
+    return updatedData;
   };
   const fetch_matchingdata = async () => {
+    const saveConditionData_output = await fetchAsData();
     try {
       // setLoadingMessage("現在地取得中");
       let point2 = null;
@@ -157,7 +159,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
       point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
       // setLoadingMessage("マッチング中");
       // 1次元配列に変換して結合
-      const match_array_array = saveConditionData.map((item) => {
+      const match_array_array = saveConditionData_output.map((item) => {
         const concatenatedData = item.idArray.flatMap((idItem) => {
           // data が配列の場合はそのまま展開、文字列の場合は配列に変換
           return Array.isArray(idItem.data) ? idItem.data : [idItem.data];
@@ -169,13 +171,13 @@ const MatchingContainer = ({ data, containerHeight }) => {
         };
       });
       console.log("mergedArrayArray=========================");
-      console.log(match_array_array);
       const matchingDataArray = await fetchMatchingData(
         point2,
         [],
         match_array_array
       );
       setMatchingItems(matchingDataArray);
+      // console.log(JSON.stringify(matchingDataArray));
 
       // setLoading(false); // データ読み込みが完了したらローディング状態を解除
     } catch (e) {
@@ -195,32 +197,33 @@ const MatchingContainer = ({ data, containerHeight }) => {
     }
   };
 
-  useEffect(() => {
+  useEffect(async () => {
     fetchFavoriteData();
-    fetchAsData();
-    fetch_matchingdata();
+    await fetch_matchingdata();
   }, []);
 
   const renderCard = (item) => (
-    <CardWithMatchPercentage
-      onsenName={item.onsenName}
-      matchPercentage={item.score}
-      viewTop={0}
-      onFramePressablePress={() =>
-        navigation.navigate("Onsen_detail_Frame", {
-          data: item.id,
-          match_array: match_array,
-        })
-      }
-      heijitunedan={item.heijitunedan}
-      kyuzitunedan={item.kyujitunedan}
-      images={item.images}
-      isfavorite={favoriteDataArray.includes(item.id)}
-      data={item}
-      match_array={match_array}
-      distance={item.distance}
-      filter={filter}
-    />
+    <>
+      <CardWithMatchPercentage
+        onsenName={item.onsenName}
+        matchPercentage={item.score}
+        viewTop={0}
+        onFramePressablePress={() =>
+          navigation.navigate("Onsen_detail_Frame", {
+            data: item.id,
+            match_array: match_array,
+          })
+        }
+        heijitunedan={item.heijitunedan}
+        kyuzitunedan={item.kyujitunedan}
+        images={item.images}
+        isfavorite={favoriteDataArray.includes(item.id)}
+        data={item}
+        // match_array={match_array}
+        distance={item.distance}
+        // filter={filter}
+      />
+    </>
   );
 
   const tabs = [
@@ -302,17 +305,19 @@ const MatchingContainer = ({ data, containerHeight }) => {
       content: (
         <FlatList
           data={saveConditionData}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
+          keyExtractor={(conditionItem, index) => index.toString()} // 変数名を変更
+          renderItem={(
+            { item: conditionItem } // 変数名を変更
+          ) => (
             <View style={styles.listItem}>
               <Text style={styles.saveConditionCardTitle}>
-                {item.editConditionText
-                  ? `${item.editConditionText}の周辺施設${item.conditionId}`
+                {conditionItem.editConditionText
+                  ? `${conditionItem.editConditionText}の周辺施設`
                   : "未設定"}
                 {/* タイトルが空の場合は "未設定" を表示 */}
               </Text>
               <View style={styles.tagContainer}>
-                {item.idArray.map((tag) => (
+                {conditionItem.idArray.map((tag) => (
                   <View style={[styles.tag, styles.matchTag]} key={tag.id}>
                     <Text style={styles.tagText}>{tag.tagName}</Text>
                   </View>
@@ -324,22 +329,19 @@ const MatchingContainer = ({ data, containerHeight }) => {
                   .filter((matchingItemsUnit) =>
                     matchingItemsUnit.scoreData.some(
                       (scoreDataUnit) =>
-                        scoreDataUnit.conditionId === item.conditionId &&
-                        scoreDataUnit.score >= 50
+                        scoreDataUnit.conditionId ===
+                          conditionItem.conditionId && scoreDataUnit.score >= 50
                     )
                   )
                   // 2. 距離でソート
                   .sort((a, b) => a.distance - b.distance)
                   // 3. 上位3件を取得
                   .slice(0, 3)}
-                renderItem={({ renderitem }) => {
-                  renderCard(renderitem);
+                renderItem={({ item: matchingItem }) => {
+                  // 変数名を変更
+                  return renderCard(matchingItem); // renderCard関数を使用
                 }}
-                //おそらくitemを使い回していることがダメ。
-
-                keyExtractor={(item) => item.onsenName}
-                // style={styles.flatlist}
-                // contentContainerStyle={styles.flatlistContent}
+                keyExtractor={(matchingItem) => matchingItem.onsenName}
                 scrollEnabled={false}
               />
             </View>

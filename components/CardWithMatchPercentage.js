@@ -12,11 +12,11 @@ const CardWithMatchPercentage = ({
   heijitunedan,
   kyuzitunedan,
   images,
-  isfavorite,
+  isfavorite = false,
   data,
   match_array = [],
   distance,
-  filter,
+  filter = 1,
 }) => {
   const buttonColor = isfavorite ? "#FFC800" : "#FFF";
   const buttonIcon = isfavorite ? "star" : "star-outline";
