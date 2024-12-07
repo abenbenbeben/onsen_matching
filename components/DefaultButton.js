@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   buttonText: {
     color: "white", // 白色のテキスト

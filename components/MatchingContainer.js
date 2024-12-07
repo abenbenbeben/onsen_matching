@@ -19,12 +19,12 @@ import * as Location from "expo-location";
 import { getCachedOrNewLocation } from "../components/getCurrentLocation ";
 import { fetchMatchingData } from "../components/fetchMatchingData";
 import CardWithMatchPercentage from "./CardWithMatchPercentage";
+import DefaultButton from "./DefaultButton";
 
 const MatchingContainer = ({ data, containerHeight }) => {
   const navigation = useNavigation();
   const matchingItemsFeature = data?.matchingItemsFeature || [];
   const matchingItemsPurpose = data?.matchingItemsPurpose || [];
-  console.log(matchingItemsPurpose);
   const [selecteddata_feature, setSelecteddata_feature] = useState(
     data?.selecteddata_feature || []
   );
@@ -126,9 +126,9 @@ const MatchingContainer = ({ data, containerHeight }) => {
           id: id,
           dataName: dataName,
           data: data,
-          tagName: tagNameList[data]
-            ? tagNameList[data]
-            : tagNameListPurpose[data],
+          tagName: tagNameList[dataName]
+            ? tagNameList[dataName]
+            : tagNameListPurpose[dataName],
         };
       });
 
@@ -170,7 +170,6 @@ const MatchingContainer = ({ data, containerHeight }) => {
           conditionId: item.conditionId, // conditionId
         };
       });
-      console.log("mergedArrayArray=========================");
       const matchingDataArray = await fetchMatchingData(
         point2,
         [],
@@ -197,9 +196,13 @@ const MatchingContainer = ({ data, containerHeight }) => {
     }
   };
 
-  useEffect(async () => {
-    fetchFavoriteData();
-    await fetch_matchingdata();
+  useEffect(() => {
+    const initializeData = async () => {
+      await fetchFavoriteData();
+      await fetch_matchingdata();
+    };
+
+    initializeData();
   }, []);
 
   const renderCard = (item) => (
@@ -211,7 +214,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
         onFramePressablePress={() =>
           navigation.navigate("Onsen_detail_Frame", {
             data: item.id,
-            match_array: match_array,
+            match_array: item.match_array,
           })
         }
         heijitunedan={item.heijitunedan}
@@ -219,9 +222,9 @@ const MatchingContainer = ({ data, containerHeight }) => {
         images={item.images}
         isfavorite={favoriteDataArray.includes(item.id)}
         data={item}
-        // match_array={match_array}
+        match_array={item.match_array}
         distance={item.distance}
-        // filter={filter}
+        filter={2}
       />
     </>
   );
@@ -310,18 +313,20 @@ const MatchingContainer = ({ data, containerHeight }) => {
             { item: conditionItem } // 変数名を変更
           ) => (
             <View style={styles.listItem}>
-              <Text style={styles.saveConditionCardTitle}>
-                {conditionItem.editConditionText
-                  ? `${conditionItem.editConditionText}の周辺施設`
-                  : "未設定"}
-                {/* タイトルが空の場合は "未設定" を表示 */}
-              </Text>
-              <View style={styles.tagContainer}>
-                {conditionItem.idArray.map((tag) => (
-                  <View style={[styles.tag, styles.matchTag]} key={tag.id}>
-                    <Text style={styles.tagText}>{tag.tagName}</Text>
-                  </View>
-                ))}
+              <View style={{ marginVertical: 4 }}>
+                <Text style={styles.saveConditionCardTitle}>
+                  {conditionItem.editConditionText
+                    ? `${conditionItem.editConditionText}の周辺施設`
+                    : "未設定"}
+                  {/* タイトルが空の場合は "未設定" を表示 */}
+                </Text>
+                <View style={styles.tagContainer}>
+                  {conditionItem.idArray.map((tag) => (
+                    <View style={[styles.tag, styles.matchTag]} key={tag.id}>
+                      <Text style={styles.tagText}>{tag.tagName}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
               <FlatList
                 data={matchingItems
@@ -330,7 +335,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
                     matchingItemsUnit.scoreData.some(
                       (scoreDataUnit) =>
                         scoreDataUnit.conditionId ===
-                          conditionItem.conditionId && scoreDataUnit.score >= 50
+                          conditionItem.conditionId && scoreDataUnit.score > 50
                     )
                   )
                   // 2. 距離でソート
@@ -338,12 +343,38 @@ const MatchingContainer = ({ data, containerHeight }) => {
                   // 3. 上位3件を取得
                   .slice(0, 3)}
                 renderItem={({ item: matchingItem }) => {
-                  // 変数名を変更
+                  matchingItem.score = matchingItem.scoreData.find(
+                    (findItem) =>
+                      findItem.conditionId === conditionItem.conditionId
+                  )?.score;
+                  matchingItem.match_array = Array.from(
+                    new Set(
+                      conditionItem.idArray.flatMap((ArrayUnit) =>
+                        Array.isArray(ArrayUnit.data)
+                          ? ArrayUnit.data
+                          : [ArrayUnit.data]
+                      )
+                    )
+                  );
                   return renderCard(matchingItem); // renderCard関数を使用
                 }}
                 keyExtractor={(matchingItem) => matchingItem.onsenName}
                 scrollEnabled={false}
               />
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginTop: 16,
+                  marginBottom: 10,
+                }}
+              >
+                <DefaultButton
+                  style={{ width: "80%" }}
+                  label="この条件で検索する"
+                />
+              </View>
             </View>
           )}
           contentContainerStyle={styles.saveConditionCardContainer}
@@ -400,7 +431,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 10,
-    backgroundColor: "#fff",
+    backgroundColor: Color.labelColorDarkPrimary,
   },
   tabButton: { padding: 10 },
   tabButtonText: { fontSize: 16, color: "#888" },
@@ -412,8 +443,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   titleText: {
-    fontSize: FontSize.body,
-    fontWeight: "400",
+    fontSize: FontSize.bodySub,
+    fontWeight: "500",
   },
   // タイトル
 
@@ -427,7 +458,7 @@ const styles = StyleSheet.create({
   listItem: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderWidth: 1,
+    borderBottomWidth: 1,
     borderColor: "#ccc",
     backgroundColor: Color.colorWhitesmoke_100,
   },
@@ -439,7 +470,6 @@ const styles = StyleSheet.create({
   tagContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginTop: 5,
   },
   tag: {
     paddingHorizontal: 8,
