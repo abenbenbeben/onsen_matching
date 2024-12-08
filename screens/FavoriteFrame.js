@@ -221,13 +221,13 @@ const FavoriteFrame = () => {
 
 const styles = StyleSheet.create({
   frameScrollViewContent: {
-    alignItems: "center",
+    // alignItems: "center",
   },
   flatlist: {
     width: "100%",
   },
   flatlistContent: {
-    alignItems: "center",
+    // alignItems: "center",
   },
   textTypo: {
     height: 15,

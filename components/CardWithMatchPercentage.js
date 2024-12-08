@@ -4,6 +4,7 @@ import { IconButton } from "react-native-paper";
 import { Image } from "expo-image";
 import { FontSize, FontFamily, Color, Border } from "../GlobalStyles";
 import { GlobalData } from "../GlobalData";
+import FavoriteButton from "./FavoriteButton";
 
 const CardWithMatchPercentage = ({
   onsenName,
@@ -13,13 +14,12 @@ const CardWithMatchPercentage = ({
   kyuzitunedan,
   images,
   isfavorite = false,
+  favoriteDataArray = [],
   data,
   match_array = [],
   distance,
   filter = 1,
 }) => {
-  const buttonColor = isfavorite ? "#FFC800" : "#FFF";
-  const buttonIcon = isfavorite ? "star" : "star-outline";
   const tagNameList = GlobalData.tagNameList;
   // タグをフィルタリングして取得
   let filteredTags;
@@ -30,74 +30,82 @@ const CardWithMatchPercentage = ({
   }
 
   return (
-    <Pressable style={styles.cardContainer} onPress={onFramePressablePress}>
-      <View style={styles.backgroundFrame} />
-      <IconButton
-        icon={buttonIcon}
-        iconColor={buttonColor}
-        size={30}
-        style={styles.favoriteIcon}
-      />
-      <Image style={styles.image} contentFit="cover" source={images} />
-      <View style={styles.textContainer}>
-        <Text style={styles.onsenName}>{onsenName}</Text>
-        {matchPercentage && filter === 1 && (
-          <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-            <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
-            <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
-          </View>
-        )}
-        {matchPercentage && filter === 2 && (
-          <View style={[styles.flexDirectionRow]}>
-            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-              <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
-              <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
-            </View>
-            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-              <Text style={[styles.matchTextRatio]}>{distance}</Text>
-              <Text style={styles.matchText}>{`距離\nkm`}</Text>
-            </View>
-          </View>
-        )}
-        {matchPercentage && filter === 3 && (
-          <View style={[styles.flexDirectionRow]}>
-            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-              <Text style={[styles.matchTextRatio]}>{distance}</Text>
-              <Text style={styles.matchText}>{`距離\nkm`}</Text>
-            </View>
-            <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-              <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
-              <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
-            </View>
-          </View>
-        )}
-        <Text style={styles.priceText}>
-          {`平日 ${heijitunedan}円 祝日 ${kyuzitunedan}円`}
-        </Text>
-        <View style={styles.tagContainer}>
-          {filteredTags.map((tagKey) => (
-            <View
-              key={tagKey}
-              style={[
-                styles.tag,
-                match_array.includes(tagKey) ? styles.matchTag : styles.grayTag,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tagText,
-                  match_array.includes(tagKey)
-                    ? styles.matchTag
-                    : styles.grayTag,
-                ]}
-              >
-                {tagNameList[tagKey]}
-              </Text>
-            </View>
-          ))}
+    <View style={styles.cardContainer}>
+      <View style={[styles.topContainer]}>
+        <View style={styles.nameContainer}>
+          <Text style={styles.onsenName} numberOfLines={2}>
+            {onsenName}
+          </Text>
+        </View>
+        <View style={[{ zIndex: 10 }, styles.favoriteButtonContainer]}>
+          <FavoriteButton id={data.id} favoriteDataArray={favoriteDataArray} />
         </View>
       </View>
-    </Pressable>
+      <Pressable onPress={onFramePressablePress}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Image style={styles.image} contentFit="cover" source={images} />
+          <View style={styles.textContainer}>
+            {matchPercentage && filter === 1 && (
+              <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+                <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
+                <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+              </View>
+            )}
+            {matchPercentage && filter === 2 && (
+              <View style={[styles.flexDirectionRow]}>
+                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+                  <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
+                  <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+                </View>
+                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+                  <Text style={[styles.matchTextRatio]}>{distance}</Text>
+                  <Text style={styles.matchText}>{`距離\nkm`}</Text>
+                </View>
+              </View>
+            )}
+            {matchPercentage && filter === 3 && (
+              <View style={[styles.flexDirectionRow]}>
+                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+                  <Text style={[styles.matchTextRatio]}>{distance}</Text>
+                  <Text style={styles.matchText}>{`距離\nkm`}</Text>
+                </View>
+                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
+                  <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
+                  <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
+                </View>
+              </View>
+            )}
+            <Text style={styles.priceText}>
+              {`平日 ${heijitunedan}円 祝日 ${kyuzitunedan}円`}
+            </Text>
+            <View style={styles.tagContainer}>
+              {filteredTags.map((tagKey) => (
+                <View
+                  key={tagKey}
+                  style={[
+                    styles.tag,
+                    match_array.includes(tagKey)
+                      ? styles.matchTag
+                      : styles.grayTag,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.tagText,
+                      match_array.includes(tagKey)
+                        ? styles.matchTag
+                        : styles.grayTag,
+                    ]}
+                  >
+                    {tagNameList[tagKey]}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Pressable>
+    </View>
   );
 };
 
@@ -113,17 +121,19 @@ const styles = StyleSheet.create({
     backgroundColor: Color.labelColorDarkPrimary,
     width: "100%",
     marginBottom: 6,
-    flexDirection: "row",
-    alignItems: "center",
+    // flexDirection: "row",
+    // alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
-  backgroundFrame: {
-    position: "absolute",
-    backgroundColor: Color.labelColorDarkPrimary,
-    borderRadius: Border.br_12xs,
-    height: "100%",
-    width: "100%",
+  topContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // 子要素を左右端に配置
+    alignItems: "center", // 縦方向で中央揃え
+    marginVertical: 8,
+  },
+  favoriteButtonContainer: {
+    // position: "absolute",
   },
   favoriteIcon: {
     position: "absolute",
@@ -140,7 +150,13 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: "space-between",
   },
+  nameContainer: {
+    marginVertical: 2,
+    flex: 1,
+  },
   onsenName: {
+    textAlign: "left",
+    flexWrap: "wrap",
     fontSize: FontSize.body,
     fontFamily: FontFamily.interMedium,
     color: Color.labelColorLightPrimary,

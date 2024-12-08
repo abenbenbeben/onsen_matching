@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -13,6 +13,7 @@ import { FontSize, FontFamily, Color } from "../GlobalStyles";
 import FormContainer3 from "../components/FormContainer3";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
 import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GlobalData } from "../GlobalData";
 import * as Location from "expo-location";
@@ -20,6 +21,7 @@ import { getCachedOrNewLocation } from "../components/getCurrentLocation ";
 import { fetchMatchingData } from "../components/fetchMatchingData";
 import CardWithMatchPercentage from "./CardWithMatchPercentage";
 import DefaultButton from "./DefaultButton";
+import { DataContext } from "../DataContext";
 
 const MatchingContainer = ({ data, containerHeight }) => {
   const navigation = useNavigation();
@@ -47,6 +49,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
   const flatListRef = useRef(null); // FlatListの参照
   const screenWidth = Dimensions.get("window").width;
   const [activeTab, setActiveTab] = useState(0); // 現在のタブ
+  const { setData } = useContext(DataContext);
 
   // タブをタップした際の処理
   const handleTabPress = (index) => {
@@ -194,6 +197,41 @@ const MatchingContainer = ({ data, containerHeight }) => {
     } else {
       setFavoriteDataArray([]);
     }
+
+    console.log(favoriteDataArray);
+  };
+
+  const handleSaveButtonPress = (uniqueArray) => {
+    setData({
+      selecteddata_feature: selecteddata_feature,
+      selecteddata_purpose: selecteddata_purpose,
+      selectedButtons_feature: selectedButtons,
+      selectedButtons_purpose: selectedButtons_purpose,
+      selectedButtons_purposeName: selecteddata_purposeData,
+      matchingItemsFeature: matchingItemsFeature,
+      matchingItemsPurpose: matchingItemsPurpose,
+    });
+    const uniqueArrayWithId = uniqueArray.map((item) => {
+      const match_feature = matchingItemsFeature.find(
+        (feature) => feature.data === item
+      );
+      const match_purpose = matchingItemsPurpose.find(
+        (feature) => feature.data_purpose === item
+      );
+      return {
+        data: item,
+        id: match_feature ? match_feature.id : match_purpose.id,
+      };
+    });
+    // selectednum が 0 でない場合に画面遷移
+    navigation.replace("Root", {
+      screen: "HOME",
+      params: {
+        data: uniqueArray,
+        data_withId: uniqueArrayWithId,
+        matchingItems: matchingItemsFeature,
+      },
+    });
   };
 
   useEffect(() => {
@@ -204,6 +242,16 @@ const MatchingContainer = ({ data, containerHeight }) => {
 
     initializeData();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const initializeData = async () => {
+        await fetchFavoriteData();
+      };
+
+      initializeData();
+    }, [])
+  );
 
   const renderCard = (item) => (
     <>
@@ -221,6 +269,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
         kyuzitunedan={item.kyujitunedan}
         images={item.images}
         isfavorite={favoriteDataArray.includes(item.id)}
+        favoriteDataArray={favoriteDataArray}
         data={item}
         match_array={item.match_array}
         distance={item.distance}
@@ -373,6 +422,19 @@ const MatchingContainer = ({ data, containerHeight }) => {
                 <DefaultButton
                   style={{ width: "80%" }}
                   label="この条件で検索する"
+                  onPress={() =>
+                    handleSaveButtonPress(
+                      Array.from(
+                        new Set(
+                          conditionItem.idArray.flatMap((ArrayUnit) =>
+                            Array.isArray(ArrayUnit.data)
+                              ? ArrayUnit.data
+                              : [ArrayUnit.data]
+                          )
+                        )
+                      )
+                    )
+                  }
                 />
               </View>
             </View>

@@ -84,12 +84,12 @@ const HOME = ({ navigation, route }) => {
   const fetchFavoriteData = async () => {
     const storedData = await AsyncStorage.getItem("favoriteArray");
     const parsedData = storedData ? JSON.parse(storedData) : [];
+    console.log("parsedData============");
+    console.log(parsedData);
     if (parsedData.length >= 1) {
       if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
         setFavoriteDataArray(parsedData);
       }
-    } else {
-      setFavoriteDataArray([]);
     }
   };
 
@@ -220,7 +220,6 @@ const HOME = ({ navigation, route }) => {
       // ここにフォーカスが戻ってきた時に実行したい処理を記述
       // 例: 関数の呼び出し
       fetchFavoriteData();
-      console.log(favoriteDataArray);
     }, [])
   );
 
@@ -239,6 +238,7 @@ const HOME = ({ navigation, route }) => {
       kyuzitunedan={item.kyujitunedan}
       images={item.images}
       isfavorite={favoriteDataArray.includes(item.id)}
+      favoriteDataArray={favoriteDataArray}
       data={item}
       match_array={match_array}
       distance={item.distance}
@@ -503,10 +503,9 @@ const styles = StyleSheet.create({
   },
   flatlistContent: {
     // width: "100%",
-    justifyContent: "center",
-    alignContent: "center",
-    alignItems: "center",
-
+    // justifyContent: "center",
+    // alignContent: "center",
+    // alignItems: "center",
     // borderColor:"blue",
     // borderWidth:1,
   },

@@ -1,13 +1,21 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { IconButton } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View, Text, Pressable } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FontSize } from "../GlobalStyles";
 
-const FavoriteButton = (data) => {
-  const data_id = data.id;
-  const [favoriteDataArray, setFavoriteDataArray] = useState([]);
+const FavoriteButton = (params) => {
+  const data_id = params.id;
+  const [favoriteDataArray, setFavoriteDataArray] = useState(
+    params.favoriteDataArray
+  );
   const fetchFavorite = async () => {
+    const storedData = await AsyncStorage.getItem("favoriteArray");
+    if (storedData) {
+      JSON.parse(storedData);
+    }
+    const favoriteDataArray = storedData ? JSON.parse(storedData) : [];
     if (favoriteDataArray.includes(data_id)) {
       const updatedFavoriteDataArray = favoriteDataArray.filter(
         (id) => id !== data_id
@@ -27,42 +35,73 @@ const FavoriteButton = (data) => {
     }
   };
 
-  const buttonColor = favoriteDataArray.includes(data_id) ? "#FFC800" : "black";
-  const buttonStyle = favoriteDataArray.includes(data_id)
-    ? "star"
-    : "star-outline";
+  const selectedColor = favoriteDataArray.includes(data_id)
+    ? "#FFF"
+    : "#FFC800";
+  const selectedColor_reverse = favoriteDataArray.includes(data_id)
+    ? "#FFC800"
+    : "#FFF";
 
   useEffect(() => {
-    // コンポーネントがマウントされた後にお気に入りデータを読み込む
-    const fetchFavoriteData = async () => {
-      const storedData = await AsyncStorage.getItem("favoriteArray");
-      if (storedData) {
-        setFavoriteDataArray(JSON.parse(storedData));
-      }
-    };
-    fetchFavoriteData();
-  }, []);
+    setFavoriteDataArray(params.favoriteDataArray);
+  }, [params.favoriteDataArray]);
+
+  // useEffect(() => {
+  //   // コンポーネントがマウントされた後にお気に入りデータを読み込む
+  //   const fetchFavoriteData = async () => {
+  //     const storedData = await AsyncStorage.getItem("favoriteArray");
+  //     if (storedData) {
+  //       setFavoriteDataArray(JSON.parse(storedData));
+  //     }
+  //   };
+  //   fetchFavoriteData();
+  // }, []);
 
   return (
-    <IconButton
-      icon={buttonStyle}
-      iconColor={buttonColor}
-      selected="true"
-      size={35}
-      onPress={fetchFavorite}
-      style={[styles.starLayout]}
-    />
+    <>
+      <Pressable
+        style={[
+          styles.buttonContainer,
+          { backgroundColor: selectedColor_reverse },
+        ]}
+        onPress={fetchFavorite}
+      >
+        <IconButton
+          icon={"star"}
+          iconColor={selectedColor}
+          selected="true"
+          size={20}
+          style={[styles.starLayout]}
+        />
+        <Text style={[styles.favoriteText, { color: selectedColor }]}>
+          気になる
+        </Text>
+      </Pressable>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    height: 30,
+    width: 96,
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: "#FFC800",
+    alignItems: "center",
+    borderRadius: 2,
+    flexDirection: "row",
+  },
   starLayout: {
-    top: -10,
-    right: 0,
-    height: 42,
-    width: 42,
+    margin: 0,
+    height: 22,
+    width: 22,
     overflow: "hidden",
-    position: "absolute",
+  },
+  favoriteText: {
+    color: "#FFC800",
+    fontSize: FontSize.bodySub,
+    fontWeight: "500",
   },
 });
 

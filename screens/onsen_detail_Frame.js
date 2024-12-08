@@ -44,6 +44,7 @@ import { app } from "../firebaseconfig";
 import OnsenDetailBlock from "../components/OnsenDetailBlock";
 import { useFocusEffect } from "@react-navigation/native";
 import { GlobalData } from "../GlobalData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -59,6 +60,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [cardArrayWithImages, setCardArrayWithImages] = useState([]);
+  const [favoriteDataArray, setFavoriteDataArray] = useState([]);
   let onsen_data = "";
   let salesFlag;
 
@@ -235,9 +237,26 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       console.error("Error adding document: ", e);
     }
   };
+  // コンポーネントがマウントされた後にお気に入りデータを読み込む
+  const fetchFavoriteData = async () => {
+    const storedData = await AsyncStorage.getItem("favoriteArray");
+    const parsedData = storedData ? JSON.parse(storedData) : [];
+    if (parsedData.length >= 1) {
+      if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
+        setFavoriteDataArray(parsedData);
+      }
+    } else {
+      setFavoriteDataArray([]);
+    }
+  };
 
   useEffect(() => {
-    fetch_matchingdata();
+    const initializeData = async () => {
+      await fetchFavoriteData();
+      await fetch_matchingdata();
+    };
+
+    initializeData();
   }, []);
 
   useEffect(() => {
@@ -253,6 +272,7 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
       // ここにフォーカスが戻ってきた時に実行したい処理を記述
       // 例: 関数の呼び出し
       fetch_matchingdata();
+      fetchFavoriteData();
     }, [])
   );
 
@@ -273,7 +293,12 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
           <View style={[styles.view1, GlobalStyles.positionLeft]}>
             <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
           </View>
-          <FavoriteButton id={data_id} />
+          <View style={[styles.favoriteButtonContainer]}>
+            <FavoriteButton
+              id={data_id}
+              favoriteDataArray={favoriteDataArray}
+            />
+          </View>
           <FlatList
             data={imageData}
             renderItem={({ item }) => (
@@ -404,6 +429,13 @@ const styles = StyleSheet.create({
     left: 7,
     marginVertical: 4,
   },
+  // お気に入りボタンのスタイル
+  favoriteButtonContainer: {
+    position: "absolute",
+    top: -4,
+    right: -2,
+  },
+  // お気に入りボタンのスタイル終了
   // モーダル画像のスタイル
   modalBackground: {
     flex: 1,

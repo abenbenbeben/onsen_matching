@@ -48,11 +48,11 @@ const FormContainer3 = ({
     ...selectedButtons_purposeName,
   ];
   const uniqueArrayWithId = idMergedArray.map((item) => {
-    const match_feature = matchingItemsFeature.find((feature) =>
-      feature.data.includes(item)
+    const match_feature = matchingItemsFeature.find(
+      (feature) => feature.data === item
     );
-    const match_purpose = matchingItemsPurpose.find((feature) =>
-      feature.data_purpose.includes(item)
+    const match_purpose = matchingItemsPurpose.find(
+      (feature) => feature.data_purpose === item
     );
     return {
       data: item,
