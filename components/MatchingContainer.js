@@ -213,7 +213,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
     });
     const uniqueArrayWithId = uniqueArray.map((item) => {
       const match_feature = matchingItemsFeature.find(
-        (feature) => feature.data === item
+        (feature) => feature.data[0] === item
       );
       const match_purpose = matchingItemsPurpose.find(
         (feature) => feature.data_purpose === item
@@ -223,6 +223,7 @@ const MatchingContainer = ({ data, containerHeight }) => {
         id: match_feature ? match_feature.id : match_purpose.id,
       };
     });
+
     // selectednum が 0 でない場合に画面遷移
     navigation.replace("Root", {
       screen: "HOME",

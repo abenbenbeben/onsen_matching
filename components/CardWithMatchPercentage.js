@@ -162,26 +162,30 @@ const styles = StyleSheet.create({
     color: Color.labelColorLightPrimary,
   },
   matchContainer: {
-    backgroundColor: "#fdecef",
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    borderRadius: 4,
+    backgroundColor: "rgba(58, 106, 229, 0.1)", // 半透明の背景色
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 6,
     alignSelf: "flex-start",
     alignItems: "center",
-    marginVertical: 2,
-    marginRight: 8,
+    marginVertical: 4,
+    marginRight: 10,
+    borderWidth: 0.2,
+    borderColor: Color.colorMain, // 主色で縁取り
   },
   matchTextRatio: {
-    color: Color.colorRed,
-    fontSize: 25 / PixelRatio.getFontScale(),
+    color: Color.colorMain,
+    fontSize: FontSize.subTitle,
+    fontWeight: "600",
   },
   matchText: {
-    color: Color.colorRed,
-    fontSize: 11 / PixelRatio.getFontScale(),
+    color: "#6D8AEF", // 主色より明るい近似色
+    fontSize: FontSize.caption,
+    marginLeft: 4,
   },
   priceText: {
     color: Color.labelColorLightPrimary,
-    fontSize: FontSize.bod,
+    fontSize: FontSize.bodySub,
   },
   flexDirectionColumn: {
     flexDirection: "column",
