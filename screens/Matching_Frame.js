@@ -197,7 +197,11 @@ const Matching_Frame = ({ navigation }) => {
   return (
     <View style={styles.view}>
       <HeaderScreen headerText="好みの条件を選ぶ" />
-      <MatchingContainer data={transferData} containerHeight={100} />
+      <MatchingContainer
+        data={transferData}
+        containerHeight={100}
+        screen={"MatchingFrame"}
+      />
     </View>
   );
 };

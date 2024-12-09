@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, PixelRatio } from "react-native";
+import { Color } from "../GlobalStyles";
 
 export default function DefaultButton(props) {
   const { label, onPress, style, isPressable = false } = props;
@@ -19,7 +20,7 @@ export default function DefaultButton(props) {
 const styles = StyleSheet.create({
   button: {
     width: 200,
-    backgroundColor: "#007BFF", // 青色の背景
+    backgroundColor: Color.colorButton, // 青色の背景
     padding: 10,
     borderRadius: 5,
     alignItems: "center",

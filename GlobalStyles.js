@@ -26,6 +26,7 @@ export const FontSize = {
 export const Color = {
   colorMain: "#3A6AE5",
   colorDarkMain: "#3058B8",
+  colorButton: "#007BFF",
   labelColorDarkPrimary: "#fff",
   labelColorLightPrimary: "#000",
   colorWhitesmoke_100: "#f3f3f3",
