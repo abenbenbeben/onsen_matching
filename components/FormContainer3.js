@@ -49,7 +49,7 @@ const FormContainer3 = ({
   ];
   const uniqueArrayWithId = idMergedArray.map((item) => {
     const match_feature = matchingItemsFeature.find(
-      (feature) => feature.data === item
+      (feature) => feature.data[0] === item
     );
     const match_purpose = matchingItemsPurpose.find(
       (feature) => feature.data_purpose === item

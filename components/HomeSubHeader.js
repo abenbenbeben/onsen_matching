@@ -26,11 +26,14 @@ const HomeSubHeader = ({
   const maxLength = 10; //最大文字数
   const options = GlobalData.filterOption;
   const [isSortModalVisible, setSortModalVisible] = useState(false);
+  const [isChoiceSaveModalVisible, setChoiceSaveModalVisible] = useState(false);
   const [editConditionText, setEditConditionText] = useState("");
   const [isSaveConditionModalVisible, setSaveConditionModalVisible] =
     useState(false);
   const [conditionData, setConditionData] = useState([]);
   const [isExistConditionData, setIsExistConditionData] = useState(false);
+  const [pendingModal, setPendingModal] = useState(null);
+  const [pendingConditionId, setPendingConditionId] = useState(null);
 
   let idArray = [];
   if (match_array_with_id.length > 0) {
@@ -47,10 +50,28 @@ const HomeSubHeader = ({
     setSortModalVisible(!isSortModalVisible);
   };
   const controlSaveConditionModal = () => {
-    setSaveConditionModalVisible(!isSaveConditionModalVisible);
+    if (conditionData.length === 0) {
+      controlSaveConditionModalVisible();
+    } else {
+      controlChoiceModalVisible();
+    }
+  };
+  const controlChoiceModalVisible = () => {
+    setChoiceSaveModalVisible(!isChoiceSaveModalVisible);
+  };
+  const controlSaveConditionModalVisible = () => {
+    setSaveConditionModalVisible(true);
   };
   const closeSaveConditionModal = () => {
     setSaveConditionModalVisible(false);
+  };
+  const closeChoiceModalVisible = () => {
+    setChoiceSaveModalVisible(false);
+  };
+
+  const openSaveConditionModal = () => {
+    setChoiceSaveModalVisible(false);
+    setPendingModal("saveCondition");
   };
   const fetchData = async () => {
     // 既存のデータを取得
@@ -58,31 +79,39 @@ const HomeSubHeader = ({
     const parsedData = storedData ? JSON.parse(storedData) : [];
     setConditionData(parsedData);
 
+    console.log("conditionData");
+    console.log(conditionData);
+
     const exists = parsedData.some(
       (condition) =>
         JSON.stringify(condition.idArray) === JSON.stringify(idArray)
     );
     setIsExistConditionData(exists);
   };
-  const handleSaveCondition = async () => {
+  const handleSaveCondition = async (inputConditionId = null) => {
     const newCondition = { editConditionText, idArray, conditionId: uuid.v4() };
     try {
-      if (!isExistConditionData) {
-        // 存在しない場合、新しいデータを追加
-        conditionData.push(newCondition);
-        await AsyncStorage.setItem(
-          "conditionData",
-          JSON.stringify(conditionData)
-        );
-        await fetchData();
-        Alert.alert("保存が完了しました");
-        console.log("新しいデータが保存されました:", newCondition);
-      } else {
-        Alert.alert("この条件は既に保存されています");
-        console.log(
-          "同じidArrayがすでに存在しています。保存されませんでした。"
-        );
+      const updatedConditionData = conditionData.map((item) => {
+        if (item.conditionId === inputConditionId) {
+          return {
+            ...item,
+            editConditionText: editConditionText, // データを変更
+            idArray: idArray,
+          };
+        }
+        return item; // 該当しない場合はそのまま返す
+      });
+      // 存在しない場合、新しいデータを追加
+      if (inputConditionId === null) {
+        updatedConditionData.push(newCondition);
       }
+      await AsyncStorage.setItem(
+        "conditionData",
+        JSON.stringify(updatedConditionData)
+      );
+      await fetchData();
+      Alert.alert("保存が完了しました");
+      console.log("新しいデータが保存されました:", newCondition);
       closeSaveConditionModal();
     } catch (error) {
       Alert.alert("保存に失敗しました。", "再度保存してください");
@@ -130,10 +159,73 @@ const HomeSubHeader = ({
         </View>
       </Modal>
 
+      {/* 条件保存前の選択肢 */}
+
+      <Modal
+        isVisible={isChoiceSaveModalVisible}
+        transparent
+        onBackdropPress={closeChoiceModalVisible}
+        style={styles.bottomModal} // モーダルを下部に配置
+        onModalHide={() => {
+          if (pendingModal === "saveCondition") {
+            setSaveConditionModalVisible(true);
+            setPendingModal(null);
+          }
+        }}
+      >
+        <View style={styles.modalContent}>
+          {/* 並び替えの選択肢 */}
+          {conditionData.length < 3 && (
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => {
+                openSaveConditionModal();
+              }}
+            >
+              <Text style={styles.optionText}>新規保存</Text>
+            </TouchableOpacity>
+          )}
+          {conditionData.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.optionButton}
+              onPress={() => {
+                setEditConditionText(option.editConditionText);
+                setPendingConditionId(option.conditionId);
+                setChoiceSaveModalVisible(false);
+                setPendingModal("saveCondition");
+              }}
+            >
+              <Text style={styles.optionText}>
+                {option.editConditionText}に上書き
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View
+          style={[styles.modalContent, { marginTop: 20, marginBottom: 40 }]}
+        >
+          {/* キャンセルボタン */}
+          <TouchableOpacity
+            style={styles.optionButton}
+            onPress={closeChoiceModalVisible}
+          >
+            <Text style={[styles.optionCancelText]}>キャンセル</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
       <Modal
         isVisible={isSaveConditionModalVisible}
+        transparent
         onBackdropPress={closeSaveConditionModal}
         style={styles.centerModal} // モーダルを中央に配置
+        onModalHide={() => {
+          if (editConditionText) {
+            setEditConditionText("");
+            setPendingConditionId(null);
+          }
+        }}
       >
         <View style={styles.saveModalContent}>
           <TouchableOpacity
@@ -200,7 +292,7 @@ const HomeSubHeader = ({
           <View style={{ justifyContent: "center", alignItems: "center" }}>
             <DefaultButton
               label="保存"
-              onPress={handleSaveCondition}
+              onPress={() => handleSaveCondition(pendingConditionId)}
               isPressable={editConditionText.length === 0}
             />
           </View>
@@ -227,6 +319,7 @@ const HomeSubHeader = ({
             />
             {options
               .filter((option) => option.data === filter)
+
               .map((option, index) => (
                 <Text
                   key={option.data}
