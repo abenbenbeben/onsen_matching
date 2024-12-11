@@ -490,7 +490,12 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
           >
             <View style={styles.modalContent}>
               {/* ヘッダー */}
-              <ModalHeaderScreen headerText="保存した検索条件の設定" />
+              <ModalHeaderScreen
+                headerText="保存した検索条件の設定"
+                isConditionSetting={isConditionSetting}
+                setIsConditionSetting={setIsConditionSetting}
+                deleteTextLabel={"削除"}
+              />
 
               {/* コンテンツ */}
               <View style={styles.body}>

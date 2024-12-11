@@ -5,23 +5,33 @@ import { IconButton } from "react-native-paper";
 
 const ModalHeaderScreen = ({
   headerText = "スーパー銭湯マッチング",
-  headerHeight = 90,
-  onPress_cancelButton = () => {},
+  isConditionSetting,
+  setIsConditionSetting,
   deleteTextLabel = "削除",
 }) => {
+  const headerHeight = 90;
+  const onPress_cancelButton = () => {
+    setIsConditionSetting(false);
+  };
+
   return (
     <Animated.View style={[styles.wrapper, { height: headerHeight }]}>
-      <IconButton
-        icon={"window-close"}
-        iconColor={Color.labelColorDarkPrimary}
-        selected="true"
-        size={30}
-        style={[styles.closeButton]}
-      />
+      <Pressable
+        onPress={() => onPress_cancelButton()}
+        style={[styles.closeButtonWrapper]}
+      >
+        <IconButton
+          icon={"window-close"}
+          iconColor={Color.labelColorDarkPrimary}
+          selected="true"
+          size={30}
+          style={[styles.closeButton]}
+        />
+      </Pressable>
       <Text style={[styles.headerText]}>{headerText}</Text>
       <Pressable
         style={styles.deleteButton}
-        onPress={() => onPress_cancelButton()}
+        // onPress={() => onPress_cancelButton()}
       >
         <Text style={styles.deleteButtonText}>{deleteTextLabel}</Text>
       </Pressable>
@@ -34,6 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: Color.colorMain,
     alignItems: "center",
     flexDirection: "row",
+    zIndex: 10,
   },
   headerText: {
     width: "100%",
@@ -43,11 +54,15 @@ const styles = StyleSheet.create({
     color: Color.labelColorDarkPrimary,
     position: "absolute",
     bottom: 16, // 下から5の位置に配置
+    zIndex: 10,
+  },
+  closeButtonWrapper: {
+    bottom: 3,
+    left: 10,
+    position: "absolute",
+    zIndex: 20,
   },
   closeButton: {
-    position: "absolute",
-    bottom: 3, // 下から5の位置に配置
-    left: 10,
     margin: 0,
   },
   deleteButton: {
