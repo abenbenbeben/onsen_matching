@@ -10,7 +10,13 @@ import {
   TouchableOpacity,
   Pressable,
 } from "react-native";
-import { FontSize, FontFamily, Color, GlobalStyles } from "../GlobalStyles";
+import {
+  FontSize,
+  FontFamily,
+  Color,
+  GlobalStyles,
+  Border,
+} from "../GlobalStyles";
 import FormContainer3 from "../components/FormContainer3";
 import MatchingButtonContainer from "../components/MatchingButtonContainer";
 import { useNavigation } from "@react-navigation/native";
@@ -498,9 +504,50 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
               />
 
               {/* コンテンツ */}
-              <View style={styles.body}>
-                <Text>ここはモーダルの中身です。</Text>
-              </View>
+              <ScrollView style={styles.body}>
+                <FlatList
+                  scrollEnabled={false}
+                  data={saveConditionData}
+                  keyExtractor={(conditionItem, index) => index.toString()} // 変数名を変更
+                  renderItem={(
+                    { item: conditionItem } // 変数名を変更
+                  ) => (
+                    <View style={styles.card}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={styles.cardTitle}>
+                          {conditionItem.editConditionText}
+                        </Text>
+                        <IconButton
+                          icon={"pencil"}
+                          iconColor={Color.colorMain}
+                          selected="true"
+                          size={20}
+                          style={[styles.pencilButton]}
+                        />
+                      </View>
+                      <Text style={styles.conditionTitle}>施設条件</Text>
+                      <View style={styles.tagContainer}>
+                        {conditionItem.idArray.map((tag) => (
+                          <View
+                            style={[styles.tag, styles.matchTag]}
+                            key={tag.id}
+                          >
+                            <Text style={styles.tagText}>{tag.tagName}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+                />
+                <Text style={[styles.supplement]}>
+                  条件は最大3件まで保存できます
+                </Text>
+              </ScrollView>
             </View>
           </Modal>
         </>
@@ -631,9 +678,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Color.colorWhitesmoke_100,
     borderRadius: 10,
-    overflow: "hidden",
   },
   modalHeader: {
     flexDirection: "row",
@@ -644,6 +690,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
   },
   // モーダル終了
+
+  // カードスタイル
+  card: {
+    backgroundColor: Color.labelColorDarkPrimary,
+    borderRadius: Border.br_12xs,
+    padding: 16,
+    marginVertical: 8,
+    marginHorizontal: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 4, // for Android shadow
+  },
+  cardTitle: {
+    fontSize: FontSize.body,
+    fontWeight: "bold",
+    marginBottom: 16,
+  },
+  pencilButton: {
+    marginTop: -8,
+    marginHorizontal: 0,
+  },
+  conditionTitle: {
+    fontSize: FontSize.caption,
+    marginBottom: 8,
+    fontWeight: "500",
+    color: Color.colorMain,
+  },
+  // カードスタイル終了
+
+  supplement: {
+    width: "100%",
+    textAlign: "center",
+    fontSize: FontSize.caption,
+    color: Color.colorDarkGray,
+    fontWeight: "500",
+    marginVertical: 36,
+  },
 });
 
 export default MatchingContainer;
