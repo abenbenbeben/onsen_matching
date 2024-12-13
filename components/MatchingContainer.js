@@ -283,6 +283,18 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
     }
   };
 
+  const deleteCondition = async (inputConditionId = null) => {
+    const updatedConditionData = conditionData.filter(
+      (item) => item.conditionId !== inputConditionId
+    );
+    await AsyncStorage.setItem(
+      "conditionData",
+      JSON.stringify(updatedConditionData)
+    );
+    await fetchAsData();
+    Alert.alert("削除が完了しました");
+  };
+
   useEffect(() => {
     const initializeData = async () => {
       await fetchFavoriteData();
@@ -296,6 +308,7 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
     React.useCallback(() => {
       const initializeData = async () => {
         await fetchFavoriteData();
+        await fetch_matchingdata();
       };
 
       initializeData();
@@ -327,7 +340,7 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
     </>
   );
 
-  const renderRightActions = (progress, dragX) => {
+  const renderRightActions = (inputConditionId) => (progress, dragX) => {
     const translateX = dragX.interpolate({
       inputRange: [-100, 0],
       outputRange: [0, 100], // 左から右にスライドする動き
@@ -348,7 +361,14 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
         ]}
         useNativeDriver={false}
       >
-        <RectButton onPress={() => console.log("削除")}>
+        <RectButton
+          onPress={() => {
+            if (swipeableRef.current) {
+              swipeableRef.current.close(); // スライドを元に戻す
+            }
+            deleteCondition(inputConditionId);
+          }}
+        >
           <Text style={styles.deleteText}>削除</Text>
         </RectButton>
       </Animated.View>
@@ -578,7 +598,11 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
                     { item: conditionItem } // 変数名を変更
                   ) => (
                     <GestureHandlerRootView style={styles.container}>
-                      <Swipeable renderRightActions={renderRightActions}>
+                      <Swipeable
+                        renderRightActions={renderRightActions(
+                          conditionItem.conditionId
+                        )}
+                      >
                         <View style={styles.card}>
                           <View
                             style={{
