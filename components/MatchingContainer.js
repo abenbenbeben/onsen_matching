@@ -9,6 +9,8 @@ import {
   Alert,
   TouchableOpacity,
   Pressable,
+  TextInput,
+  Animated,
 } from "react-native";
 import {
   FontSize,
@@ -32,6 +34,12 @@ import DefaultButton from "./DefaultButton";
 import { DataContext } from "../DataContext";
 import { IconButton } from "react-native-paper";
 import Modal from "react-native-modal";
+import {
+  RectButton,
+  Swipeable,
+  LongPressGestureHandler,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
 const MatchingContainer = ({ data, containerHeight, screen }) => {
   const navigation = useNavigation();
@@ -61,6 +69,12 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
   const [activeTab, setActiveTab] = useState(0); // 現在のタブ
   const { setData } = useContext(DataContext);
   const [isConditionSetting, setIsConditionSetting] = useState(false);
+  const [isSaveConditionModalVisible, setSaveConditionModalVisible] =
+    useState(false);
+  const [editConditionText, setEditConditionText] = useState("");
+  const [pendingConditionId, setPendingConditionId] = useState(null);
+  const swipeableRef = useRef(null);
+  const maxLength = 10;
 
   // タブをタップした際の処理
   const handleTabPress = (index) => {
@@ -245,6 +259,29 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
       },
     });
   };
+  const handleSaveCondition = async (inputConditionId = null) => {
+    try {
+      const updatedConditionData = conditionData.map((item) => {
+        if (item.conditionId === inputConditionId) {
+          return {
+            ...item,
+            editConditionText: editConditionText, // データを変更
+          };
+        }
+        return item; // 該当しない場合はそのまま返す
+      });
+      await AsyncStorage.setItem(
+        "conditionData",
+        JSON.stringify(updatedConditionData)
+      );
+      await fetchAsData();
+      Alert.alert("保存が完了しました");
+      setSaveConditionModalVisible(false);
+    } catch (error) {
+      Alert.alert("保存に失敗しました。", "再度保存してください");
+      console.error("データの保存中にエラーが発生しました:", error);
+    }
+  };
 
   useEffect(() => {
     const initializeData = async () => {
@@ -289,6 +326,34 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
       />
     </>
   );
+
+  const renderRightActions = (progress, dragX) => {
+    const translateX = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [0, 100], // 左から右にスライドする動き
+      extrapolate: "clamp",
+    });
+
+    const opacity = dragX.interpolate({
+      inputRange: [-100, -50, 0],
+      outputRange: [1, 0.5, 0],
+      extrapolate: "clamp",
+    });
+
+    return (
+      <Animated.View
+        style={[
+          styles.deleteButton,
+          { transform: [{ translateX }], opacity }, // translateXでスライド
+        ]}
+        useNativeDriver={false}
+      >
+        <RectButton onPress={() => console.log("削除")}>
+          <Text style={styles.deleteText}>削除</Text>
+        </RectButton>
+      </Animated.View>
+    );
+  };
 
   const tabs = [
     {
@@ -512,42 +577,152 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
                   renderItem={(
                     { item: conditionItem } // 変数名を変更
                   ) => (
-                    <View style={styles.card}>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Text style={styles.cardTitle}>
-                          {conditionItem.editConditionText}
-                        </Text>
-                        <IconButton
-                          icon={"pencil"}
-                          iconColor={Color.colorMain}
-                          selected="true"
-                          size={20}
-                          style={[styles.pencilButton]}
-                        />
-                      </View>
-                      <Text style={styles.conditionTitle}>施設条件</Text>
-                      <View style={styles.tagContainer}>
-                        {conditionItem.idArray.map((tag) => (
+                    <GestureHandlerRootView style={styles.container}>
+                      <Swipeable renderRightActions={renderRightActions}>
+                        <View style={styles.card}>
                           <View
-                            style={[styles.tag, styles.matchTag]}
-                            key={tag.id}
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                            }}
                           >
-                            <Text style={styles.tagText}>{tag.tagName}</Text>
+                            <Text style={styles.cardTitle}>
+                              {conditionItem.editConditionText}
+                            </Text>
+                            <IconButton
+                              icon={"pencil"}
+                              iconColor={Color.colorMain}
+                              selected="true"
+                              size={20}
+                              style={[styles.pencilButton]}
+                              onPress={() => {
+                                setEditConditionText(
+                                  conditionItem.editConditionText
+                                );
+                                setPendingConditionId(
+                                  conditionItem.conditionId
+                                );
+                                setSaveConditionModalVisible(true);
+                              }}
+                            />
                           </View>
-                        ))}
-                      </View>
-                    </View>
+                          <Text style={styles.conditionTitle}>施設条件</Text>
+                          <View style={styles.tagContainer}>
+                            {conditionItem.idArray.map((tag) => (
+                              <View
+                                style={[styles.tag, styles.matchTag]}
+                                key={tag.id}
+                              >
+                                <Text style={styles.tagText}>
+                                  {tag.tagName}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </Swipeable>
+                    </GestureHandlerRootView>
                   )}
                 />
                 <Text style={[styles.supplement]}>
                   条件は最大3件まで保存できます
                 </Text>
               </ScrollView>
+
+              <Modal
+                isVisible={isSaveConditionModalVisible}
+                transparent
+                onBackdropPress={() => {
+                  setSaveConditionModalVisible(false);
+                }}
+                style={styles.centerModal} // モーダルを中央に配置
+                onModalHide={() => {
+                  if (editConditionText) {
+                    setEditConditionText("");
+                  }
+                  setPendingConditionId(null);
+                }}
+              >
+                <View style={styles.saveModalContent}>
+                  <TouchableOpacity
+                    style={[
+                      styles.saveModalCancelButton,
+                      GlobalStyles.positionCenter,
+                    ]}
+                    onPress={() => {
+                      setSaveConditionModalVisible(false);
+                    }}
+                  >
+                    <IconButton
+                      icon="window-close"
+                      iconColor={Color.colorDarkGray}
+                      selected="true"
+                      size={26}
+                      style={[
+                        {
+                          marginLeft: -6,
+                          marginRight: 0,
+                          marginBottom: -8,
+                          marginTop: -8,
+                        },
+                      ]}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.saveModalTitleContainer}>
+                    <Text style={styles.saveModalTitle}>
+                      この検索条件を保存します
+                    </Text>
+                  </View>
+
+                  <View style={[styles.editConditionNameContainer]}>
+                    <IconButton
+                      icon="pencil"
+                      iconColor={Color.colorDarkGray}
+                      selected="true"
+                      size={20}
+                      style={[
+                        {
+                          marginLeft: -6,
+                          marginRight: 0,
+                          marginBottom: -8,
+                          marginTop: -8,
+                        },
+                      ]}
+                    />
+                    <Text style={styles.editConditionNameTitle}>
+                      検索条件に名前をつける
+                    </Text>
+                  </View>
+                  <View style={styles.editConditionNameInputContainer}>
+                    <View style={styles.editConditionNameInput}>
+                      <TextInput
+                        style={styles.textInput}
+                        value={editConditionText}
+                        onChangeText={(value) => setEditConditionText(value)}
+                        placeholder="文字を入力してください"
+                        maxLength={maxLength}
+                      />
+                    </View>
+                    <Text style={styles.charCount}>
+                      {editConditionText.length} / {maxLength}
+                    </Text>
+                  </View>
+                  {/* <View style={styles.editConditionNameContainer}>
+                    <Text style={styles.editConditionNameTitle}>
+                      検索条件にアイコンを設定
+                    </Text>
+                  </View> */}
+                  <View
+                    style={{ justifyContent: "center", alignItems: "center" }}
+                  >
+                    <DefaultButton
+                      label="保存"
+                      onPress={() => handleSaveCondition(pendingConditionId)}
+                      isPressable={editConditionText.length === 0}
+                    />
+                  </View>
+                </View>
+              </Modal>
             </View>
           </Modal>
         </>
@@ -728,6 +903,83 @@ const styles = StyleSheet.create({
     color: Color.colorDarkGray,
     fontWeight: "500",
     marginVertical: 36,
+  },
+
+  // 条件保存モーダルのスタイル
+  centerModal: {
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 0,
+  },
+  saveModalCancelButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    zIndex: 10,
+  },
+  saveModalContent: {
+    backgroundColor: Color.colorWhitesmoke_100,
+    borderRadius: 8,
+    width: "90%",
+    // alignItems: "center",
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+  },
+
+  saveModalTitleContainer: {
+    paddingVertical: 20,
+    width: "100%",
+  },
+  saveModalTitle: {
+    marginVertical: 8,
+    fontSize: FontSize.body,
+  },
+  editConditionNameContainer: {
+    textAlign: "left",
+    flexDirection: "row",
+  },
+  editConditionNameTitle: {
+    fontSize: FontSize.bodySub,
+  },
+  editConditionNameInputContainer: {
+    marginVertical: 12,
+    width: "100%",
+  },
+  editConditionNameInput: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: "#fff",
+    // position: "relative",
+  },
+  textInput: {
+    fontSize: 16,
+    color: "#333",
+    paddingVertical: 5,
+  },
+  charCount: {
+    alignSelf: "flex-end",
+    marginVertical: 4,
+    fontSize: FontSize.caption,
+    color: "#888",
+  },
+
+  // スワイプすると出現する要素
+  deleteButton: {
+    backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 100,
+    marginVertical: 8,
+  },
+  deleteText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
