@@ -31,6 +31,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import HeaderScreen from "../components/HeaderScreen";
 import { GlobalData } from "../GlobalData";
+import { GlobalStyles } from "../GlobalStyles";
+import { IconButton } from "react-native-paper";
 
 const db = getFirestore(app);
 const storage = getStorage(app);
@@ -169,7 +171,7 @@ const FavoriteFrame = () => {
       kyuzitunedan={item.kyuzitunedan}
       images={item.image}
       data={item}
-      // isfavorite = {favoriteDataArray.includes(item.id)}
+      isfavorite={true}
     />
   );
 
@@ -185,36 +187,64 @@ const FavoriteFrame = () => {
 
   return (
     <View style={styles.view}>
-      <HeaderScreen headerText="お気に入り" />
-      <View style={styles.favoriteTextContainer}>
-        <Text style={styles.favoriteText}>お気に入り</Text>
-      </View>
-      <ScrollView
-        style={styles.wrapper}
-        showsVerticalScrollIndicator={true}
-        showsHorizontalScrollIndicator={true}
-        contentContainerStyle={styles.frameScrollViewContent}
-      >
-        <FlatList
-          data={favoriteData}
-          renderItem={({ item }) => renderCard(item)}
-          keyExtractor={(item) => item.onsen_name}
-          style={styles.flatlist}
-          contentContainerStyle={styles.flatlistContent}
-          scrollEnabled={false}
-        />
-        {/* 画面下部に再マッチングボタンを追加 */}
-
-        <TouchableOpacity
-          style={styles.PanelContainer}
-          onPress={() => handlePress()}
+      <HeaderScreen headerText="気になる！リスト" />
+      {favoriteData.length > 0 && (
+        <ScrollView
+          style={styles.wrapper}
+          showsVerticalScrollIndicator={true}
+          showsHorizontalScrollIndicator={true}
+          contentContainerStyle={styles.frameScrollViewContent}
         >
-          <Image
-            source={require("../assets/FavoriteScreenPanel.png")}
-            style={{ width: 342, height: 121, borderRadius: 20 }}
+          <FlatList
+            data={favoriteData}
+            renderItem={({ item }) => renderCard(item)}
+            keyExtractor={(item) => item.onsen_name}
+            style={styles.flatlist}
+            contentContainerStyle={styles.flatlistContent}
+            scrollEnabled={false}
           />
-        </TouchableOpacity>
-      </ScrollView>
+          {/* 画面下部に再マッチングボタンを追加 */}
+
+          <TouchableOpacity
+            style={styles.PanelContainer}
+            onPress={() => handlePress()}
+          >
+            <Image
+              source={require("../assets/FavoriteScreenPanel.png")}
+              style={{ width: 342, height: 121, borderRadius: 20 }}
+            />
+          </TouchableOpacity>
+        </ScrollView>
+      )}
+      {favoriteData.length === 0 && (
+        <View style={[{ flex: 1 }, GlobalStyles.positionCenter]}>
+          <IconButton
+            icon={"star-plus-outline"}
+            iconColor={Color.colorFavoriteButton}
+            selected="false"
+            size={100}
+            style={[
+              {
+                backgroundColor: Color.labelColorDarkPrimary,
+                width: 150,
+                height: 150,
+                borderRadius: 100,
+              },
+            ]}
+          />
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: FontSize.bodySub,
+              marginVertical: 20,
+              textAlign: "center",
+              lineHeight: 30,
+            }}
+          >
+            {`あとで詳しく見たい施設は\n気になる！リストに登録しましょう。`}
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -224,7 +254,7 @@ const styles = StyleSheet.create({
     // alignItems: "center",
   },
   flatlist: {
-    width: "100%",
+    marginHorizontal: 8,
   },
   flatlistContent: {
     // alignItems: "center",
@@ -275,8 +305,8 @@ const styles = StyleSheet.create({
 
   // 再マッチングしよう！のスタイル
   PanelContainer: {
-    marginTop: 50,
-    width: "80%",
+    marginVertical: 50,
+    width: "100%",
     alignItems: "center",
     borderRadius: 20,
     shadowColor: "#000",

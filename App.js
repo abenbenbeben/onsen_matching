@@ -126,7 +126,7 @@ function HomeTabs({ route, navigation }) {
         }}
       />
       <Tab.Screen
-        name="お気に入り"
+        name="気になる"
         component={FavoriteFrame}
         options={{
           headerShown: false,

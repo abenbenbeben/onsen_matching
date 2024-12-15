@@ -340,7 +340,7 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
     </>
   );
 
-  const renderRightActions = (inputConditionId) => (progress, dragX) => {
+  const renderRightActions = (conditionItem) => (progress, dragX) => {
     const translateX = dragX.interpolate({
       inputRange: [-100, 0],
       outputRange: [0, 100], // 左から右にスライドする動き
@@ -353,20 +353,43 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
       extrapolate: "clamp",
     });
 
+    // 確認ダイアログを表示する関数
+    const showConfirmationDialog = () => {
+      Alert.alert(
+        "確認", // ダイアログのタイトル
+        `${conditionItem.editConditionText}を削除しますか？`, // ダイアログのメッセージ
+        [
+          {
+            text: "キャンセル",
+            style: "cancel", // キャンセルボタンのスタイル
+          },
+          {
+            text: "削除",
+            style: "destructive", // 削除ボタンのスタイル
+            onPress: () => {
+              // 削除処理を実行
+              deleteCondition(conditionItem.conditionId);
+            },
+          },
+        ],
+        { cancelable: true } // ダイアログ外クリックで閉じる
+      );
+    };
+
     return (
       <Animated.View
         style={[
           styles.deleteButton,
           { transform: [{ translateX }], opacity }, // translateXでスライド
         ]}
-        useNativeDriver={false}
       >
         <RectButton
+          style={[{ flex: 1, width: 100 }, GlobalStyles.positionCenter]}
           onPress={() => {
             if (swipeableRef.current) {
               swipeableRef.current.close(); // スライドを元に戻す
             }
-            deleteCondition(inputConditionId);
+            showConfirmationDialog(); // 確認ダイアログを表示
           }}
         >
           <Text style={styles.deleteText}>削除</Text>
@@ -453,126 +476,171 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
       title: "保存条件",
       content: (
         <>
-          <ScrollView>
-            <FlatList
-              scrollEnabled={false}
-              data={saveConditionData}
-              keyExtractor={(conditionItem, index) => index.toString()} // 変数名を変更
-              renderItem={(
-                { item: conditionItem } // 変数名を変更
-              ) => (
-                <View style={styles.listItem}>
-                  <View style={{ marginVertical: 4 }}>
-                    <Text style={styles.saveConditionCardTitle}>
-                      {conditionItem.editConditionText
-                        ? `${conditionItem.editConditionText}の周辺施設`
-                        : "未設定"}
-                      {/* タイトルが空の場合は "未設定" を表示 */}
-                    </Text>
-                    <View style={styles.tagContainer}>
-                      {conditionItem.idArray.map((tag) => (
-                        <View
-                          style={[styles.tag, styles.matchTag]}
-                          key={tag.id}
-                        >
-                          <Text style={styles.tagText}>{tag.tagName}</Text>
-                        </View>
-                      ))}
+          {saveConditionData.length > 0 && (
+            <ScrollView>
+              <FlatList
+                scrollEnabled={false}
+                data={saveConditionData}
+                keyExtractor={(conditionItem, index) => index.toString()} // 変数名を変更
+                renderItem={(
+                  { item: conditionItem } // 変数名を変更
+                ) => (
+                  <View style={styles.listItem}>
+                    <View style={{ marginVertical: 4 }}>
+                      <Text style={styles.saveConditionCardTitle}>
+                        {conditionItem.editConditionText
+                          ? `${conditionItem.editConditionText}の周辺施設`
+                          : "未設定"}
+                        {/* タイトルが空の場合は "未設定" を表示 */}
+                      </Text>
+                      <View style={styles.tagContainer}>
+                        {conditionItem.idArray.map((tag) => (
+                          <View
+                            style={[styles.tag, styles.matchTag]}
+                            key={tag.id}
+                          >
+                            <Text style={styles.tagText}>{tag.tagName}</Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
-                  </View>
-                  <FlatList
-                    data={matchingItems
-                      // 1. `conditionId` が一致し、`score` が50以上のデータを持つ項目を抽出
-                      .filter((matchingItemsUnit) =>
-                        matchingItemsUnit.scoreData.some(
-                          (scoreDataUnit) =>
-                            scoreDataUnit.conditionId ===
-                              conditionItem.conditionId &&
-                            scoreDataUnit.score > 50
-                        )
-                      )
-                      // 2. 距離でソート
-                      .sort((a, b) => a.distance - b.distance)
-                      // 3. 上位3件を取得
-                      .slice(0, 3)}
-                    renderItem={({ item: matchingItem }) => {
-                      matchingItem.score = matchingItem.scoreData.find(
-                        (findItem) =>
-                          findItem.conditionId === conditionItem.conditionId
-                      )?.score;
-                      matchingItem.match_array = Array.from(
-                        new Set(
-                          conditionItem.idArray.flatMap((ArrayUnit) =>
-                            Array.isArray(ArrayUnit.data)
-                              ? ArrayUnit.data
-                              : [ArrayUnit.data]
+                    <FlatList
+                      data={matchingItems
+                        // 1. `conditionId` が一致し、`score` が50以上のデータを持つ項目を抽出
+                        .filter((matchingItemsUnit) =>
+                          matchingItemsUnit.scoreData.some(
+                            (scoreDataUnit) =>
+                              scoreDataUnit.conditionId ===
+                                conditionItem.conditionId &&
+                              scoreDataUnit.score > 50
                           )
                         )
-                      );
-                      return renderCard(matchingItem); // renderCard関数を使用
-                    }}
-                    keyExtractor={(matchingItem) => matchingItem.onsenName}
-                    scrollEnabled={false}
-                  />
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginTop: 16,
-                      marginBottom: 10,
-                    }}
-                  >
-                    <DefaultButton
-                      style={{ width: "80%" }}
-                      label="この条件で検索する"
-                      onPress={() =>
-                        handleSaveButtonPress(
-                          Array.from(
-                            new Set(
-                              conditionItem.idArray.flatMap((ArrayUnit) =>
-                                Array.isArray(ArrayUnit.data)
-                                  ? ArrayUnit.data
-                                  : [ArrayUnit.data]
+                        // 2. 距離でソート
+                        .sort((a, b) => a.distance - b.distance)
+                        // 3. 上位3件を取得
+                        .slice(0, 3)}
+                      renderItem={({ item: matchingItem }) => {
+                        matchingItem.score = matchingItem.scoreData.find(
+                          (findItem) =>
+                            findItem.conditionId === conditionItem.conditionId
+                        )?.score;
+                        matchingItem.match_array = Array.from(
+                          new Set(
+                            conditionItem.idArray.flatMap((ArrayUnit) =>
+                              Array.isArray(ArrayUnit.data)
+                                ? ArrayUnit.data
+                                : [ArrayUnit.data]
+                            )
+                          )
+                        );
+                        return renderCard(matchingItem); // renderCard関数を使用
+                      }}
+                      keyExtractor={(matchingItem) => matchingItem.onsenName}
+                      scrollEnabled={false}
+                    />
+                    <View
+                      style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: 16,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <DefaultButton
+                        style={{ width: "80%" }}
+                        label="この条件で検索する"
+                        onPress={() =>
+                          handleSaveButtonPress(
+                            Array.from(
+                              new Set(
+                                conditionItem.idArray.flatMap((ArrayUnit) =>
+                                  Array.isArray(ArrayUnit.data)
+                                    ? ArrayUnit.data
+                                    : [ArrayUnit.data]
+                                )
                               )
                             )
                           )
-                        )
-                      }
-                    />
+                        }
+                      />
+                    </View>
                   </View>
-                </View>
-              )}
-              contentContainerStyle={styles.saveConditionCardContainer}
-            />
-            <Pressable
-              style={[
-                styles.bottomButton,
-                GlobalStyles.positionCenter,
-                { flexDirection: "row" },
-              ]}
-              onPress={() => {
-                setIsConditionSetting(true);
-              }}
-            >
-              <IconButton
-                icon={"cog"}
-                iconColor={Color.colorButton}
-                selected="true"
-                size={20}
-                // style={[styles.starLayout]}
+                )}
+                contentContainerStyle={styles.saveConditionCardContainer}
               />
-              <Text style={styles.bottomButtonText}>検索条件保存の設定</Text>
-            </Pressable>
-            {screen === "MatchingFrame" && (
-              <View
-                style={{
-                  height: 40,
-                  backgroundColor: Color.colorWhitesmoke_100,
+              <Pressable
+                style={[
+                  styles.bottomButton,
+                  GlobalStyles.positionCenter,
+                  { flexDirection: "row" },
+                ]}
+                onPress={() => {
+                  setIsConditionSetting(true);
                 }}
-              ></View>
-            )}
-          </ScrollView>
+              >
+                <IconButton
+                  icon={"cog"}
+                  iconColor={Color.colorButton}
+                  selected="true"
+                  size={20}
+                  // style={[styles.starLayout]}
+                />
+                <Text style={styles.bottomButtonText}>検索条件保存の設定</Text>
+              </Pressable>
+              {screen === "MatchingFrame" && (
+                <View
+                  style={{
+                    height: 40,
+                    backgroundColor: Color.colorWhitesmoke_100,
+                  }}
+                ></View>
+              )}
+            </ScrollView>
+          )}
+          {saveConditionData.length === 0 && (
+            <View style={[{ flex: 1 }, GlobalStyles.positionCenter]}>
+              <IconButton
+                icon={"magnify-plus-outline"}
+                iconColor={Color.colorButton}
+                selected="false"
+                size={100}
+                style={[
+                  {
+                    backgroundColor: Color.labelColorDarkPrimary,
+                    width: 150,
+                    height: 150,
+                    borderRadius: 100,
+                  },
+                ]}
+              />
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: FontSize.bodySub,
+                  marginVertical: 20,
+                }}
+              >
+                検索条件が保存されていません。
+              </Text>
+              <Text style={{ fontSize: FontSize.caption }}>
+                保存した条件の周辺施設がここに表示されます。
+              </Text>
+              <View style={[{ marginVertical: 40 }]}>
+                <DefaultButton
+                  style={{
+                    width: "90%",
+                    paddingHorizontal: 40,
+                    paddingVertical: 16,
+                  }}
+                  label="条件を指定してスーパー銭湯を探す"
+                  onPress={() => {
+                    handleTabPress(0);
+                  }}
+                />
+              </View>
+            </View>
+          )}
 
           <Modal
             isVisible={isConditionSetting}
@@ -599,9 +667,7 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
                   ) => (
                     <GestureHandlerRootView style={styles.container}>
                       <Swipeable
-                        renderRightActions={renderRightActions(
-                          conditionItem.conditionId
-                        )}
+                        renderRightActions={renderRightActions(conditionItem)}
                       >
                         <View style={styles.card}>
                           <View

@@ -432,8 +432,8 @@ const styles = StyleSheet.create({
   // お気に入りボタンのスタイル
   favoriteButtonContainer: {
     position: "absolute",
-    top: -4,
-    right: -2,
+    top: 8,
+    right: 8,
   },
   // お気に入りボタンのスタイル終了
   // モーダル画像のスタイル
@@ -469,7 +469,6 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.interMedium,
     fontSize: 20 / PixelRatio.getFontScale(),
     fontWeight: "600",
-    letterSpacing: 4,
     color: Color.labelColorLightPrimary,
   },
   childLayout: {

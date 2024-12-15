@@ -29,12 +29,12 @@ const ModalHeaderScreen = ({
         />
       </Pressable>
       <Text style={[styles.headerText]}>{headerText}</Text>
-      <Pressable
+      {/* <Pressable
         style={styles.deleteButton}
         // onPress={() => onPress_cancelButton()}
       >
         <Text style={styles.deleteButtonText}>{deleteTextLabel}</Text>
-      </Pressable>
+      </Pressable> */}
     </Animated.View>
   );
 };

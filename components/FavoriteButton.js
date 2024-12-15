@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { IconButton } from "react-native-paper";
 import { StyleSheet, View, Text, Pressable } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { FontSize } from "../GlobalStyles";
+import { FontSize, Color } from "../GlobalStyles";
 
 const FavoriteButton = (params) => {
   const data_id = params.id;
@@ -37,14 +37,18 @@ const FavoriteButton = (params) => {
 
   const selectedColor = favoriteDataArray.includes(data_id)
     ? "#FFF"
-    : "#FFC800";
+    : Color.colorFavoriteButton;
   const selectedColor_reverse = favoriteDataArray.includes(data_id)
-    ? "#FFC800"
-    : "#FFF";
+    ? Color.colorFavoriteButton
+    : "rgba(0, 0, 0, 0)";
 
   useEffect(() => {
-    setFavoriteDataArray(params.favoriteDataArray);
-  }, [params.favoriteDataArray]);
+    const initializeData = async () => {
+      const storedData = await AsyncStorage.getItem("favoriteArray");
+      setFavoriteDataArray(storedData);
+    };
+    initializeData();
+  }, []);
 
   // useEffect(() => {
   //   // コンポーネントがマウントされた後にお気に入りデータを読み込む
