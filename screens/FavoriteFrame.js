@@ -75,13 +75,31 @@ const FavoriteFrame = () => {
 
       // 新しいお気に入りデータをFirestoreから取得
       const newFavoritesData = [];
-      for (const id of newFavoriteIds) {
-        const docSnap = await getDoc(doc(db, GlobalData.firebaseOnsenData, id));
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          data.id = docSnap.id;
-          data.image = await fetchURL(data.images[0]);
-          newFavoritesData.push(data);
+      if (newFavoriteIds.length > 0) {
+        const matchingDataArray_cache = await AsyncStorage.getItem(
+          "matchingResultDataArray"
+        );
+        const matchingResultDataArray = JSON.parse(matchingDataArray_cache);
+
+        for (const id of newFavoriteIds) {
+          // const docSnap = await getDoc(
+          //   doc(db, GlobalData.firebaseOnsenData, id)
+          // );
+          console.log(newFavoriteIds);
+          console.log(id);
+          // console.log(matchingResultDataArray);
+          const docSnap = matchingResultDataArray.find(
+            (item) => item.id === id
+          );
+          console.log("docSnapだよ");
+          console.log(docSnap);
+
+          if (docSnap) {
+            const data = docSnap;
+            // data.id = docSnap.id;
+            data.image = await fetchURL(data.images[0]);
+            newFavoritesData.push(data);
+          }
         }
       }
 

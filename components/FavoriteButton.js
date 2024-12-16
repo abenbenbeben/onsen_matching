@@ -50,6 +50,10 @@ const FavoriteButton = (params) => {
     initializeData();
   }, []);
 
+  useEffect(() => {
+    setFavoriteDataArray(params.favoriteDataArray);
+  }, [params.favoriteDataArray]);
+
   // useEffect(() => {
   //   // コンポーネントがマウントされた後にお気に入りデータを読み込む
   //   const fetchFavoriteData = async () => {
