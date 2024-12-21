@@ -33,17 +33,11 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import Constants from "expo-constants";
-import * as Application from "expo-application";
-import { useFocusEffect } from "@react-navigation/native";
-
 import { UIManager } from "react-native";
 
 const db = getFirestore(app);
 
 const FirstFrame = () => {
-  console.log("*************************");
-
-  console.log(UIManager.getViewManagerConfig("LEGACY_RNCViewPager"));
   const navigation = useNavigation();
   const [showTermsModal, setShowTermsModal] = useState(false); // モーダルを表示するための状態
   const [hasAgreed, setHasAgreed] = useState(false);

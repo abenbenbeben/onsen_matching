@@ -45,8 +45,6 @@ const storage = getStorage(app);
 const HOME = ({ navigation, route }) => {
   const match_array = route.params.data.flat();
   const match_array_with_id = route.params.data_withId;
-  console.log(match_array);
-  console.log(match_array_with_id);
   const [matchingItems, setMatchingItems] = useState([]);
   const [favoriteDataArray, setFavoriteDataArray] = useState([]);
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -64,12 +62,13 @@ const HOME = ({ navigation, route }) => {
       if (!point2) {
         check_settings();
         //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
+        //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
+        //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
+        //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
+        //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       }
-      //point2 = { latitude:35.86542717384397, longitude: 139.51970407189944  };//さいたま市
-      //point2 = { latitude:35.89189813203356 , longitude: 139.85816944009025 };
-      //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
-      //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
+
       setLoadingMessage("マッチング中");
       const matchingDataArray = await fetchMatchingData(point2, match_array);
       setMatchingItems(matchingDataArray);
@@ -84,8 +83,6 @@ const HOME = ({ navigation, route }) => {
   const fetchFavoriteData = async () => {
     const storedData = await AsyncStorage.getItem("favoriteArray");
     const parsedData = storedData ? JSON.parse(storedData) : [];
-    console.log("parsedData============");
-    console.log(parsedData);
     if (parsedData.length >= 1) {
       if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
         setFavoriteDataArray(parsedData);

@@ -41,10 +41,12 @@ const FavoriteFrame = () => {
   const navigation = useNavigation();
   const [favoriteData, setFavoriteData] = useState([]);
   const [loading, setLoading] = useState(true); // ローディング状態を管理
+  const [favoriteDataArray, setFavoriteDataArray] = useState([]);
 
   // コンポーネントがマウントされた後にお気に入りデータを読み込む
   const fetchFavoriteData = async () => {
     const currentFavoritesString = await AsyncStorage.getItem("favoriteArray");
+    setFavoriteDataArray(currentFavoritesString);
     const beforeFavoritesString = await AsyncStorage.getItem(
       "favoriteArrayBefore"
     );
@@ -82,17 +84,9 @@ const FavoriteFrame = () => {
         const matchingResultDataArray = JSON.parse(matchingDataArray_cache);
 
         for (const id of newFavoriteIds) {
-          // const docSnap = await getDoc(
-          //   doc(db, GlobalData.firebaseOnsenData, id)
-          // );
-          console.log(newFavoriteIds);
-          console.log(id);
-          // console.log(matchingResultDataArray);
           const docSnap = matchingResultDataArray.find(
             (item) => item.id === id
           );
-          console.log("docSnapだよ");
-          console.log(docSnap);
 
           if (docSnap) {
             const data = docSnap;
@@ -171,10 +165,6 @@ const FavoriteFrame = () => {
     }, [])
   );
 
-  useEffect(() => {
-    console.log(favoriteData);
-  }, [favoriteData]);
-
   const renderCard = (item) => (
     <CardWithMatchPercentage
       onsenName={item.onsen_name}
@@ -190,6 +180,7 @@ const FavoriteFrame = () => {
       images={item.image}
       data={item}
       isfavorite={true}
+      favoriteDataArray={favoriteDataArray}
     />
   );
 

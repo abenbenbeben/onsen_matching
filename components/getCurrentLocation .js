@@ -6,6 +6,11 @@ export const getCachedOrNewLocation = async (getCurrentLocation) => {
     const timeout = 5000;
 
     try {
+      // 位置情報の権限をリクエスト
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        throw new Error("Location permission not granted");
+      }
       // 最初に現在の位置情報を取得を試みる
       const currentPosition = await Promise.race([
         Location.getCurrentPositionAsync(),
@@ -39,9 +44,6 @@ export const getCachedOrNewLocation = async (getCurrentLocation) => {
   }
 
   let point2 = null;
-
-  // 現在地取得
-  point2 = await getCurrentLocation();
 
   try {
     const cachedLocation = await AsyncStorage.getItem("currentLocation");

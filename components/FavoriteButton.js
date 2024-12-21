@@ -45,7 +45,7 @@ const FavoriteButton = (params) => {
   useEffect(() => {
     const initializeData = async () => {
       const storedData = await AsyncStorage.getItem("favoriteArray");
-      setFavoriteDataArray(storedData);
+      setFavoriteDataArray(storedData ? storedData : []);
     };
     initializeData();
   }, []);
