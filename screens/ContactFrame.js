@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   Linking,
   ScrollView,
+  Alert,
 } from "react-native";
+import { IconButton } from "react-native-paper";
 import { FontSize, Color } from "../GlobalStyles";
 import HeaderScreen from "../components/HeaderScreen";
 
@@ -27,46 +29,80 @@ const ContactScreen = () => {
     console.log(`${menu} tapped!`);
     // Add navigation or functionality here
   };
+  const handleContact = () => {
+    Alert.alert(
+      "外部リンクの確認", // アラートのタイトル
+      `このリンクをタップすると、外部サイト（Googleフォーム）が開きます。\n続行しますか？`, // メッセージ
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "開く",
+          onPress: () => {
+            openGoogleForm();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
 
+  const MenuItem = ({ title, onPress, style }) => (
+    <TouchableOpacity style={style} onPress={onPress}>
+      <Text style={styles.menuText}>{title}</Text>
+      <IconButton
+        icon="chevron-right"
+        iconColor={Color.colorDarkGray}
+        selected="true"
+        size={20}
+        style={[styles.buttonLayout]}
+      />
+    </TouchableOpacity>
+  );
   return (
     <>
       <HeaderScreen headerText="設定" />
       <ScrollView style={styles.container}>
-        {/* Support Section */}
         <Text style={styles.sectionTitle}>サポート</Text>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handlePress("お問い合わせ")}
-        >
-          <Text style={styles.menuText}>お問い合わせ</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handlePress("よくある質問")}
-        >
-          <Text style={styles.menuText}>よくある質問</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handlePress("利用規約")}
-        >
-          <Text style={styles.menuText}>利用規約</Text>
-        </TouchableOpacity>
+        <View style={[styles.menuContainer]}>
+          <MenuItem
+            title="お知らせ"
+            onPress={() => handlePress("お知らせ")}
+            style={[styles.menuItem, { borderTopWidth: 0 }]}
+          />
+          <MenuItem
+            title="改修リクエスト"
+            onPress={() => handlePress("改修リクエスト")}
+            style={styles.menuItem}
+          />
+          <MenuItem
+            title="お問い合わせ"
+            onPress={() => handleContact("お問い合わせ")}
+            style={styles.menuItem}
+          />
+          <MenuItem
+            title="利用規約"
+            onPress={() => handlePress("利用規約")}
+            style={styles.menuItem}
+          />
+        </View>
 
-        {/* About App Section */}
         <Text style={styles.sectionTitle}>アプリについて</Text>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handlePress("バージョン情報")}
-        >
-          <Text style={styles.menuText}>バージョン情報</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => handlePress("プライバシーポリシー")}
-        >
-          <Text style={styles.menuText}>プライバシーポリシー</Text>
-        </TouchableOpacity>
+        <View style={[styles.menuContainer]}>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderTopWidth: 0 }]}
+            onPress={() => handlePress("バージョン情報")}
+          >
+            <Text style={styles.menuText}>バージョン</Text>
+          </TouchableOpacity>
+          <MenuItem
+            title="プライバシーポリシー"
+            onPress={() => handlePress("プライバシーポリシー")}
+            style={styles.menuItem}
+          />
+        </View>
       </ScrollView>
 
       {/* <ScrollView style={styles.scrollView}>
@@ -103,20 +139,31 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7f7f7",
     padding: 16,
   },
+  buttonLayout: {
+    margin: 0,
+    height: 15,
+  },
   sectionTitle: {
     fontSize: FontSize.bodySub,
     fontWeight: "300",
     color: Color.labelColorLightPrimary,
     marginVertical: 16,
   },
-  menuItem: {
+  menuContainer: {
     backgroundColor: Color.labelColorDarkPrimary,
-    padding: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    borderRadius: 8,
+  },
+  menuItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: Color.colorGray,
   },
   menuText: {
     fontSize: FontSize.bodySub,

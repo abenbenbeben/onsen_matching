@@ -87,6 +87,8 @@ const HOME = ({ navigation, route }) => {
       if (JSON.stringify(parsedData) !== JSON.stringify(favoriteDataArray)) {
         setFavoriteDataArray(parsedData);
       }
+    } else {
+      setFavoriteDataArray([]);
     }
   };
 
