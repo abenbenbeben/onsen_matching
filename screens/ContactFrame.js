@@ -1,4 +1,5 @@
 import React from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -11,8 +12,41 @@ import {
 import { IconButton } from "react-native-paper";
 import { FontSize, Color } from "../GlobalStyles";
 import HeaderScreen from "../components/HeaderScreen";
+import {
+  collection,
+  addDoc,
+  getFirestore,
+  getDocs,
+  getDoc,
+  doc,
+  serverTimestamp,
+  query,
+  updateDoc,
+} from "firebase/firestore";
+import { app } from "../firebaseconfig";
+import { DataContext } from "../DataContext";
+import { useNavigation } from "@react-navigation/native";
+
+const db = getFirestore(app);
 
 const ContactScreen = () => {
+  const navigation = useNavigation();
+  const [globalMatchData, setGlobalMatchData] = useState(null);
+  const { globalSharedData } = useContext(DataContext);
+
+  const fetchSettingData = async () => {
+    let globalData = {};
+    globalSharedData.forEach((doc) => {
+      const docData = doc.data();
+      globalData.kiyakudata = docData.kiyaku;
+      globalData.notice = docData.notice;
+      globalData.android_version = docData.android_version;
+      globalData.ios_version = docData.ios_version;
+    });
+    setGlobalMatchData(globalData);
+    console.log(globalData);
+  };
+
   const openGoogleForm = () => {
     const url =
       "https://docs.google.com/forms/d/e/1FAIpQLSfi_PeZwHhEKXyDWbEXwcAd4qCAHgBCAsR2YtqzG5j9dY5ugw/viewform?usp=sf_link"; // GoogleフォームのURLに置き換えてください
@@ -49,6 +83,10 @@ const ContactScreen = () => {
     );
   };
 
+  const handleNotice = () => {
+    navigation.navigate("InformationFrame", {});
+  };
+
   const MenuItem = ({ title, onPress, style }) => (
     <TouchableOpacity style={style} onPress={onPress}>
       <Text style={styles.menuText}>{title}</Text>
@@ -69,7 +107,7 @@ const ContactScreen = () => {
         <View style={[styles.menuContainer]}>
           <MenuItem
             title="お知らせ"
-            onPress={() => handlePress("お知らせ")}
+            onPress={() => handleNotice()}
             style={[styles.menuItem, { borderTopWidth: 0 }]}
           />
           <MenuItem

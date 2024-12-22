@@ -11,7 +11,7 @@ import ModalFrame from "./screens/ModalFrame";
 import ContactScreen from "./screens/ContactFrame";
 import Editdetail_Frame from "./screens/Editdetail_Frame.js";
 import Reportdetail_Frame from "./screens/Reportdetail_Frame.js";
-
+import InfomationFrame from "./screens/InfomationFrame.js";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   View,
@@ -81,6 +81,11 @@ const App = () => {
               name="Onsen_detail_Frame"
               component={onsen_detail_Frame}
               // options={{ headerBackVisible: false }}
+            />
+            <Stack.Screen
+              name="InformationFrame"
+              component={InfomationFrame}
+              options={{ headerTitle: "お知らせ" }}
             />
             <Stack.Screen
               name="Editdetail_Frame"

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   View,
@@ -33,7 +33,7 @@ import {
 } from "firebase/firestore";
 import { app } from "../firebaseconfig";
 import Constants from "expo-constants";
-import { UIManager } from "react-native";
+import { DataContext } from "../DataContext";
 
 const db = getFirestore(app);
 
@@ -44,6 +44,7 @@ const FirstFrame = () => {
   // let kiyaku_sentence = "";//利用規約文章
   const [sentence, set_sentence] = useState(""); //利用規約文章
   const [appState, setAppState] = useState(AppState.currentState);
+  const { globalSharedData, setGlobalSharedData } = useContext(DataContext);
 
   const handleAgreeTerms = async () => {
     setHasAgreed(true);
@@ -91,6 +92,7 @@ const FirstFrame = () => {
     const querySnapshot_global = await getDocs(
       collection(db, "global_match_data")
     );
+    setGlobalSharedData(querySnapshot_global);
     querySnapshot_global.forEach((doc) => {
       data.kiyakudata = doc.data().kiyaku;
       data.pre_title = doc.data().pre_title;
