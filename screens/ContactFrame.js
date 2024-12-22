@@ -26,6 +26,8 @@ import {
 import { app } from "../firebaseconfig";
 import { DataContext } from "../DataContext";
 import { useNavigation } from "@react-navigation/native";
+import Modal from "react-native-modal";
+import ModalHeaderScreen from "../components/ModalHeaderScreen";
 
 const db = getFirestore(app);
 
@@ -33,6 +35,7 @@ const ContactScreen = () => {
   const navigation = useNavigation();
   const [globalMatchData, setGlobalMatchData] = useState(null);
   const { globalSharedData } = useContext(DataContext);
+  const [isKiyakuModal, setIsKiyakuModal] = useState(false);
 
   const fetchSettingData = async () => {
     let globalData = {};
@@ -44,7 +47,6 @@ const ContactScreen = () => {
       globalData.ios_version = docData.ios_version;
     });
     setGlobalMatchData(globalData);
-    console.log(globalData);
   };
 
   const openGoogleForm = () => {
@@ -84,8 +86,17 @@ const ContactScreen = () => {
   };
 
   const handleNotice = () => {
-    navigation.navigate("InformationFrame", {});
+    navigation.navigate("InformationFrame", {
+      notice: globalMatchData.notice,
+    });
   };
+
+  useEffect(() => {
+    const initializeData = async () => {
+      await fetchSettingData();
+    };
+    initializeData();
+  }, []);
 
   const MenuItem = ({ title, onPress, style }) => (
     <TouchableOpacity style={style} onPress={onPress}>
@@ -120,28 +131,41 @@ const ContactScreen = () => {
             onPress={() => handleContact("お問い合わせ")}
             style={styles.menuItem}
           />
-          <MenuItem
-            title="利用規約"
-            onPress={() => handlePress("利用規約")}
-            style={styles.menuItem}
-          />
         </View>
 
         <Text style={styles.sectionTitle}>アプリについて</Text>
         <View style={[styles.menuContainer]}>
-          <TouchableOpacity
-            style={[styles.menuItem, { borderTopWidth: 0 }]}
-            onPress={() => handlePress("バージョン情報")}
-          >
-            <Text style={styles.menuText}>バージョン</Text>
-          </TouchableOpacity>
           <MenuItem
-            title="プライバシーポリシー"
-            onPress={() => handlePress("プライバシーポリシー")}
-            style={styles.menuItem}
+            title="利用規約"
+            onPress={() => setIsKiyakuModal(true)}
+            style={[styles.menuItem, { borderTopWidth: 0 }]}
           />
+          <View style={[styles.menuItem]}>
+            <Text style={styles.menuText}>バージョン</Text>
+          </View>
         </View>
       </ScrollView>
+
+      <Modal
+        isVisible={isKiyakuModal}
+        onBackdropPress={() => setIsKiyakuModal(false)}
+        style={styles.modalStyle}
+      >
+        <View style={styles.modalContent}>
+          {/* ヘッダー */}
+          <ModalHeaderScreen
+            headerText="利用規約"
+            setIsConditionSetting={setIsKiyakuModal}
+          />
+          <ScrollView>
+            {globalMatchData?.kiyakudata && (
+              <Text style={styles.kiyakuText}>
+                {globalMatchData.kiyakudata}
+              </Text>
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
 
       {/* <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
@@ -204,6 +228,24 @@ const styles = StyleSheet.create({
     borderColor: Color.colorGray,
   },
   menuText: {
+    fontSize: FontSize.bodySub,
+  },
+
+  // モーダル
+  modalStyle: {
+    margin: 0, // モーダルを画面全体にする
+    justifyContent: "flex-start", // モーダルを上部から開始
+  },
+  modalContent: {
+    flex: 1,
+    backgroundColor: Color.colorWhitesmoke_100,
+    borderRadius: 10,
+  },
+
+  kiyakuText: {
+    marginTop: 40,
+    marginBottom: 100,
+    marginHorizontal: 20,
     fontSize: FontSize.bodySub,
   },
 

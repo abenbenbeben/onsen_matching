@@ -4,28 +4,36 @@ import { useNavigation } from "@react-navigation/native";
 import { Color, FontSize } from "../GlobalStyles";
 import HeaderScreen from "../components/HeaderScreen";
 
-const notices = [
-  {
-    icon: "♨️",
-    noticeId: 1,
-    sentence:
-      "ようこそスーパー銭湯マッチングへ！ここでは皆さんへのお知らせを流していきます。新機能などなどぜひチェックしてみてください！",
-    update: new Date("2024-12-21T10:00:00"),
-  },
-  {
-    icon: "🌟",
-    noticeId: 2,
-    sentence:
-      "新しい機能が追加されました！お気に入りの銭湯を登録してみましょう。",
-    update: new Date("2024-12-20T15:30:00"),
-  },
-];
+// const notices = [
+//   {
+//     icon: "♨️",
+//     noticeId: 1,
+//     sentence:
+//       "ようこそスーパー銭湯マッチングへ！ここでは皆さんへのお知らせを流していきます。新機能などなどぜひチェックしてみてください！",
+//     update: new Date("2024-12-21T10:00:00"),
+//   },
+//   {
+//     icon: "🌟",
+//     noticeId: 2,
+//     sentence:
+//       "新しい機能が追加されました！お気に入りの銭湯を登録してみましょう。",
+//     update: new Date("2024-12-20T15:30:00"),
+//   },
+// ];
 
-const InfomationFrame = () => {
+const InfomationFrame = ({ navigation, route }) => {
+  const notices = route.params.notice || [];
   // データをソート
   const sortedNotices = notices.sort(
     (a, b) => new Date(a.update) - new Date(b.update)
   );
+
+  // Firebase Timestamp を Date に変換
+  function firebaseTimestampToDate(timestamp) {
+    return new Date(
+      timestamp.seconds * 1000 + Math.floor(timestamp.nanoseconds / 1e6)
+    );
+  }
 
   function getRelativeTime(date) {
     const now = new Date();
@@ -46,15 +54,18 @@ const InfomationFrame = () => {
       <FlatList
         data={sortedNotices}
         keyExtractor={(item) => item.noticeId.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.listItem}>
-            <Text style={styles.icon}>{item.icon}</Text>
-            <View style={styles.textContainer}>
-              <Text style={styles.sentence}>{item.sentence}</Text>
-              <Text style={styles.update}>{getRelativeTime(item.update)}</Text>
+        renderItem={({ item }) => {
+          const updateDate = firebaseTimestampToDate(item.update);
+          return (
+            <View style={styles.listItem}>
+              <Text style={styles.icon}>{item.icon}</Text>
+              <View style={styles.textContainer}>
+                <Text style={styles.sentence}>{item.sentence}</Text>
+                <Text style={styles.update}>{getRelativeTime(updateDate)}</Text>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        }}
       />
     </View>
   );

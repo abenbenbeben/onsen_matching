@@ -5,7 +5,7 @@ import { Color, FontSize } from "../GlobalStyles";
 
 const HeaderScreen = ({
   headerText = "スーパー銭湯マッチング",
-  headerHeight = 90,
+  headerHeight = 100,
 }) => {
   return (
     <Animated.View style={[styles.wrapper, { height: headerHeight }]}>

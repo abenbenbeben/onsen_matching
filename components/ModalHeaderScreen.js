@@ -9,7 +9,7 @@ const ModalHeaderScreen = ({
   setIsConditionSetting,
   deleteTextLabel = "削除",
 }) => {
-  const headerHeight = 90;
+  const headerHeight = 100;
   const onPress_cancelButton = () => {
     setIsConditionSetting(false);
   };
