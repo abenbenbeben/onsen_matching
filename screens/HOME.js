@@ -24,6 +24,7 @@ import {
   Alert,
   PixelRatio,
   Animated,
+  Platform,
 } from "react-native";
 import CardWithMatchPercentage from "../components/CardWithMatchPercentage";
 import FilterOptions from "../components/FilterOption";
@@ -73,6 +74,22 @@ const HOME = ({ navigation, route }) => {
       const matchingDataArray = await fetchMatchingData(point2, match_array);
       setMatchingItems(matchingDataArray);
 
+      try {
+        // フラグが保存されているか確認
+        const hasExecuted = await AsyncStorage.getItem(
+          "hasUpdatedFavoriteData"
+        );
+        if (hasExecuted === null) {
+          // 初回実行時のみ関数を呼び出す
+          updateFavoriteData(matchingDataArray);
+
+          // フラグを保存
+          await AsyncStorage.setItem("hasUpdatedFavoriteData", "true");
+        }
+      } catch (error) {
+        console.error("Error checking or setting execution flag:", error);
+      }
+
       setLoading(false); // データ読み込みが完了したらローディング状態を解除
     } catch (e) {
       console.error("Error fetching data: ", e);
@@ -111,8 +128,18 @@ const HOME = ({ navigation, route }) => {
 
   // ヘッダーの高さを設定するアニメーション値
   const headerHeight = scrollY.interpolate({
-    inputRange: [0, 50], // スクロールの範囲
-    outputRange: [80, 35], // 高さの範囲
+    inputRange: [0, Platform.OS === "android" ? 30 : 60], // スクロールの範囲
+    outputRange: [
+      Platform.OS === "android" ? 60 : 115,
+      Platform.OS === "android" ? 30 : 55,
+    ], // 高さの範囲
+    extrapolate: "clamp",
+  });
+
+  // ヘッダーのテキストの透明度を設定するアニメーション値
+  const headerTextOpacity = scrollY.interpolate({
+    inputRange: [0, 60], // スクロールの範囲
+    outputRange: [1, 0], // 透明度の範囲
     extrapolate: "clamp",
   });
 
@@ -198,9 +225,60 @@ const HOME = ({ navigation, route }) => {
   //   }
   // }
 
+  const updateFavoriteData = async (matchingDataArray) => {
+    const currentFavoritesString = await AsyncStorage.getItem("favoriteArray");
+    const beforeFavoritesString = await AsyncStorage.getItem(
+      "favoriteArrayBefore"
+    );
+    const favoriteArrayData = await AsyncStorage.getItem("favoriteArrayData");
+    console.log(currentFavoritesString);
+    console.log(beforeFavoritesString);
+    console.log(favoriteArrayData);
+    // const querySnapshot = await getDocs(
+    //   collection(db, GlobalData.firebaseOnsenDataBeforeUpdate)
+    // );
+    // const matchingDataArrayBeforeUpdate = await Promise.all(
+    //   querySnapshot.docs.map(async (doc) => {
+    //     let data = doc.data();
+    //     data.id = doc.id;
+    //     data.onsenName = data.onsen_name;
+    //     data.heijitunedan = data.heijitunedan;
+    //     data.kyujitunedan = data.kyuzitunedan;
+    //     return data;
+    //   })
+    // );
+    if (
+      favoriteArrayData &&
+      beforeFavoritesString &&
+      favoriteArrayData.length > 0
+    ) {
+      const updateFavoriteArrayData = favoriteArrayData.map((item) => {
+        return matchingDataArray.find(
+          (feature) => feature.onsenName === item.onsenName
+        );
+      });
+      await AsyncStorage.setItem(
+        "favoriteArrayData",
+        JSON.stringify(updateFavoriteArrayData)
+      );
+      const updateFavoriteArrayBefore = updateFavoriteArrayData.map((item) => {
+        return item.id;
+      });
+      await AsyncStorage.setItem(
+        "favoriteArrayBefore",
+        updateFavoriteArrayBefore
+      );
+      await AsyncStorage.setItem(
+        "favoriteArray",
+        JSON.stringify(updateFavoriteArrayBefore)
+      );
+    }
+  };
+
   useEffect(() => {
     fetch_matchingdata();
     //additems();
+    // updateFavoriteData();
   }, []);
 
   // useEffect(() => {
@@ -400,7 +478,11 @@ const HOME = ({ navigation, route }) => {
 
   return (
     <View style={styles.home}>
-      <HeaderScreen headerText="マッチング結果" headerHeight={headerHeight} />
+      <HeaderScreen
+        headerText="マッチング結果"
+        headerHeight={headerHeight}
+        headerTextOpacity={headerTextOpacity}
+      />
       <HomeSubHeader
         matchCount={matchingItemsLength}
         match_array_with_id={match_array_with_id}

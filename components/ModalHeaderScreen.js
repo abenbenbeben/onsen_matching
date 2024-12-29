@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, Animated, Text, Pressable } from "react-native";
+import { StyleSheet, Animated, Text, Pressable, Platform } from "react-native";
 import { Color, FontSize } from "../GlobalStyles";
 import { IconButton } from "react-native-paper";
 
@@ -9,7 +9,7 @@ const ModalHeaderScreen = ({
   setIsConditionSetting,
   deleteTextLabel = "削除",
 }) => {
-  const headerHeight = 100;
+  const headerHeight = Platform.OS === "android" ? 60 : 100;
   const onPress_cancelButton = () => {
     setIsConditionSetting(false);
   };

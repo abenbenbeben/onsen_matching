@@ -1,15 +1,20 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { StyleSheet, Animated, Text } from "react-native";
+import { StyleSheet, Animated, Text, Platform } from "react-native";
 import { Color, FontSize } from "../GlobalStyles";
 
 const HeaderScreen = ({
   headerText = "スーパー銭湯マッチング",
-  headerHeight = 100,
+  headerHeight = Platform.OS === "android" ? 60 : 100,
+  headerTextOpacity = 1,
 }) => {
   return (
     <Animated.View style={[styles.wrapper, { height: headerHeight }]}>
-      <Text style={[styles.headerText]}>{headerText}</Text>
+      <Animated.Text
+        style={[styles.headerText, { opacity: headerTextOpacity }]}
+      >
+        {headerText}
+      </Animated.Text>
     </Animated.View>
   );
 };

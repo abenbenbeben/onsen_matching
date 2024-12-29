@@ -8,6 +8,7 @@ import {
   Linking,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontSize, Color } from "../GlobalStyles";
@@ -49,9 +50,8 @@ const ContactScreen = () => {
     setGlobalMatchData(globalData);
   };
 
-  const openGoogleForm = () => {
-    const url =
-      "https://docs.google.com/forms/d/e/1FAIpQLSfi_PeZwHhEKXyDWbEXwcAd4qCAHgBCAsR2YtqzG5j9dY5ugw/viewform?usp=sf_link"; // GoogleフォームのURLに置き換えてください
+  const openGoogleForm = (url) => {
+    // GoogleフォームのURLに置き換えてください
     Linking.canOpenURL(url).then((supported) => {
       if (supported) {
         Linking.openURL(url);
@@ -65,7 +65,10 @@ const ContactScreen = () => {
     console.log(`${menu} tapped!`);
     // Add navigation or functionality here
   };
+  // https://docs.google.com/forms/d/e/1FAIpQLSf9BUqSRdjoZZtkQVHx0aNDc8VmritfaW9ZgZBJCZIGN39Zag/viewform?usp=dialog
   const handleContact = () => {
+    const url =
+      "https://docs.google.com/forms/d/e/1FAIpQLSfi_PeZwHhEKXyDWbEXwcAd4qCAHgBCAsR2YtqzG5j9dY5ugw/viewform?usp=sf_link";
     Alert.alert(
       "外部リンクの確認", // アラートのタイトル
       `このリンクをタップすると、外部サイト（Googleフォーム）が開きます。\n続行しますか？`, // メッセージ
@@ -77,7 +80,29 @@ const ContactScreen = () => {
         {
           text: "開く",
           onPress: () => {
-            openGoogleForm();
+            openGoogleForm(url);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const handleFeedBack = () => {
+    const url =
+      "https://docs.google.com/forms/d/e/1FAIpQLSf9BUqSRdjoZZtkQVHx0aNDc8VmritfaW9ZgZBJCZIGN39Zag/viewform?usp=dialog";
+    Alert.alert(
+      "外部リンクの確認", // アラートのタイトル
+      `このリンクをタップすると、外部サイト（Googleフォーム）が開きます。\n続行しますか？`, // メッセージ
+      [
+        {
+          text: "キャンセル",
+          style: "cancel",
+        },
+        {
+          text: "開く",
+          onPress: () => {
+            openGoogleForm(url);
           },
         },
       ],
@@ -90,6 +115,10 @@ const ContactScreen = () => {
       notice: globalMatchData.notice,
     });
   };
+  const latestVersion =
+    Platform.OS === "android"
+      ? globalMatchData?.android_version
+      : globalMatchData?.ios_version;
 
   useEffect(() => {
     const initializeData = async () => {
@@ -122,8 +151,8 @@ const ContactScreen = () => {
             style={[styles.menuItem, { borderTopWidth: 0 }]}
           />
           <MenuItem
-            title="改修リクエスト"
-            onPress={() => handlePress("改修リクエスト")}
+            title="フィードバック"
+            onPress={() => handleFeedBack()}
             style={styles.menuItem}
           />
           <MenuItem
@@ -142,6 +171,9 @@ const ContactScreen = () => {
           />
           <View style={[styles.menuItem]}>
             <Text style={styles.menuText}>バージョン</Text>
+            <Text style={[styles.menuText, { opacity: 0.5 }]}>
+              {latestVersion}
+            </Text>
           </View>
         </View>
       </ScrollView>

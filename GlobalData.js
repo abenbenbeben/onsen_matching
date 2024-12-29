@@ -2,6 +2,7 @@
 export const GlobalData = {
   dayOfWeekName: ["日", "月", "火", "水", "木", "金", "土"],
   firebaseOnsenData: "onsen_data_v2",
+  firebaseOnsenDataBeforeUpdate: "onsen_data",
   tagNameList: {
     doro: "泥パック",
     ekitika_zikan: "駅近",
