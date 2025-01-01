@@ -47,6 +47,7 @@ const FavoriteFrame = () => {
   const fetchFavoriteData = async () => {
     const currentFavoritesString = await AsyncStorage.getItem("favoriteArray");
     setFavoriteDataArray(currentFavoritesString);
+
     const beforeFavoritesString = await AsyncStorage.getItem(
       "favoriteArrayBefore"
     );
@@ -168,7 +169,7 @@ const FavoriteFrame = () => {
   const renderCard = (item) => (
     <CardWithMatchPercentage
       onsenName={item.onsen_name}
-      matchPercentage={item.score}
+      // matchPercentage={item.score}
       viewTop={0}
       onFramePressablePress={() =>
         navigation.navigate("Onsen_detail_Frame", {

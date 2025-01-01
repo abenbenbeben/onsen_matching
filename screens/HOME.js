@@ -68,7 +68,7 @@ const HOME = ({ navigation, route }) => {
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       }
-      point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
+      // point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
 
       setLoadingMessage("マッチング中");
       const matchingDataArray = await fetchMatchingData(point2, match_array);
@@ -79,6 +79,8 @@ const HOME = ({ navigation, route }) => {
         const hasExecuted = await AsyncStorage.getItem(
           "hasUpdatedFavoriteData"
         );
+        console.log("hasExecuted: " & hasExecuted);
+
         if (hasExecuted === null) {
           // 初回実行時のみ関数を呼び出す
           updateFavoriteData(matchingDataArray);
@@ -147,11 +149,22 @@ const HOME = ({ navigation, route }) => {
     const currentScrollY = event.nativeEvent.contentOffset.y;
     const isScrollingDown = currentScrollY > previousScrollY.current;
 
-    // 下スクロール中に縮小、上スクロール時に高さを戻す
-    if (!isScrollingDown) {
-      scrollY.setValue(0); // 上スクロール時に元の高さに戻す
-    } else if (isScrollingDown) {
-      scrollY.setValue(currentScrollY); // 下スクロール時に縮小
+    // 値が負にならないように調整
+    const clampedScrollY = Math.max(0, currentScrollY);
+
+    // 前回のスクロール位置と比較してスクロール方向を判断
+    if (isScrollingDown) {
+      Animated.timing(scrollY, {
+        toValue: clampedScrollY,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(scrollY, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: false,
+      }).start();
     }
 
     // 前回のスクロール位置を更新
@@ -226,52 +239,75 @@ const HOME = ({ navigation, route }) => {
   // }
 
   const updateFavoriteData = async (matchingDataArray) => {
-    const currentFavoritesString = await AsyncStorage.getItem("favoriteArray");
-    const beforeFavoritesString = await AsyncStorage.getItem(
-      "favoriteArrayBefore"
-    );
-    const favoriteArrayData = await AsyncStorage.getItem("favoriteArrayData");
-    console.log(currentFavoritesString);
-    console.log(beforeFavoritesString);
-    console.log(favoriteArrayData);
-    // const querySnapshot = await getDocs(
-    //   collection(db, GlobalData.firebaseOnsenDataBeforeUpdate)
-    // );
-    // const matchingDataArrayBeforeUpdate = await Promise.all(
-    //   querySnapshot.docs.map(async (doc) => {
-    //     let data = doc.data();
-    //     data.id = doc.id;
-    //     data.onsenName = data.onsen_name;
-    //     data.heijitunedan = data.heijitunedan;
-    //     data.kyujitunedan = data.kyuzitunedan;
-    //     return data;
-    //   })
-    // );
-    if (
-      favoriteArrayData &&
-      beforeFavoritesString &&
-      favoriteArrayData.length > 0
-    ) {
-      const updateFavoriteArrayData = favoriteArrayData.map((item) => {
-        return matchingDataArray.find(
-          (feature) => feature.onsenName === item.onsenName
+    try {
+      // 非同期でデータを取得
+      const favoriteArrayDataString = await AsyncStorage.getItem(
+        "favoriteArrayData"
+      );
+
+      // JSON.parseの前に検証
+      if (!favoriteArrayDataString) {
+        console.warn("favoriteArrayDataStringがnullまたは空です。");
+        return;
+      }
+
+      // JSON.parseの結果を確認
+      let favoriteArrayData;
+      try {
+        favoriteArrayData = JSON.parse(favoriteArrayDataString);
+      } catch (error) {
+        console.error("JSON.parseでエラー:", error);
+        return;
+      }
+
+      // データ形式の確認
+      if (!Array.isArray(favoriteArrayData)) {
+        console.error(
+          "favoriteArrayDataが配列ではありません。",
+          favoriteArrayData
         );
+        return;
+      }
+
+      // 後続の処理
+      const updateFavoriteArrayData = favoriteArrayData.map((item) => {
+        if (!item || !item.onsenName) {
+          console.warn("無効なデータ:", item);
+          return null;
+        }
+
+        const matchingItem = matchingDataArray.find(
+          (feature) => feature.onsen_name === item.onsenName
+        );
+
+        return matchingItem || null; // nullの場合を考慮
       });
+
+      // フィルタリングして保存
+      const validFavoriteArrayData = updateFavoriteArrayData.filter(Boolean); // nullを除外
       await AsyncStorage.setItem(
         "favoriteArrayData",
-        JSON.stringify(updateFavoriteArrayData)
+        JSON.stringify(validFavoriteArrayData)
       );
-      const updateFavoriteArrayBefore = updateFavoriteArrayData.map((item) => {
-        return item.id;
-      });
+
+      console.log("favoriteArrayData: ", validFavoriteArrayData);
+
+      const updateFavoriteArrayBefore = validFavoriteArrayData
+        .filter((item) => item) // nullやundefinedを除外
+        .map((item) => item.id);
+
       await AsyncStorage.setItem(
         "favoriteArrayBefore",
-        updateFavoriteArrayBefore
+        JSON.stringify(updateFavoriteArrayBefore)
       );
       await AsyncStorage.setItem(
         "favoriteArray",
         JSON.stringify(updateFavoriteArrayBefore)
       );
+
+      console.log("更新されたfavoriteArrayDataを保存しました。");
+    } catch (e) {
+      console.error("エラーが発生しました:", e);
     }
   };
 
@@ -313,7 +349,7 @@ const HOME = ({ navigation, route }) => {
       }
       heijitunedan={item.heijitunedan}
       kyuzitunedan={item.kyujitunedan}
-      images={item.images}
+      images={item.image}
       isfavorite={favoriteDataArray.includes(item.id)}
       favoriteDataArray={favoriteDataArray}
       data={item}

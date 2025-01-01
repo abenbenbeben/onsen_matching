@@ -176,7 +176,7 @@ export const fetchMatchingData = async (
         item.score = Math.floor(average);
 
         if (item.distance <= 40 && item.score > 50) {
-          item.images = await fetchURL(item.images[0]);
+          item.image = await fetchURL(item.images[0]);
         }
       } else {
         item.scoreData = match_array_array.map((match_array_array_unit) => {
@@ -200,7 +200,7 @@ export const fetchMatchingData = async (
         const scores = item.scoreData.map((item) => item.score);
         const maxScore = Math.max(...scores);
         if (item.distance <= 40 && maxScore > 50) {
-          item.images = await fetchURL(item.images[0]);
+          item.image = await fetchURL(item.images[0]);
         }
       }
 

@@ -329,7 +329,7 @@ const MatchingContainer = ({ data, containerHeight, screen }) => {
         }
         heijitunedan={item.heijitunedan}
         kyuzitunedan={item.kyujitunedan}
-        images={item.images}
+        images={item.image}
         isfavorite={favoriteDataArray.includes(item.id)}
         favoriteDataArray={favoriteDataArray}
         data={item}

@@ -112,6 +112,22 @@ const FirstFrame = () => {
       } else {
         setShowTermsModal(true);
       }
+
+      // お気に入り画面のupgradeを起動させる
+      // try {
+      //   await AsyncStorage.removeItem("hasUpdatedFavoriteData");
+      //   let lastUpdatedTimestamp = await AsyncStorage.setItem(
+      //     "matchingResultDataArrayLastUpdatedTimestamp",
+      //     JSON.stringify(24)
+      //   );
+      //   await AsyncStorage.setItem(
+      //     "matchingDataLastUpdatedTimestamp",
+      //     JSON.stringify(14)
+      //   );
+      // } catch (e) {
+      //   console.log(e);
+      // }
+      // お気に入り画面のupgradeを起動させる
     }
     // resetAsyncStorage();
     checkAgreement();

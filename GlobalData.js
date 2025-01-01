@@ -18,6 +18,7 @@ export const GlobalData = {
     wifi: "wifi",
     asaeigyo: "朝から営業",
     heikinnedan: "料金が安い",
+    syukuhaku: "宿泊できる",
   },
   tagNameListPurpose: {
     totonoitai: "整いたい",

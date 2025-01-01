@@ -80,7 +80,7 @@ const App = () => {
             <Stack.Screen
               name="Onsen_detail_Frame"
               component={onsen_detail_Frame}
-              // options={{ headerBackVisible: false }}
+              options={{ headerTitle: "施設詳細" }}
             />
             <Stack.Screen
               name="InformationFrame"

@@ -290,14 +290,16 @@ const Onsen_detail_Frame = ({ navigation, route }) => {
     <View style={styles.view}>
       <ScrollView style={styles.parent}>
         <View>
-          <View style={[styles.view1, GlobalStyles.positionLeft]}>
-            <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
-          </View>
-          <View style={[styles.favoriteButtonContainer]}>
-            <FavoriteButton
-              id={data_id}
-              favoriteDataArray={favoriteDataArray}
-            />
+          <View style={[styles.headerContainer]}>
+            <View style={[styles.view1, GlobalStyles.positionLeft]}>
+              <Text style={styles.textTypo1}>{contents_data.onsen_name}</Text>
+            </View>
+            <View style={[styles.favoriteButtonContainer]}>
+              <FavoriteButton
+                id={data_id}
+                favoriteDataArray={favoriteDataArray}
+              />
+            </View>
           </View>
           <FlatList
             data={imageData}
@@ -429,11 +431,28 @@ const styles = StyleSheet.create({
     left: 7,
     marginVertical: 4,
   },
+  headerContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  view1: {
+    width: "70%",
+    // height: 32,
+    left: 8,
+    marginVertical: 8,
+  },
+  textTypo1: {
+    fontFamily: FontFamily.interMedium,
+    fontSize: 20 / PixelRatio.getFontScale(),
+    fontWeight: "600",
+    color: Color.labelColorLightPrimary,
+    flexWrap: "wrap",
+  },
   // お気に入りボタンのスタイル
   favoriteButtonContainer: {
-    position: "absolute",
-    top: 8,
-    right: 8,
+    marginVertical: 8,
+    marginHorizontal: 8,
   },
   // お気に入りボタンのスタイル終了
   // モーダル画像のスタイル
@@ -465,12 +484,7 @@ const styles = StyleSheet.create({
     color: "#696969",
   },
   //引用注意書きのスタイル終了
-  textTypo1: {
-    fontFamily: FontFamily.interMedium,
-    fontSize: 20 / PixelRatio.getFontScale(),
-    fontWeight: "600",
-    color: Color.labelColorLightPrimary,
-  },
+
   childLayout: {
     width: 144,
     height: 144,
@@ -478,14 +492,7 @@ const styles = StyleSheet.create({
     // position: "absolute",
     // left: 288,
   },
-  view1: {
-    height: 32,
-    top: 0,
-    left: 7,
-    marginTop: 8,
-    marginBottom: 2,
-    // marginLeft: 7,
-  },
+
   item: {
     left: 144,
   },
