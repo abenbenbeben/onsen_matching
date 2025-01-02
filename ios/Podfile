@@ -1,7 +1,14 @@
 use_modular_headers!
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
-require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
+
+# @react-native-community/cli-platform-ios のパスを確認
+cli_platform_ios_path = `node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`.strip rescue nil
+if cli_platform_ios_path && !cli_platform_ios_path.empty? && File.exist?(File.join(File.dirname(cli_platform_ios_path), "native_modules"))
+  require File.join(File.dirname(cli_platform_ios_path), "native_modules")
+else
+  Pod::UI.warn "Warning: The required native_modules file for @react-native-community/cli-platform-ios is missing."
+end
 
 require 'json'
 podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
@@ -9,19 +16,35 @@ podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties
 ENV['RCT_NEW_ARCH_ENABLED'] = podfile_properties['newArchEnabled'] == 'true' ? '1' : '0'
 ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = '1' if podfile_properties['EX_DEV_CLIENT_NETWORK_INSPECTOR'] == 'true'
 
-platform :ios, podfile_properties['ios.deploymentTarget'] || '13.0'
+platform :ios, min_ios_version_supported
 install! 'cocoapods',
   :deterministic_uuids => false
 
 prepare_react_native_project!
 
+
+
 # If Flipper is needed, set up its configuration properly
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+# Check if @react-native-community/cli-platform-ios/native_modules exists before requiring it
+cli_platform_ios_path = File.expand_path("../node_modules/@react-native-community/cli-platform-ios/native_modules", __dir__)
+if File.exist?(cli_platform_ios_path)
+  require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+else
+  Pod::UI.warn "Warning: @react-native-community/cli-platform-ios/native_modules is missing. Some native modules may not work correctly."
+end
+
+
 
 flipper_version = '0.125.0' # Update to the latest Flipper version if necessary
 
-flipper_config = use_flipper!({ 'Flipper' => flipper_version }) rescue FlipperConfiguration.disabled
+begin
+  flipper_config = use_flipper!({ 'Flipper' => flipper_version })
+rescue
+  flipper_config = { 'Flipper' => 'disabled' } # Flipperが無効な場合のデフォルト設定
+end
+
 
 if ENV['NO_FLIPPER'] == '1'
   flipper_config = FlipperConfiguration.disabled
@@ -32,6 +55,11 @@ end
 target 'onsenmaching' do
   use_expo_modules!
   use_frameworks! :linkage => :static
+
+  # Firebase Pods
+  pod 'Firebase/Core'
+  pod 'Firebase/Auth' # 必要に応じて他のFirebaseモジュールも追加
+  pod 'Firebase/Storage' # バージョン指定を削除
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
@@ -56,9 +84,9 @@ target 'onsenmaching' do
     :path => config[:reactNativePath],
     :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
     :fabric_enabled => flags[:fabric_enabled],
-    :app_path => "#{Pod::Config.instance.installation_root}/..",
-    :flipper_configuration => flipper_config
-  )
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+)
+
 
   post_install do |installer|
     react_native_post_install(
@@ -66,7 +94,6 @@ target 'onsenmaching' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # Xcode 14 resource bundle signing workaround
     installer.target_installation_results.pod_target_installation_results.each do |pod_name, target_installation_result|
