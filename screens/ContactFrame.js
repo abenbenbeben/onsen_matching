@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { IconButton } from "react-native-paper";
+import Constants from "expo-constants";
 import { FontSize, Color } from "../GlobalStyles";
 import HeaderScreen from "../components/HeaderScreen";
 import {
@@ -115,10 +116,7 @@ const ContactScreen = () => {
       notice: globalMatchData.notice,
     });
   };
-  const latestVersion =
-    Platform.OS === "android"
-      ? globalMatchData?.android_version
-      : globalMatchData?.ios_version;
+  const latestVersion = Constants.expoConfig?.version;
 
   useEffect(() => {
     const initializeData = async () => {

@@ -75,7 +75,7 @@ const FirstFrame = () => {
         : "https://apps.apple.com/jp/app/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E9%8A%AD%E6%B9%AF%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0/id6471331298";
 
     console.log(currentVersion, latestVersion);
-    if (currentVersion !== latestVersion) {
+    if (currentVersion && latestVersion && currentVersion !== latestVersion) {
       Alert.alert(
         "新しいバージョンが利用可能です",
         "最新の機能を利用するには、ストアからアップデートしてください。",
@@ -143,7 +143,9 @@ const FirstFrame = () => {
       if (appState.match(/inactive|background/) && nextAppState === "active") {
         console.log("アプリがフォアグラウンドに戻りました！");
         // ここに実行したい関数を呼び出す
-        checkVersionAndUpdateIfNeeded();
+        if (sentence.ios_version && sentence.android_version) {
+          checkVersionAndUpdateIfNeeded();
+        }
       }
       setAppState(nextAppState);
     });
