@@ -2,7 +2,7 @@
   "expo": {
     "name": "スーパー銭湯マッチング",
     "slug": "onsen_maching",
-    "version": "8.0.0",
+    "version": "8.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,7 +22,7 @@
       },
       "bundleIdentifier": "com.abebebe.onsen-matching",
       "icon": "./assets/icon.png",
-      "buildNumber": "8.0.0",
+      "buildNumber": "8.0.1",
       "name": "スーパー銭湯マッチング"
     },
     "android": {
