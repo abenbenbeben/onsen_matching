@@ -64,10 +64,7 @@ const FirstFrame = () => {
   };
 
   const checkVersionAndUpdateIfNeeded = async () => {
-    const currentVersion =
-      Platform.OS === "android"
-        ? Constants.expoConfig.android.versionCode
-        : Constants.expoConfig.ios.buildNumber;
+    const currentVersion = Constants.expoConfig?.version;
     const latestVersion =
       Platform.OS === "android"
         ? sentence.android_version
@@ -77,6 +74,7 @@ const FirstFrame = () => {
         ? "https://play.google.com/store/apps/details?id=com.abebebe.onsen_maching"
         : "https://apps.apple.com/jp/app/%E3%82%B9%E3%83%BC%E3%83%91%E3%83%BC%E9%8A%AD%E6%B9%AF%E3%83%9E%E3%83%83%E3%83%81%E3%83%B3%E3%82%B0/id6471331298";
 
+    console.log(currentVersion, latestVersion);
     if (currentVersion !== latestVersion) {
       Alert.alert(
         "新しいバージョンが利用可能です",
