@@ -124,7 +124,7 @@ const HomeSubHeader = ({
   }, []); // match_array_with_id を依存配列に追加
 
   return (
-    <View style={[styles.wrapper]}>
+    <>
       <Modal
         isVisible={isSortModalVisible}
         onBackdropPress={controlSortModalVisible}
@@ -299,60 +299,98 @@ const HomeSubHeader = ({
         </View>
       </Modal>
 
-      <View style={[styles.matchText, GlobalStyles.positionCenter]}>
-        <Text style={[styles.defaultText]}>マッチ数：{matchCount}</Text>
-      </View>
-      {sortTextFlag && (
-        <View style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}>
-          <TouchableOpacity
-            onPress={controlSortModalVisible} // ここに実行したい関数を設定
-            style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}
-          >
-            <IconButton
-              icon="menu-swap"
-              iconColor={Color.labelColorDarkPrimary}
-              selected="true"
-              size={26}
-              style={[
-                { marginLeft: -6, marginRight: -10, marginVertical: -10 },
-              ]}
-            />
-            {options
-              .filter((option) => option.data === filter)
-
-              .map((option, index) => (
-                <Text
-                  key={option.data}
-                  style={[styles.defaultText, styles.sortText]}
-                >
-                  {option.text}
-                </Text>
-              ))}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={controlSaveConditionModal}
-            disabled={isExistConditionData} // クリックを無効化する条件
+      <View style={[styles.wrapper]}>
+        {sortTextFlag && (
+          <View
             style={[
               styles.flexDirectionRow,
               GlobalStyles.positionCenter,
-              styles.conditionSaveWrapper,
-              isExistConditionData && { opacity: 0.5 }, // 無効時のスタイル
+              { width: "100%", justifyContent: "flex-end" },
             ]}
           >
-            <IconButton
-              icon="plus-circle-outline"
-              iconColor={Color.labelColorDarkPrimary}
-              selected="true"
-              size={20}
-              style={[{ marginLeft: -6, marginRight: -6, marginVertical: -10 }]}
-            />
-            <Text style={[styles.defaultText, styles.conditionSave]}>
-              条件保存
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {}}
+              disabled={false} // クリックを無効化する条件
+              style={[
+                styles.flexDirectionRow,
+                GlobalStyles.positionCenter,
+                styles.conditionSaveWrapper,
+              ]}
+            >
+              <IconButton
+                icon="plus-circle-outline"
+                iconColor={Color.labelColorDarkPrimary}
+                selected="true"
+                size={20}
+                style={[
+                  { marginLeft: -6, marginRight: -6, marginVertical: -10 },
+                ]}
+              />
+              <Text style={[styles.defaultText, styles.conditionSave]}>
+                基準：100%
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={controlSaveConditionModal}
+              disabled={isExistConditionData} // クリックを無効化する条件
+              style={[
+                styles.flexDirectionRow,
+                GlobalStyles.positionCenter,
+                styles.conditionSaveWrapper,
+                isExistConditionData && { opacity: 0.5 }, // 無効時のスタイル
+              ]}
+            >
+              <IconButton
+                icon="plus-circle-outline"
+                iconColor={Color.labelColorDarkPrimary}
+                selected="true"
+                size={20}
+                style={[
+                  { marginLeft: -6, marginRight: -6, marginVertical: -10 },
+                ]}
+              />
+              <Text style={[styles.defaultText, styles.conditionSave]}>
+                条件保存
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+      <View style={[styles.wrapper]}>
+        <View style={[styles.matchText, GlobalStyles.positionCenter]}>
+          <Text style={[styles.defaultText]}>マッチ数：{matchCount}</Text>
         </View>
-      )}
-    </View>
+        {sortTextFlag && (
+          <View style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}>
+            <TouchableOpacity
+              onPress={controlSortModalVisible} // ここに実行したい関数を設定
+              style={[styles.flexDirectionRow, GlobalStyles.positionCenter]}
+            >
+              <IconButton
+                icon="menu-swap"
+                iconColor={Color.labelColorDarkPrimary}
+                selected="true"
+                size={26}
+                style={[
+                  { marginLeft: -6, marginRight: -10, marginVertical: -10 },
+                ]}
+              />
+              {options
+                .filter((option) => option.data === filter)
+
+                .map((option, index) => (
+                  <Text
+                    key={option.data}
+                    style={[styles.defaultText, styles.sortText]}
+                  >
+                    {option.text}
+                  </Text>
+                ))}
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </>
   );
 };
 

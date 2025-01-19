@@ -2,7 +2,13 @@ import React from "react";
 import { Pressable, StyleSheet, View, Text, PixelRatio } from "react-native";
 import { IconButton } from "react-native-paper";
 import { Image } from "expo-image";
-import { FontSize, FontFamily, Color, Border } from "../GlobalStyles";
+import {
+  FontSize,
+  FontFamily,
+  Color,
+  Border,
+  GlobalStyles,
+} from "../GlobalStyles";
 import { GlobalData } from "../GlobalData";
 import FavoriteButton from "./FavoriteButton";
 
@@ -45,39 +51,12 @@ const CardWithMatchPercentage = ({
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image style={styles.image} contentFit="cover" source={images} />
           <View style={styles.textContainer}>
-            {matchPercentage && filter === 1 && (
+            {matchPercentage && (
               <View style={[styles.matchContainer, styles.flexDirectionRow]}>
                 <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
                 <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
               </View>
             )}
-            {matchPercentage && filter === 2 && (
-              <View style={[styles.flexDirectionRow]}>
-                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-                  <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
-                  <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
-                </View>
-                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-                  <Text style={[styles.matchTextRatio]}>{distance}</Text>
-                  <Text style={styles.matchText}>{`距離\nkm`}</Text>
-                </View>
-              </View>
-            )}
-            {matchPercentage && filter === 3 && (
-              <View style={[styles.flexDirectionRow]}>
-                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-                  <Text style={[styles.matchTextRatio]}>{distance}</Text>
-                  <Text style={styles.matchText}>{`距離\nkm`}</Text>
-                </View>
-                <View style={[styles.matchContainer, styles.flexDirectionRow]}>
-                  <Text style={[styles.matchTextRatio]}>{matchPercentage}</Text>
-                  <Text style={styles.matchText}>{`マッチ度\n%`}</Text>
-                </View>
-              </View>
-            )}
-            <Text style={styles.priceText}>
-              {`平日 ${heijitunedan}円 祝日 ${kyuzitunedan}円`}
-            </Text>
             <View style={styles.tagContainer}>
               {filteredTags.map((tagKey) => (
                 <View
@@ -91,10 +70,9 @@ const CardWithMatchPercentage = ({
                 >
                   <Text
                     style={[
-                      styles.tagText,
                       match_array.includes(tagKey)
-                        ? styles.matchTag
-                        : styles.grayTag,
+                        ? styles.matchTagText
+                        : styles.tagText,
                     ]}
                   >
                     {tagNameList[tagKey]}
@@ -102,6 +80,76 @@ const CardWithMatchPercentage = ({
                 </View>
               ))}
             </View>
+            <View style={styles.priceContainer}>
+              <View
+                style={[
+                  { flexDirection: "row", width: "50%", alignItems: "center" },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.priceText,
+                    {
+                      backgroundColor: Color.colorGray,
+                      marginRight: 8,
+                      padding: 3,
+                      borderRadius: 5,
+                    },
+                  ]}
+                >
+                  平日
+                </Text>
+                <Text style={styles.priceText}>{`${heijitunedan}円`}</Text>
+              </View>
+              <View
+                style={[
+                  { flexDirection: "row", width: "50%", alignItems: "center" },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.priceText,
+                    {
+                      backgroundColor: Color.colorGray,
+                      marginRight: 8,
+                      padding: 3,
+                      borderRadius: 5,
+                    },
+                  ]}
+                >
+                  土日祝
+                </Text>
+                <Text style={styles.priceText}>{`${kyuzitunedan}円`}</Text>
+              </View>
+            </View>
+            {distance && (
+              <View>
+                <View
+                  style={[
+                    {
+                      flexDirection: "row",
+                      width: "50%",
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.priceText,
+                      {
+                        backgroundColor: Color.colorGray,
+                        marginRight: 8,
+                        padding: 3,
+                        borderRadius: 5,
+                      },
+                    ]}
+                  >
+                    現在地からの距離
+                  </Text>
+                  <Text style={styles.priceText}>{`${distance} km`}</Text>
+                </View>
+              </View>
+            )}
           </View>
         </View>
       </Pressable>
@@ -170,8 +218,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 4,
     marginRight: 10,
-    borderWidth: 0.2,
-    borderColor: Color.colorMain, // 主色で縁取り
+    // borderWidth: 0.2,
+    // borderColor: Color.colorMain, // 主色で縁取り
   },
   matchTextRatio: {
     color: Color.colorMain,
@@ -183,9 +231,14 @@ const styles = StyleSheet.create({
     fontSize: FontSize.caption,
     marginLeft: 4,
   },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   priceText: {
-    color: Color.labelColorLightPrimary,
-    fontSize: FontSize.bodySub,
+    // color: Color.labelColorLightPrimaryMuted,
+    fontSize: FontSize.caption,
+    marginVertical: 4,
   },
   flexDirectionColumn: {
     flexDirection: "column",
@@ -206,13 +259,19 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   matchTag: {
-    backgroundColor: "#e0f7fa", // マッチした場合の色
+    backgroundColor: Color.colorMain, // マッチした場合の色
   },
   grayTag: {
-    backgroundColor: "#e0e0e0", // マッチしなかった場合の灰色
+    backgroundColor: Color.labelColorDarkPrimary, // マッチしなかった場合の灰色
+    borderWidth: 0.3,
+    borderColor: Color.colorMain,
   },
   tagText: {
-    color: "#00796b",
+    color: Color.colorMain,
+    fontSize: 12,
+  },
+  matchTagText: {
+    color: Color.labelColorDarkPrimary,
     fontSize: 12,
   },
 });

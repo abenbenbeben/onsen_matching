@@ -68,7 +68,7 @@ const HOME = ({ navigation, route }) => {
         //point2 = { latitude:35.87146725131986, longitude: 139.18089139695007 };//飯能
         //point2 = { latitude:36.01938773645486, longitude: 139.2840038132889 };//
       }
-      // point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
+      point2 = { latitude: 35.443018794602715, longitude: 139.3872117068581 }; //海老名
 
       setLoadingMessage("マッチング中");
       const matchingDataArray = await fetchMatchingData(point2, match_array);
@@ -589,28 +589,27 @@ const HOME = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   kmLayoutContainer: {
-    height: 32,
+    height: 24,
     width: 92,
-    left: 8,
     justifyContent: "center",
     alignItems: "flex-end",
   },
   kmLayout: {
-    color: Color.labelColorLightPrimary,
+    color: Color.labelColorLightPrimaryMuted,
     fontFamily: FontFamily.interMedium,
     fontWeight: "200",
     lineHeight: 26,
     letterSpacing: 1,
-    fontSize: FontSize.bodySub,
+    fontSize: FontSize.caption,
   },
   kmLayoutNumber: {
-    color: Color.labelColorLightPrimary,
+    color: Color.labelColorLightPrimaryMuted,
     fontFamily: FontFamily.interMedium,
     fontWeight: "500",
-    lineHeight: 32,
+    lineHeight: 24,
     letterSpacing: 0,
     marginHorizontal: 2,
-    fontSize: FontSize.subTitle,
+    fontSize: FontSize.body,
   },
   home: {
     backgroundColor: "#ececec",

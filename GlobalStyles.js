@@ -30,6 +30,7 @@ export const Color = {
   colorFavoriteButton: "#FFC800",
   labelColorDarkPrimary: "#fff",
   labelColorLightPrimary: "#000",
+  labelColorLightPrimaryMuted: "#00000080",
   colorWhitesmoke_100: "#f3f3f3",
   colorWhitesmoke_200: "rgba(238, 238, 238, 0.7)",
   colorBrightBlack: "#333",

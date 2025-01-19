@@ -91,7 +91,7 @@ const styles = (height, width) =>
     },
     item: {
       top: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.2)", // 黒いフィルター。0.3は透過度
+      backgroundColor: "rgba(0, 0, 0, 0.4)", // 黒いフィルター。0.3は透過度
       width: width,
       left: 0,
     },
