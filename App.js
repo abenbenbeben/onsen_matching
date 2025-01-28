@@ -12,6 +12,7 @@ import ContactScreen from "./screens/ContactFrame";
 import Editdetail_Frame from "./screens/Editdetail_Frame.js";
 import Reportdetail_Frame from "./screens/Reportdetail_Frame.js";
 import InfomationFrame from "./screens/InfomationFrame.js";
+import PermissionStateFrame from "./screens/PermissionStateFrame.js";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import {
   View,
@@ -62,9 +63,20 @@ const App = () => {
               options={{
                 headerShown: false,
                 href: null,
-                tabBarIcon: ({ color }) => (
-                  <MaterialCommunityIcons name="home" color={color} size={26} />
-                ),
+                // tabBarIcon: ({ color }) => (
+                //   <MaterialCommunityIcons name="home" color={color} size={26} />
+                // ),
+              }}
+            />
+            <Stack.Screen
+              name="PermissionStateFrame"
+              component={PermissionStateFrame}
+              options={{
+                headerShown: false,
+                href: null,
+                // tabBarIcon: ({ color }) => (
+                //   <MaterialCommunityIcons name="home" color={color} size={26} />
+                // ),
               }}
             />
             <Stack.Screen

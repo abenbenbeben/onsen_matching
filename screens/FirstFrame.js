@@ -162,62 +162,60 @@ const FirstFrame = () => {
         style={styles.background} // 背景のスタイル
       >
         <View style={styles.overlay} />
-        <View style={styles.view}>
-          <Text style={[styles.text, styles.textPosition]}>{`スーパー銭湯
-を探しましょう`}</Text>
-          {sentence.pre_title && sentence.pre_content && (
-            <View style={styles.container}>
-              <View style={styles.box}>
-                <Text style={styles.title}>{sentence.pre_title}</Text>
-                <Text style={styles.content}>{sentence.pre_content}</Text>
-              </View>
-            </View>
-          )}
-          <Pressable
-            style={[styles.vectorParent, GlobalStyles.positionCenter]}
-            start_match="さっそく探す"
-            onPress={() =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Matching_Frame" }],
-              })
-            }
-          >
-            <View>
-              <Text style={[styles.text1]}>さっそく探す</Text>
-            </View>
-          </Pressable>
-          <StatusBar style={styles.childPosition} barStyle="default" />
-
-          {/* 利用規約の同意モーダル */}
-          <Modal
-            visible={showTermsModal}
-            animationType="slide"
-            transparent={true}
-          >
-            <View style={styles.modalContainer}>
-              <View style={styles.termsContainer}>
-                <Text style={[styles.termsTitle, GlobalStyles.positionCenter]}>
-                  利用規約
-                </Text>
-                <ScrollView>
-                  <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
-                </ScrollView>
-                <Pressable
-                  onPress={handleAgreeTerms}
-                  style={({ pressed }) => [
-                    styles.button,
-                    pressed ? styles.buttonPressed : null,
-                    !sentence.kiyakudata ? styles.buttonDisabled : null,
-                  ]}
-                  disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
-                >
-                  <Text style={styles.buttonText}>同意</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
+        <View style={styles.titleContainer}>
+          <Text style={[styles.textWelcome]}>{`ようこそ！`}</Text>
+          <Text style={[styles.text]}>{`スーパー銭湯マッチングで
+好みの施設を探そう`}</Text>
         </View>
+        {/* {sentence.pre_title && sentence.pre_content && (
+          <View style={styles.container}>
+            <View style={styles.box}>
+              <Text style={styles.title}>{sentence.pre_title}</Text>
+              <Text style={styles.content}>{sentence.pre_content}</Text>
+            </View>
+          </View>
+        )} */}
+        <Pressable
+          style={[styles.vectorParent, GlobalStyles.positionCenter]}
+          onPress={() =>
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "PermissionStateFrame" }],
+            })
+          }
+        >
+          <View>
+            <Text style={[styles.text1]}>次へ</Text>
+          </View>
+        </Pressable>
+        {/* 利用規約の同意モーダル */}
+        <Modal
+          visible={showTermsModal}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.termsContainer}>
+              <Text style={[styles.termsTitle, GlobalStyles.positionCenter]}>
+                利用規約
+              </Text>
+              <ScrollView>
+                <Text style={styles.termsText}>{sentence.kiyakudata}</Text>
+              </ScrollView>
+              <Pressable
+                onPress={handleAgreeTerms}
+                style={({ pressed }) => [
+                  styles.button,
+                  pressed ? styles.buttonPressed : null,
+                  !sentence.kiyakudata ? styles.buttonDisabled : null,
+                ]}
+                disabled={!sentence.kiyakudata} // kiyakudataが無い場合はボタンを無効化
+              >
+                <Text style={styles.buttonText}>同意</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </ImageBackground>
     </>
   );
@@ -273,6 +271,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     left: "50%",
     position: "absolute",
+
+    borderWidth: 1,
   },
   childPosition: {
     left: 0,
@@ -280,18 +280,32 @@ const styles = StyleSheet.create({
     position: "absolute",
     overflow: "hidden",
   },
-  text: {
-    marginLeft: -143.5,
-    top: 230,
+  titleContainer: {
+    top: "20%",
+    position: "absolute",
+    width: "100%",
+    justifyContent: "center",
+  },
+  textWelcome: {
     fontWeight: "500",
-    fontSize: FontSize.title,
+    fontSize: 40,
     color: Color.labelColorDarkPrimary,
-    lineHeight: 5,
-    width: 286,
-    height: 100,
-    textShadowColor: "rgba(0, 0, 0, 0.75)", // 影の色（黒に近いグレー）
-    textShadowOffset: { width: 2, height: 2 }, // 影の位置（横方向・縦方向のオフセット）
-    textShadowRadius: 20, // 影のぼかし半径
+    textAlign: "center",
+    marginVertical: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.9)", // 影の色（黒に近いグレー）
+    textShadowOffset: { width: 4, height: 4 }, // 影の位置（横方向・縦方向のオフセット）
+    textShadowRadius: 10, // 影のぼかし半
+  },
+  text: {
+    fontWeight: "500",
+    fontSize: FontSize.subTitle,
+    color: Color.labelColorDarkPrimary,
+    textAlign: "center",
+    marginVertical: 10,
+    lineHeight: 40,
+    textShadowColor: "rgba(0, 0, 0, 0.9)", // 影の色（黒に近いグレー）
+    textShadowOffset: { width: 4, height: 4 }, // 影の位置（横方向・縦方向のオフセット）
+    textShadowRadius: 5, // 影のぼかし半径
   },
   frameChild: {
     right: 0,
@@ -303,20 +317,16 @@ const styles = StyleSheet.create({
   text1: {
     fontSize: FontSize.title,
     fontWeight: "500",
-    // fontFamily: FontFamily.interMedium,
     color: Color.labelColorDarkPrimary,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    // position: "absolute",
   },
   vectorParent: {
-    marginLeft: -170.5,
     top: "80%",
     width: 342,
     height: 63,
-    left: "50%",
     position: "absolute",
     overflow: "hidden",
     backgroundColor: Color.colorAzureBlue,
@@ -326,9 +336,9 @@ const styles = StyleSheet.create({
   view: {
     // backgroundColor: Color.labelColorDarkPrimary,
     flex: 1,
-    width: "100%",
-    height: 800,
-    overflow: "hidden",
+    // width: "100%",
+    // height: 800,
+    // overflow: "hidden",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
